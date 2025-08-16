@@ -6,14 +6,12 @@ class FreeBlocks(size: Int) {
     private val sizes = ArrayList<Int>(size)
     private var position = -1
 
-    @Synchronized
     fun push(index: Int, size: Int) {
         ++position
         indices.add(position, index)
         sizes.add(position, size)
     }
 
-    @Synchronized
     fun pop(size: Int): Int {
         if (position < 0) return MEMORY_INDEX_NULL
         var freeSize = 0
