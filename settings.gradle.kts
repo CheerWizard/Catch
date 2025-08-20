@@ -10,6 +10,9 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
+    plugins {
+        kotlin("multiplatform") version "2.2.10"
+    }
 }
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
@@ -21,4 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Catch"
 include(":app")
-include(":nativeksp")
+include(":kmemory")

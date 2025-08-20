@@ -5,24 +5,24 @@ import timber.log.Timber
 
 class ShaderStage {
 
-    private var handle = HANDLE_NULL
+    private var handle = GL_NULL
     private val status = IntArray(1)
 
     fun init(type: Int) {
-        if (handle == HANDLE_NULL) {
+        if (handle == GL_NULL) {
             handle = glCreateShader(type)
         }
     }
 
     fun release() {
-        if (handle != HANDLE_NULL) {
-            handle = HANDLE_NULL
+        if (handle != GL_NULL) {
+            handle = GL_NULL
             glDeleteShader(handle)
         }
     }
 
     fun compile(source: String): Boolean {
-        if (handle == HANDLE_NULL) {
+        if (handle == GL_NULL) {
             Timber.e(IllegalArgumentException("Shader is not created!"))
             return false
         }

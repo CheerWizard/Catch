@@ -1,9 +1,10 @@
 package com.cws.acatch.game.data
 
 import com.cws.acatch.game.rendering.CircleData
-import com.cws.nativeksp.math.Color
-import com.cws.nativeksp.NativeData
-import com.cws.nativeksp.math.Vec2
+import com.cws.acatch.game.rendering.center
+import com.cws.kmemory.NativeData
+import com.cws.kmemory.math.Color
+import com.cws.kmemory.math.Vec2
 
 @NativeData(
     autoCreate = true,
@@ -47,5 +48,5 @@ fun generateBalls(size: Int, width: Float, height: Float): BallArray {
 }
 
 fun BallData.toCircleData(index: Int = CircleData.create().index) = CircleData(index).apply {
-    this.center = pos
+    center = pos
 }

@@ -1,6 +1,7 @@
 package com.cws.acatch.graphics
 
 import android.opengl.GLES30.GL_ARRAY_BUFFER
+import java.nio.ByteBuffer
 
 class VertexBuffer(size: Int) : GLBuffer(
     type = GL_ARRAY_BUFFER,
@@ -8,7 +9,7 @@ class VertexBuffer(size: Int) : GLBuffer(
     size = size
 ) {
 
-    private var bufferView = buffer.asFloatBuffer()
+    private var bufferView = (getBuffer() as ByteBuffer).asFloatBuffer()
 
     fun add(vertices: Vertices) {
         ensureCapacity(size = vertices.values.size)
@@ -24,7 +25,7 @@ class VertexBuffer(size: Int) : GLBuffer(
 
     override fun resize(newCapacity: Int) {
         super.resize(newCapacity)
-        bufferView = buffer.asFloatBuffer()
+        bufferView = (getBuffer() as ByteBuffer).asFloatBuffer()
     }
 
 }

@@ -17,11 +17,11 @@ import com.cws.acatch.game.data.ProjectileArray
 import com.cws.acatch.game.data.Score
 import com.cws.acatch.game.data.generateBalls
 import com.cws.acatch.game.data.toCircleData
+import com.cws.acatch.game.data.*
 import com.cws.acatch.game.rendering.CircleArray
-import com.cws.acatch.game.rendering.CircleData
 import com.cws.acatch.game.rendering.GameRenderer
-import com.cws.nativeksp.math.Color
-import com.cws.nativeksp.math.Vec2
+import com.cws.kmemory.math.Color
+import com.cws.kmemory.math.Vec2
 import timber.log.Timber
 import kotlin.collections.forEachIndexed
 import kotlin.math.abs

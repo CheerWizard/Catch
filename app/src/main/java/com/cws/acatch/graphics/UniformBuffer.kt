@@ -1,8 +1,8 @@
 package com.cws.acatch.graphics
 
 import android.opengl.GLES30.*
-import com.cws.nativeksp.NativeArray
-import com.cws.nativeksp.MemoryHeap
+import com.cws.kmemory.NativeArray
+import com.cws.kmemory.NativeHeap
 
 open class UniformBuffer<T>(
     private val binding: Int,
@@ -20,8 +20,8 @@ open class UniformBuffer<T>(
     }
 
     fun update(index: Int, heapIndex: Int) {
-        MemoryHeap.copy(
-            destBuffer = buffer,
+        NativeHeap.copy(
+            destBuffer = this,
             src = heapIndex,
             dest = index * elementSizeBytes,
             size = elementSizeBytes

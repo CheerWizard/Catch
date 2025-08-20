@@ -1,3 +1,3 @@
 package com.cws.acatch.graphics
 
-const val HANDLE_NULL = -1
+const val GL_NULL = -1

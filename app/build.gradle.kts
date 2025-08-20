@@ -74,10 +74,9 @@ android {
 }
 
 dependencies {
-    // Native KSP
-    implementation(kotlin("stdlib"))
-    ksp(project(":nativeksp"))
-    api(project(":nativeksp"))
+    // Kotlin Memory
+    ksp(project(":kmemory"))
+    api(project(":kmemory"))
 
     // Image Loading
     implementation(libs.coil.compose)

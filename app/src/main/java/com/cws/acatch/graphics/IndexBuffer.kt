@@ -1,6 +1,7 @@
 package com.cws.acatch.graphics
 
 import android.opengl.GLES30.*
+import java.nio.ByteBuffer
 
 class IndexBuffer(size: Int) : GLBuffer(
     type = GL_ELEMENT_ARRAY_BUFFER,
@@ -8,7 +9,7 @@ class IndexBuffer(size: Int) : GLBuffer(
     size = size
 ) {
 
-    private var bufferView = buffer.asIntBuffer()
+    private var bufferView = (getBuffer() as ByteBuffer).asIntBuffer()
 
     fun add(indices: IntArray) {
         ensureCapacity(size = indices.size)
@@ -24,7 +25,7 @@ class IndexBuffer(size: Int) : GLBuffer(
 
     override fun resize(newCapacity: Int) {
         super.resize(newCapacity)
-        bufferView = buffer.asIntBuffer()
+        bufferView = (getBuffer() as ByteBuffer).asIntBuffer()
     }
 
 }

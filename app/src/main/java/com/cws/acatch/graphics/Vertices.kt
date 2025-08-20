@@ -1,6 +1,6 @@
 package com.cws.acatch.graphics
 
-import com.cws.nativeksp.math.Vec2
+import com.cws.kmemory.math.Vec2
 
 @JvmInline
 value class Vertices(val values: FloatArray) {

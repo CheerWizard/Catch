@@ -1,6 +1,6 @@
 package com.cws.acatch.game.data
 
-import com.cws.nativeksp.math.Color
+import com.cws.kmemory.math.Color
 
 data class Score(
     var value: Int = 0,

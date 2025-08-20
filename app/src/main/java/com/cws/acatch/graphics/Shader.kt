@@ -8,7 +8,7 @@ class Shader(
     private val stages: MutableList<ShaderStage> = mutableListOf()
 ) {
 
-    private var handle = HANDLE_NULL
+    private var handle = GL_NULL
     private val linkStatus = IntArray(1)
 
     fun init(
@@ -17,7 +17,7 @@ class Shader(
     ) {
         val sources = paths.map { path ->
             val shaderType = path.toShaderType()
-            if (shaderType == HANDLE_NULL) return@map shaderType to ""
+            if (shaderType == GL_NULL) return@map shaderType to ""
             shaderType to context.assets.open(path).use {
                 it.readBytes().decodeToString()
             }
@@ -31,7 +31,7 @@ class Shader(
             contains("_frag") -> GL_FRAGMENT_SHADER
             else -> {
                 Timber.e("Unsupported shader type=$this")
-                HANDLE_NULL
+                GL_NULL
             }
         }
     }
@@ -62,8 +62,8 @@ class Shader(
     }
 
     fun release() {
-        if (handle == HANDLE_NULL) {
-            handle = HANDLE_NULL
+        if (handle == GL_NULL) {
+            handle = GL_NULL
             glDeleteProgram(handle)
         }
         stages.forEach {
@@ -72,7 +72,7 @@ class Shader(
     }
 
     fun run() {
-        if (handle != HANDLE_NULL) {
+        if (handle != GL_NULL) {
             glUseProgram(handle)
         }
     }
