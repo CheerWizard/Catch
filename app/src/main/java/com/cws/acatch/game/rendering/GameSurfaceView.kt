@@ -1,4 +1,4 @@
-package com.cws.acatch.game
+package com.cws.acatch.game.rendering
 
 import android.content.Context
 import android.opengl.GLSurfaceView

@@ -4,7 +4,7 @@ package com.cws.nativeksp.math
 value class Color(val packed: Int) {
 
     companion object {
-        const val SIZE_BYTES = Int.SIZE_BYTES
+        const val SIZE_BYTES = Int.SIZE_BYTES * 4
 
         val White = Color(255, 255, 255)
         val Black = Color(0, 0, 0)
@@ -25,7 +25,7 @@ value class Color(val packed: Int) {
     operator fun component3() = b
     operator fun component4() = a
 
-    fun toFloatArray() = floatArrayOf(r / 255f, g / 255f, b / 255f, a / 255f)
+    fun toVec4() = Vec4(r / 255f, g / 255f, b / 255f, a / 255f)
 
 }
 

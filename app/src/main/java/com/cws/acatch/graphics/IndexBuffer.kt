@@ -1,36 +1,30 @@
 package com.cws.acatch.graphics
 
 import android.opengl.GLES30.*
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 
-class IndexBuffer(size: Int) {
+class IndexBuffer(size: Int) : GLBuffer(
+    type = GL_ELEMENT_ARRAY_BUFFER,
+    elementSizeBytes = Int.SIZE_BYTES,
+    size = size
+) {
 
-    val indices = ByteBuffer
-        .allocateDirect(Int.SIZE_BYTES * size)
-        .order(ByteOrder.nativeOrder())
+    private var bufferView = buffer.asIntBuffer()
 
-    private val handle = ByteBuffer
-        .allocateDirect(4)
-        .order(ByteOrder.nativeOrder())
-        .asIntBuffer()
-
-    fun init() {
-        glGenBuffers(1, handle)
-        bind()
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.capacity(), indices, GL_DYNAMIC_DRAW)
+    fun add(indices: IntArray) {
+        ensureCapacity(size = indices.size)
+        bufferView.put(indices)
     }
 
-    fun release() {
-        glDeleteBuffers(1, handle)
+    fun update(index: Int, indices: IntArray) {
+        ensureCapacity(index = index, size = indices.size)
+        update(index) {
+            bufferView.put(indices)
+        }
     }
 
-    fun bind() {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, handle.get())
-    }
-
-    fun update() {
-        glBufferSubData(GL_ARRAY_BUFFER, 0, indices.capacity(), indices)
+    override fun resize(newCapacity: Int) {
+        super.resize(newCapacity)
+        bufferView = buffer.asIntBuffer()
     }
 
 }

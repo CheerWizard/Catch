@@ -1,36 +1,30 @@
 package com.cws.acatch.graphics
 
-import android.opengl.GLES30.*
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
+import android.opengl.GLES30.GL_ARRAY_BUFFER
 
-class VertexBuffer(size: Int) {
+class VertexBuffer(size: Int) : GLBuffer(
+    type = GL_ARRAY_BUFFER,
+    elementSizeBytes = Float.SIZE_BYTES,
+    size = size
+) {
 
-    val vertices = ByteBuffer
-        .allocateDirect(Float.SIZE_BYTES * size)
-        .order(ByteOrder.nativeOrder())
+    private var bufferView = buffer.asFloatBuffer()
 
-    private val handle = ByteBuffer
-        .allocateDirect(4)
-        .order(ByteOrder.nativeOrder())
-        .asIntBuffer()
-
-    fun init() {
-        glGenBuffers(1, handle)
-        bind()
-        glBufferData(GL_ARRAY_BUFFER, vertices.capacity(), vertices, GL_DYNAMIC_DRAW)
+    fun add(vertices: Vertices) {
+        ensureCapacity(size = vertices.values.size)
+        bufferView.put(vertices.values)
     }
 
-    fun release() {
-        glDeleteBuffers(1, handle)
+    fun update(index: Int, vertices: Vertices) {
+        ensureCapacity(index = index, size = vertices.values.size)
+        update(index) {
+            bufferView.put(vertices.values)
+        }
     }
 
-    fun bind() {
-        glBindBuffer(GL_ARRAY_BUFFER, handle.get())
-    }
-
-    fun update() {
-        glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.capacity(), vertices)
+    override fun resize(newCapacity: Int) {
+        super.resize(newCapacity)
+        bufferView = buffer.asFloatBuffer()
     }
 
 }

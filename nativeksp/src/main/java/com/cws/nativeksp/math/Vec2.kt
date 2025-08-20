@@ -6,7 +6,7 @@ import kotlin.math.sqrt
 value class Vec2(val packed: Long) {
 
     companion object {
-        const val SIZE_BYTES = Long.SIZE_BYTES
+        const val SIZE_BYTES = Float.SIZE_BYTES * 2
     }
 
     constructor(x: Float, y: Float) : this(pack(x, y))
@@ -16,18 +16,6 @@ value class Vec2(val packed: Long) {
 
     val y: Float
         get() = Float.fromBits(packed.toInt())
-
-    fun setX(x: Float): Vec2 {
-        val xBits = x.toBits().toLong() shl 32
-        val yBits = packed and 0xFFFF_FFFFL
-        return Vec2(xBits or yBits)
-    }
-
-    fun setY(y: Float): Vec2 {
-        val xBits = packed and (0xFFFF_FFFFL shl 32)
-        val yBits = y.toBits().toLong() and 0xFFFF_FFFFL
-        return Vec2(xBits or yBits)
-    }
 
     fun length() = sqrt(x * x + y * y)
 

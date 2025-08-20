@@ -1,4 +1,4 @@
-package com.cws.acatch.game
+package com.cws.acatch.game.rendering
 
 import android.content.Context
 import android.opengl.GLES30.*
@@ -7,9 +7,9 @@ import com.cws.acatch.game.data.Ball
 import com.cws.acatch.game.data.GameScene
 import com.cws.acatch.graphics.IndexBuffer
 import com.cws.acatch.graphics.Shader
-import com.cws.acatch.graphics.Vertex
 import com.cws.acatch.graphics.VertexArray
 import com.cws.acatch.graphics.VertexBuffer
+import com.cws.acatch.graphics.Vertices
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -17,9 +17,10 @@ class GameRenderer(
     private val ballShader: Shader = Shader(),
     private val projectileShader: Shader = Shader(),
     private val gridShader: Shader = Shader(),
-    private val vertexArray: VertexArray = VertexArray(Vertex.ATTRIBUTES),
+    private val vertexArray: VertexArray = VertexArray(Vertices.ATTRIBUTES),
     private val vertexBuffer: VertexBuffer = VertexBuffer(4),
     private val indexBuffer: IndexBuffer = IndexBuffer(6),
+    private val circleBuffer: CircleBuffer = CircleBuffer()
 ) : GLSurfaceView.Renderer {
 
     private var scene: GameScene? = null
@@ -32,7 +33,7 @@ class GameRenderer(
         vertexArray.init()
         vertexBuffer.init()
         indexBuffer.init()
-
+        circleBuffer.init()
         ballShader.init(
             context = context,
             paths = listOf("ball_vert.glsl", "ball_frag.glsl")
@@ -43,6 +44,7 @@ class GameRenderer(
         vertexArray.release()
         vertexBuffer.release()
         indexBuffer.release()
+        circleBuffer.release()
         ballShader.release()
     }
 
@@ -62,13 +64,20 @@ class GameRenderer(
     }
 
     override fun onDrawFrame(gl: GL10?) {
+        glClearColor(0f, 0f, 0f, 1f)
         glClear(GL_COLOR_BUFFER_BIT)
 
         val scene = this.scene ?: return
-
         val grid = scene.grid
         val balls = scene.balls
         val projectiles = scene.projectiles
+        val circles = scene.circles
+
+        vertexArray.bind()
+        ballShader.run()
+        circleBuffer.update(circles)
+        circleBuffer.flush()
+        glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, circles.size)
 
 //        // debug screen
 //        STC.drawRect(
@@ -103,24 +112,6 @@ class GameRenderer(
 //                    start = Offset(projectiles.x[i], projectiles.y[i]),
 //                    end = Offset(projectiles.x[i], projectiles.y[i] + projectiles.l[i]),
 //                    strokeWidth = 16f
-//                )
-//            }
-//        }
-    }
-
-    private fun drawBalls(balls: ArrayList<Ball>) {
-//        repeat(balls.x.size) { i ->
-//            if (balls.visible[i]) {
-//                val center = Offset(balls.x[i], balls.y[i])
-//                val radius = balls.r[i]
-//                drawCircle(
-//                    center = center,
-//                    brush = Brush.radialGradient(
-//                        colors = listOf(Color.White, Color(balls.color[i])),
-//                        center = center,
-//                        radius = radius
-//                    ),
-//                    radius = radius
 //                )
 //            }
 //        }

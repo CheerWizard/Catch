@@ -9,23 +9,27 @@ import com.squareup.kotlinpoet.INT
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.LambdaTypeName
 import com.squareup.kotlinpoet.ParameterSpec
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.TypeAliasSpec
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import kotlin.sequences.forEach
 
-class HeapDataProcessor(
+class NativeProcessor(
     private val codeGen: CodeGenerator,
     private val logger: KSPLogger
 ) : SymbolProcessor {
 
-    data class FieldInfo(
+    data class Field(
         val name: String,
-        val type: String,
         val offset: String,
         val typeName: TypeName,
+        val type: String,
+        val generatedTypeName: TypeName,
+        val generatedType: String,
         val nested: Boolean
     )
 
@@ -40,7 +44,7 @@ class HeapDataProcessor(
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val symbols = resolver
-            .getSymbolsWithAnnotation(HeapData::class.qualifiedName!!)
+            .getSymbolsWithAnnotation(NativeData::class.qualifiedName!!)
             .filterIsInstance<KSClassDeclaration>()
         symbols.forEach {
             generate(it)
@@ -51,23 +55,42 @@ class HeapDataProcessor(
     private fun generate(declaration: KSClassDeclaration) {
         val pkg = declaration.packageName.asString()
         val name = declaration.simpleName.asString()
-        val dataName = "${name}Data"
-        val arrayName = "${name}Array"
+        val generatedDataName = "${name}Data"
+        val generatedArrayName = "${name}Array"
 
         // annotation metadata
         val annotation = declaration.annotations
-            .first { it.shortName.asString() == "HeapData" }
+            .find { it.shortName.asString() == "NativeData" } ?: return
 
         val autoCreate = annotation.arguments
-            .firstOrNull { it.name?.asString() == "autoCreate" }
+            .find { it.name?.getShortName() == "autoCreate" }
             ?.value as? Boolean ?: false
 
-        val fields = mutableListOf<FieldInfo>()
+        val gpuAlignment = annotation.arguments
+            .find { it.name?.getShortName() == "gpuAlignment" }
+            ?.value as? Boolean ?: false
+
+        val fields = mutableListOf<Field>()
         var offset = "index + 0"
         declaration.getAllProperties().forEach { prop ->
-            val typeName = prop.type.resolve().toTypeName()
+            var typeName = prop.type.resolve().toTypeName()
             var type = typeName.toString().split(".").last()
             val nested = type !in primitiveTypes && type !in commonTypes
+
+            if (gpuAlignment) {
+                when (type) {
+                    "Vec3" -> {
+                        type = "Vec4"
+                        typeName as ClassName
+                        typeName = ClassName(typeName.packageName, "Vec4")
+                    }
+                    "Mat3" -> {
+                        type = "Mat4"
+                        typeName as ClassName
+                        typeName = ClassName(typeName.packageName, "Mat4")
+                    }
+                }
+            }
 
             val generatedTypeName = if (nested && typeName is ClassName) {
                 ClassName(
@@ -78,32 +101,34 @@ class HeapDataProcessor(
                 typeName
             }
 
-            type = if (nested) "${type}Data" else type
+            val generatedType = if (nested) "${type}Data" else type
 
-            fields += FieldInfo(
+            fields += Field(
                 name = prop.simpleName.asString(),
-                type = type,
                 offset = offset,
-                typeName = generatedTypeName,
+                generatedType = generatedType,
+                generatedTypeName = generatedTypeName,
+                type = type,
+                typeName = typeName,
                 nested = nested
             )
 
-            offset += " + $type.SIZE_BYTES"
+            offset += " + $generatedType.SIZE_BYTES"
         }
 
-        val fileSpec = FileSpec.builder(pkg, dataName)
-
-        val memoryHeapClazz = ClassName("com.cws.nativeksp", "MemoryHeap")
+        val fileSpec = FileSpec.builder(pkg, generatedDataName)
 
         val size = fields.joinToString(" + ") {
             if (it.type == "Boolean") {
-                "Byte.SIZE_BYTES"
+                if (gpuAlignment) {
+                    "Int.SIZE_BYTES"
+                } else {
+                    "Byte.SIZE_BYTES"
+                }
             } else {
-                "${it.type}.SIZE_BYTES"
+                "${it.generatedType}.SIZE_BYTES"
             }
         }
-
-        // ==== Generate XxxData ====
 
         val primaryConstructor = if (autoCreate) {
             FunSpec
@@ -121,7 +146,7 @@ class HeapDataProcessor(
                 .build()
         }
 
-        val dataClass = TypeSpec.classBuilder(dataName)
+        val dataClass = TypeSpec.classBuilder(generatedDataName)
             .addModifiers(KModifier.VALUE)
             .addAnnotation(JvmInline::class)
             .primaryConstructor(primaryConstructor)
@@ -140,46 +165,57 @@ class HeapDataProcessor(
                     )
                     .addFunction(
                         FunSpec.builder("create")
-                            .returns(ClassName(pkg, dataName))
-                            .addStatement("return %T(%T.allocate(SIZE_BYTES))", ClassName(pkg, dataName), memoryHeapClazz)
+                            .returns(ClassName(pkg, generatedDataName))
+                            .addStatement("return %T(MemoryHeap.allocate(SIZE_BYTES))", ClassName(pkg, generatedDataName))
                             .build()
                     )
                     .build()
             )
             .addFunction(
                 FunSpec.builder("free")
-                    .addStatement("%T.free(index, SIZE_BYTES)", memoryHeapClazz)
+                    .addStatement("MemoryHeap.free(index, SIZE_BYTES)")
                     .build()
             )
 
         // properties
         fields.forEach { field ->
-            val getter = "get${field.type}"
-            val setter = "set${field.type}"
-            val propBuilder = PropertySpec.builder(field.name, field.typeName).mutable(true)
+            val propBuilder = PropertySpec
+                .builder(field.name, field.generatedTypeName)
+                .mutable(true)
 
-            if (field.type.isNotEmpty()) {
-                if (field.nested || field.type in commonTypes) {
+            var getter = "get${field.generatedType}"
+            var setter = "set${field.generatedType}"
+            var getterCast = ""
+            var setterCast = ""
+
+            if (gpuAlignment && field.type == "Boolean") {
+                getter = "getInt"
+                setter = "setInt"
+                getterCast = " == 1"
+            }
+
+            if (field.generatedType.isNotEmpty()) {
+                if (field.nested || field.generatedType in commonTypes) {
                     propBuilder
                         .getter(FunSpec.getterBuilder()
-                            .addStatement("return ${field.type}(${field.offset})")
+                            .addStatement("return ${field.generatedType}(${field.offset})")
                             .build()
                         )
                     propBuilder
                         .setter(FunSpec.setterBuilder()
-                            .addParameter("value", field.typeName)
-                            .addStatement("%T.copy(value.index, ${field.offset}, ${field.type}.SIZE_BYTES)", memoryHeapClazz)
+                            .addParameter("value", field.generatedTypeName)
+                            .addStatement("MemoryHeap.copy(value.index, ${field.offset}, ${field.generatedType}.SIZE_BYTES)")
                             .build())
                 } else {
                     propBuilder
                         .getter(FunSpec.getterBuilder()
-                            .addStatement("return %T.$getter(${field.offset})", memoryHeapClazz)
+                            .addStatement("return MemoryHeap.$getter(${field.offset})$getterCast")
                             .build()
                         )
                     propBuilder
                         .setter(FunSpec.setterBuilder()
-                            .addParameter("value", field.typeName)
-                            .addStatement("%T.$setter(${field.offset}, value)", memoryHeapClazz)
+                            .addParameter("value", field.generatedTypeName)
+                            .addStatement("MemoryHeap.$setter(${field.offset}, value)$setterCast")
                             .build())
                 }
             }
@@ -194,7 +230,7 @@ class HeapDataProcessor(
                     ParameterSpec
                         .builder(
                             "value",
-                            ClassName(pkg, dataName)
+                            ClassName(pkg, generatedDataName)
                         ).build()
                 ),
                 returnType = TypeVariableName("T")
@@ -202,7 +238,7 @@ class HeapDataProcessor(
         ).build()
 
         val useFun = FunSpec.builder("use")
-            .receiver(ClassName(pkg, dataName))
+            .receiver(ClassName(pkg, generatedDataName))
             .addTypeVariable(TypeVariableName("T"))
             .addParameter(blockParam)
             .returns(TypeVariableName("T"))
@@ -218,14 +254,65 @@ class HeapDataProcessor(
             )
             .build()
 
+        val toTypeParams = fields.joinToString(", \n") { field ->
+            if (field.nested) {
+                "${field.name} = ${field.name}.to${field.type}()"
+            } else {
+                "${field.name} = ${field.name}"
+            }
+        }
+
+        val toTypeFun = FunSpec.builder("to$name")
+            .receiver(ClassName(pkg, generatedDataName))
+            .returns(ClassName(pkg, name))
+            .addCode("return $name(\n $toTypeParams \n)")
+            .build()
+
+        val toGenTypeParams = fields.joinToString("\n") { field ->
+            if (field.nested) {
+                "${field.name} = this@to$generatedDataName.${field.name}.to${field.generatedType}()"
+            } else {
+                "${field.name} = this@to$generatedDataName.${field.name}"
+            }
+        }
+
+        val toGenTypeFun = FunSpec.builder("to$generatedDataName")
+            .receiver(ClassName(pkg, name))
+            .returns(ClassName(pkg, generatedDataName))
+            .addCode("return $generatedDataName.create().apply {\n $toGenTypeParams \n}")
+            .build()
+
+        val typealiasNativeArray = TypeAliasSpec.builder(
+            generatedArrayName,
+            ClassName(pkg, "NativeArray")
+                .parameterizedBy(ClassName(pkg, generatedDataName))
+        ).build()
+
+        val createNativeArray = FunSpec.builder(generatedArrayName)
+            .addParameter("size", INT)
+            .returns(ClassName(pkg, generatedArrayName))
+            .addCode("return NativeArray(\n " +
+                    "size = size,\n" +
+                    "elementSizeBytes = ${generatedDataName}.SIZE_BYTES,\n" +
+                    "fromIndex = { $generatedDataName(it) },\n" +
+                    "toIndex = { it.index }\n" +
+                    " \n)")
+            .build()
+
+        fileSpec.addImport("com.cws.nativeksp", "MemoryHeap")
+        fileSpec.addImport("com.cws.nativeksp", "NativeArray")
         fileSpec.addType(dataClass.build())
         fileSpec.addFunction(useFun)
+        fileSpec.addFunction(toTypeFun)
+        fileSpec.addFunction(toGenTypeFun)
+        fileSpec.addTypeAlias(typealiasNativeArray)
+        fileSpec.addFunction(createNativeArray)
 
         val dep = declaration.containingFile?.let {
             Dependencies(false, it)
         } ?: Dependencies(false)
 
-        codeGen.createNewFile(dep, pkg, dataName)
+        codeGen.createNewFile(dep, pkg, generatedDataName)
             .bufferedWriter()
             .use {
                 fileSpec.build().writeTo(it)

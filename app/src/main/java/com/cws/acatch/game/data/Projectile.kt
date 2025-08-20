@@ -1,10 +1,10 @@
 package com.cws.acatch.game.data
 
 import com.cws.nativeksp.math.Color
-import com.cws.nativeksp.HeapData
+import com.cws.nativeksp.NativeData
 import com.cws.nativeksp.math.Vec2
 
-@HeapData
+@NativeData
 class Projectile(
     pos: Vec2,
     visible: Boolean,

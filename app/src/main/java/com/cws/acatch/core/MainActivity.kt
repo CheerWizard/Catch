@@ -8,7 +8,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.cws.acatch.game.GameManager
-import com.cws.acatch.game.GameRenderer
+import com.cws.acatch.game.rendering.GameRenderer
 import com.cws.acatch.game.ui.GameScreen
 
 class MainActivity : ComponentActivity() {

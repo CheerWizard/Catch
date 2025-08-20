@@ -4,7 +4,8 @@ import android.opengl.GLES30.*
 
 data class VertexAttribute(
     val location: Int,
-    val type: Type
+    val type: Type,
+    val enableInstancing: Boolean
 ) {
 
     enum class Type(

@@ -13,13 +13,12 @@ open class MemoryBuffer(size: Int) {
         .allocateDirect(size)
         .order(ByteOrder.nativeOrder())
 
-    protected fun resize(newCapacity: Int) {
+    protected open fun resize(newCapacity: Int) {
         val newBuffer = ByteBuffer
             .allocateDirect(newCapacity)
             .order(buffer.order())
-        buffer.clear()
+        buffer.flip()
         newBuffer.put(buffer)
-        newBuffer.flip()
         buffer = newBuffer
     }
 
@@ -45,6 +44,10 @@ open class MemoryBuffer(size: Int) {
         buffer.putInt(index, value)
     }
 
+    fun setInt(index: Int, value: Boolean) {
+        buffer.putInt(index, if (value) 1 else 0)
+    }
+
     fun getInt(index: Int) = buffer.getInt(index)
 
     fun setShort(index: Int, value: Short) {
@@ -60,28 +63,62 @@ open class MemoryBuffer(size: Int) {
     fun getBoolean(index: Int) = buffer.get(index) == 1.toByte()
 
     fun setVec2(index: Int, value: Vec2) {
-        buffer.putLong(index, value.packed)
+        buffer.putFloat(index, value.x)
+        buffer.putFloat(index + Float.SIZE_BYTES, value.y)
     }
 
-    fun getVec2(index: Int) = Vec2(buffer.getLong(index))
+    fun getVec2(index: Int): Vec2 {
+        return Vec2(
+            buffer.getFloat(index),
+            buffer.getFloat(index + Float.SIZE_BYTES),
+        )
+    }
 
     fun setVec3(index: Int, value: Vec3) {
-        buffer.putLong(index, value.packed)
+        buffer.putFloat(index, value.x)
+        buffer.putFloat(index + Float.SIZE_BYTES, value.y)
+        buffer.putFloat(index + Float.SIZE_BYTES * 2, value.z)
     }
 
-    fun getVec3(index: Int) = Vec3(buffer.getLong(index))
+    fun getVec3(index: Int): Vec3 {
+        return Vec3(
+            buffer.getFloat(index),
+            buffer.getFloat(index + Float.SIZE_BYTES),
+            buffer.getFloat(index + Float.SIZE_BYTES * 2),
+        )
+    }
 
     fun setVec4(index: Int, value: Vec4) {
-        buffer.putLong(index, value.packed)
+        buffer.putFloat(index, value.x)
+        buffer.putFloat(index + Float.SIZE_BYTES, value.y)
+        buffer.putFloat(index + Float.SIZE_BYTES * 2, value.z)
+        buffer.putFloat(index + Float.SIZE_BYTES * 3, value.w)
     }
 
-    fun getVec4(index: Int) = Vec4(buffer.getLong(index))
+    fun getVec4(index: Int): Vec4 {
+        return Vec4(
+            buffer.getFloat(index),
+            buffer.getFloat(index + Float.SIZE_BYTES),
+            buffer.getFloat(index + Float.SIZE_BYTES * 2),
+            buffer.getFloat(index + Float.SIZE_BYTES * 3),
+        )
+    }
 
     fun setColor(index: Int, value: Color) {
-        buffer.putInt(index, value.packed)
+        buffer.putInt(index, value.r)
+        buffer.putInt(index + Int.SIZE_BYTES, value.g)
+        buffer.putInt(index + Int.SIZE_BYTES * 2, value.b)
+        buffer.putInt(index + Int.SIZE_BYTES * 3, value.a)
     }
 
-    fun getColor(index: Int) = Color(buffer.getInt(index))
+    fun getColor(index: Int): Color {
+        return Color(
+            buffer.getInt(index),
+            buffer.getInt(index + Int.SIZE_BYTES),
+            buffer.getInt(index + Int.SIZE_BYTES * 2),
+            buffer.getInt(index + Int.SIZE_BYTES * 3),
+        )
+    }
 
     fun copy(src: Int, dest: Int, size: Int) {
         val srcSlice = buffer.duplicate()
@@ -90,6 +127,14 @@ open class MemoryBuffer(size: Int) {
         val destSlice = buffer.duplicate()
         destSlice.position(dest)
         destSlice.put(srcSlice)
+    }
+
+    fun copy(destBuffer: ByteBuffer, src: Int, dest: Int, size: Int) {
+        val srcSlice = buffer.duplicate()
+        srcSlice.position(src)
+        srcSlice.limit(src + size)
+        destBuffer.position(dest)
+        destBuffer.put(srcSlice)
     }
 
 }

@@ -36,7 +36,7 @@ value class Mat4(
     }
 
     companion object {
-        const val SIZE_BYTES = Vec2.SIZE_BYTES * 4
+        const val SIZE_BYTES = Vec4.SIZE_BYTES * 4
         fun create(): Mat4 = Mat4(MemoryHeap.allocate(SIZE_BYTES))
     }
 

@@ -13,8 +13,13 @@ import com.cws.acatch.game.collision.CollisionBox
 import com.cws.acatch.game.data.EntityData
 import com.cws.acatch.game.data.GameGrid
 import com.cws.acatch.game.data.GameScene
+import com.cws.acatch.game.data.ProjectileArray
 import com.cws.acatch.game.data.Score
 import com.cws.acatch.game.data.generateBalls
+import com.cws.acatch.game.data.toCircleData
+import com.cws.acatch.game.rendering.CircleArray
+import com.cws.acatch.game.rendering.CircleData
+import com.cws.acatch.game.rendering.GameRenderer
 import com.cws.nativeksp.math.Color
 import com.cws.nativeksp.math.Vec2
 import timber.log.Timber
@@ -52,6 +57,17 @@ class GameManager(
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME)
         renderer.init(context)
 
+        val balls = generateBalls(
+            size = 100,
+            width = width,
+            height = height
+        )
+
+        val circles = CircleArray(100).create()
+        repeat(circles.size) { i ->
+            circles[i] = balls[i].toCircleData(circles[i].index)
+        }
+
         val scene = GameScene(
             screenBox = CollisionBox(
                 x = 0f,
@@ -64,12 +80,9 @@ class GameManager(
                 height = height.toInt(),
                 cellSize = 20
             ),
-            balls = generateBalls(
-                size = 100,
-                width = width,
-                height = height
-            ),
-            projectiles = ArrayList(1)
+            balls = balls,
+            projectiles = ProjectileArray(1),
+            circles = circles
         )
 
         this.scene = scene

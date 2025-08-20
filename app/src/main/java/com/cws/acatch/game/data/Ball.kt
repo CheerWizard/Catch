@@ -1,27 +1,25 @@
 package com.cws.acatch.game.data
 
+import com.cws.acatch.game.rendering.CircleData
 import com.cws.nativeksp.math.Color
-import com.cws.nativeksp.HeapData
-import com.cws.nativeksp.math.Mat2
-import com.cws.nativeksp.math.Mat4
+import com.cws.nativeksp.NativeData
 import com.cws.nativeksp.math.Vec2
 
-@HeapData
+@NativeData(
+    autoCreate = true,
+    gpuAlignment = true
+)
 class Ball(
     pos: Vec2,
     visible: Boolean,
     var velocity: Vec2,
     val dir: Vec2,
     val color: Color,
-    val radius: Float,
-    val scale: Mat4,
-    val rotation: Mat4,
-    val view: Mat2,
-    val projectile: Projectile
+    val radius: Float
 ) : Entity(pos, visible)
 
-fun generateBalls(size: Int, width: Float, height: Float): ArrayList<BallData> {
-    val balls = ArrayList<BallData>(size)
+fun generateBalls(size: Int, width: Float, height: Float): BallArray {
+    val balls = BallArray(size)
     repeat(size) { i ->
         val color = Color(
             (0..255).random(),
@@ -30,7 +28,7 @@ fun generateBalls(size: Int, width: Float, height: Float): ArrayList<BallData> {
             255
         )
         val r = (80..100).random().toFloat()
-        balls.add(BallData.create().apply {
+        balls[i] = BallData.create().apply {
             pos = Vec2(
                 (r.toInt()..(width - r).toInt()).random().toFloat(),
                 (r.toInt()..(height - r).toInt()).random().toFloat()
@@ -43,7 +41,11 @@ fun generateBalls(size: Int, width: Float, height: Float): ArrayList<BallData> {
             radius = r
             this.color = color
             visible = true
-        })
+        }
     }
     return balls
+}
+
+fun BallData.toCircleData(index: Int = CircleData.create().index) = CircleData(index).apply {
+    this.center = pos
 }

@@ -32,8 +32,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.cws.acatch.game.GameManager
 import com.cws.acatch.game.handleInput
-import com.cws.acatch.game.GameRenderer
-import com.cws.acatch.game.GameSurfaceView
+import com.cws.acatch.game.rendering.GameRenderer
+import com.cws.acatch.game.rendering.GameSurfaceView
 
 @Composable
 fun GameScreen(

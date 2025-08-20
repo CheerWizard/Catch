@@ -71,4 +71,10 @@ class Shader(
         }
     }
 
+    fun run() {
+        if (handle != HANDLE_NULL) {
+            glUseProgram(handle)
+        }
+    }
+
 }

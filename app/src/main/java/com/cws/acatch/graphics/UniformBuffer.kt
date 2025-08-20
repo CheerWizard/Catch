@@ -1,42 +1,37 @@
 package com.cws.acatch.graphics
 
 import android.opengl.GLES30.*
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
+import com.cws.nativeksp.NativeArray
+import com.cws.nativeksp.MemoryHeap
 
-class UniformBuffer<T>(
+open class UniformBuffer<T>(
     private val binding: Int,
-    private val struct: T
+    structSize: Int,
+    structCount: Int
+) : GLBuffer(
+    type = GL_UNIFORM_BUFFER,
+    elementSizeBytes = structSize,
+    size = structCount,
 ) {
 
-    private val handle = ByteBuffer
-        .allocateDirect(4)
-        .order(ByteOrder.nativeOrder())
-        .asIntBuffer()
-
-    fun init() {
-        glGenBuffers(1, handle)
-        bind()
-//        glBufferData(GL_UNIFORM_BUFFER, bytebuffer.capacity(), bytebuffer, GL_DYNAMIC_DRAW)
-        glBindBufferBase(GL_UNIFORM_BUFFER, binding, handle.get())
+    override fun init() {
+        super.init()
+        glBindBufferBase(GL_UNIFORM_BUFFER, binding, handle[0])
     }
 
-    fun release() {
-        glDeleteBuffers(1, handle)
+    fun update(index: Int, heapIndex: Int) {
+        MemoryHeap.copy(
+            destBuffer = buffer,
+            src = heapIndex,
+            dest = index * elementSizeBytes,
+            size = elementSizeBytes
+        )
     }
 
-    fun bind() {
-        glBindBuffer(GL_UNIFORM_BUFFER, handle.get())
-    }
-
-    fun update() {
-//        val bytebuffer = struct.toByteBuffer()
-//        glBufferSubData(
-//            GL_UNIFORM_BUFFER,
-//            0,
-//            bytebuffer.capacity(),
-//            bytebuffer
-//        )
+    fun update(nativeArray: NativeArray<T>) {
+        nativeArray.forEachIndexed { i, data ->
+            update(i, nativeArray.toIndex(data))
+        }
     }
 
 }

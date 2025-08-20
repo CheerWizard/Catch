@@ -22,6 +22,3 @@ object MemoryStack : MemoryBuffer(1024 * 1024) {
     }
 
 }
-
-inline fun stack(block: (MemoryStack) -> Unit) {
-}

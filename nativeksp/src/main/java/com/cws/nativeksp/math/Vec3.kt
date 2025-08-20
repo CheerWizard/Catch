@@ -6,7 +6,7 @@ import kotlin.math.sqrt
 value class Vec3(val packed: Long) {
 
     companion object {
-        const val SIZE_BYTES = Long.SIZE_BYTES
+        const val SIZE_BYTES = Float.SIZE_BYTES * 3
     }
 
     constructor(x: Float, y: Float, z: Float) : this(pack(x, y, z))

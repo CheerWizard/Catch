@@ -1,20 +1,15 @@
 package com.cws.acatch.graphics
 
 import android.opengl.GLES30.*
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 
 class VertexArray(
     private val attributes: List<VertexAttribute>
 ) {
 
-    private val handle = ByteBuffer
-        .allocateDirect(4)
-        .order(ByteOrder.nativeOrder())
-        .asIntBuffer()
+    private val handle = IntArray(1)
 
     fun init() {
-        glGenVertexArrays(1, handle)
+        glGenVertexArrays(1, handle, 0)
 
         var attributeOffset = 0
         attributes.forEach { attribute ->
@@ -27,6 +22,10 @@ class VertexArray(
                 attribute.type.stride,
                 attributeOffset
             )
+            glVertexAttribDivisor(
+                attribute.location,
+                if (attribute.enableInstancing) 1 else 0
+            )
             attributeOffset += attribute.type.stride
         }
     }
@@ -35,12 +34,11 @@ class VertexArray(
         attributes.forEach { attribute ->
             glDisableVertexAttribArray(attribute.location)
         }
-
-        glDeleteVertexArrays(1, handle)
+        glDeleteVertexArrays(1, handle, 0)
     }
 
     fun bind() {
-        glBindVertexArray(handle.get())
+        glBindVertexArray(handle[0])
     }
 
 }
