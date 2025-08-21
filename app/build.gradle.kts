@@ -2,12 +2,11 @@ import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
-    id("kotlin-parcelize")
+    alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
-    id("com.google.devtools.ksp") version "2.2.0-2.0.2"
+    id("com.android.application")
 }
 
 val keystoreProperties = Properties()
@@ -23,8 +22,6 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
@@ -37,19 +34,9 @@ android {
     }
 
     buildTypes {
-        debug {
-            isDebuggable = true
-        }
         release {
-            isDebuggable = false
-            // TODO fix code obfuscation for generics
             isMinifyEnabled = false
             isShrinkResources = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-            signingConfig = signingConfigs.getByName("release")
         }
     }
 
@@ -57,63 +44,70 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-
-    kotlinOptions {
-        jvmTarget = "11"
-        freeCompilerArgs += listOf("-Xdebug")
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.14"
-    }
-
-    buildFeatures {
-        buildConfig = true
-        compose = true
-    }
 }
 
-dependencies {
-    // Kotlin Memory
-    ksp(project(":kmemory"))
-    api(project(":kmemory"))
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    compilerOptions {}
+}
 
-    // Image Loading
-    implementation(libs.coil.compose)
-    implementation(libs.coil.network.okhttp)
-    implementation(libs.coil.svg)
+kotlin {
+    androidTarget()
+    jvm("desktop")
+    js(IR) {
+        browser()
+        nodejs()
+    }
+//    iosArm64()
+//    iosX64()
+//    iosSimulatorArm64()
+//    linuxX64()
+//    mingwX64()
 
-    // Networking
-    implementation(libs.retrofit)
-    implementation(libs.converter.scalars)
-    implementation(libs.converter.gson)
-    implementation(libs.logging.interceptor)
-    implementation(libs.okhttp)
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                // Kotlin Graphics
+                implementation(project(":kanvas"))
+                // Kotlin Memory
+                implementation(project(":kmemory"))
+                // Coroutines
+                implementation(libs.kotlinx.coroutines.core)
+                // JSON
+                implementation(libs.kotlinx.serialization.json)
+                // Ktor
+                implementation(libs.ktor.client.core)
+                implementation(libs.ktor.client.content)
+            }
+        }
 
-    // Logging
-    implementation(libs.timber)
+        val androidMain by getting {
+            dependencies {
+                implementation(libs.coil.compose)
+                implementation(libs.coil.network.okhttp)
+                implementation(libs.ktor.client.okhttp)
+                implementation(libs.timber)
+                // Compose
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(compose.material3)
+                implementation(compose.components.resources)
+                // Lifecycle
+                implementation(libs.androidx.core.ktx)
+                implementation(libs.androidx.lifecycle.runtime.ktx)
+            }
+        }
 
-    // Lifecycle
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
+//        val iosMain by getting {
+//            dependencies {
+//                implementation(libs.ktor.client.darwin)
+//            }
+//        }
 
-    // UI
-    implementation(libs.androidx.constraintlayout.compose)
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.kotlinx.serialization.json)
-    api(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-
-    // Testing
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+        val desktopMain by getting {
+            dependencies {
+                implementation(compose.desktop.currentOs)
+                implementation(libs.ktor.client.cio)
+            }
+        }
+    }
 }

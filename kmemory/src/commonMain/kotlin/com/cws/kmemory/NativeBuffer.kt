@@ -6,7 +6,7 @@ import com.cws.kmemory.math.Vec3
 import com.cws.kmemory.math.Vec4
 import kotlinx.atomicfu.atomic
 
-open class NativeBuffer(size: Int) : PlatformNativeBuffer(size) {
+open class NativeBuffer(size: Int) : PlatformBuffer(size) {
 
     private val lock = atomic(false)
 

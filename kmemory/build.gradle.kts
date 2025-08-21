@@ -1,5 +1,5 @@
 plugins {
-    id("org.jetbrains.kotlin.multiplatform") version "2.2.10"
+    alias(libs.plugins.kotlin.multiplatform)
 }
 
 kotlin {
@@ -8,33 +8,37 @@ kotlin {
         browser()
         nodejs()
     }
-//    iosArm64()
-//    iosX64()
-//    iosSimulatorArm64()
+    iosArm64()
+    iosX64()
+    iosSimulatorArm64()
     linuxX64()
-//    mingwX64()
+    mingwX64()
 
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(libs.squareup.kotlinpoet)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.atomicfu)
             }
         }
-        val commonTest by getting
 
         val jvmMain by getting {
-            dependencies {
-                implementation(libs.symbol.processing.api)
-                implementation(libs.squareup.kotlinpoet)
-                implementation(libs.kotlinpoet.ksp)
-            }
+            dependencies {}
         }
-        val jvmTest by getting
 
         val jsMain by getting {
             dependencies {}
         }
-        val jsTest by getting
+
+        val nativeMain by creating {
+            dependsOn(commonMain)
+        }
+
+        val iosX64Main by getting { dependsOn(nativeMain) }
+        val iosArm64Main by getting { dependsOn(nativeMain) }
+        val iosSimulatorArm64Main by getting { dependsOn(nativeMain) }
+        val linuxX64Main by getting { dependsOn(nativeMain) }
+        val mingwX64Main by getting { dependsOn(nativeMain) }
     }
 }
