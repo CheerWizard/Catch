@@ -1,6 +1,6 @@
 package com.cws.kanvas
 
-class IndexBuffer(size: Int) : KanvasBuffer(
+class IndexBuffer(size: Int) : GpuBuffer(
     type = Kanvas.INDEX_BUFFER,
     elementSizeBytes = Int.SIZE_BYTES,
     size = size

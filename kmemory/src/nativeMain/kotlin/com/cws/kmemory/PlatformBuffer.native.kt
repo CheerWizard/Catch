@@ -20,7 +20,7 @@ import kotlinx.cinterop.value
 import platform.posix.memcpy
 
 @OptIn(ExperimentalForeignApi::class)
-actual open class PlatformBuffer actual constructor(size: Int) {
+actual open class PlatformBuffer actual constructor(size: Int) : LockFreeBuffer() {
 
     private var buffer: CPointer<ByteVar> = nativeHeap.allocArray(size.toLong())
 

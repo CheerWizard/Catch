@@ -7,7 +7,7 @@ open class UniformBuffer<T>(
     private val binding: Int,
     structSize: Int,
     structCount: Int
-) : KanvasBuffer(
+) : GpuBuffer(
     type = Kanvas.UNIFORM_BUFFER,
     elementSizeBytes = structSize,
     size = structCount,
@@ -19,8 +19,8 @@ open class UniformBuffer<T>(
     }
 
     fun update(index: Int, heapIndex: Int) {
-        NativeHeap.copy(
-            destBuffer = this,
+        copy(
+            srcBuffer = NativeHeap,
             src = heapIndex,
             dest = index * elementSizeBytes,
             size = elementSizeBytes

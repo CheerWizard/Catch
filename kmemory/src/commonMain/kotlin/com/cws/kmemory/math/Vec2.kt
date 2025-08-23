@@ -1,24 +1,38 @@
 package com.cws.kmemory.math
 
+import com.cws.kmemory.NativeHeap
 import kotlin.jvm.JvmInline
 import kotlin.math.sqrt
 
 @JvmInline
-value class Vec2(val packed: Long) {
+value class Vec2(val index: Int) {
 
-    companion object {
-        const val SIZE_BYTES = Float.SIZE_BYTES * 2
+    constructor(x: Float, y: Float) : this(create().index) {
+        this.x = x
+        this.y = y
     }
 
-    constructor(x: Float, y: Float) : this(pack(x, y))
+    var x: Float
+        get() = NativeHeap.getFloat(index + Float.SIZE_BYTES * 0)
+        set(value) {
+            NativeHeap.setFloat(index + Float.SIZE_BYTES * 0, value)
+        }
 
-    val x: Float
-        get() = Float.fromBits((packed shr 32).toInt())
+    var y: Float
+        get() = NativeHeap.getFloat(index + Float.SIZE_BYTES * 1)
+        set(value) {
+            NativeHeap.setFloat(index + Float.SIZE_BYTES * 1, value)
+        }
 
-    val y: Float
-        get() = Float.fromBits(packed.toInt())
+    fun free() {
+        NativeHeap.free(index, SIZE_BYTES)
+    }
 
-    fun length() = sqrt(x * x + y * y)
+    fun length(): Float {
+        val x = x
+        val y = y
+        return sqrt(x * x + y * y)
+    }
 
     fun normalized(): Vec2 {
         val length = length()
@@ -38,12 +52,11 @@ value class Vec2(val packed: Long) {
     operator fun times(v: Vec2): Vec2 = Vec2(x * v.x, y * v.y)
     operator fun div(v: Vec2): Vec2 = Vec2(x / v.x, y / v.y)
 
-}
+    companion object {
+        const val SIZE_BYTES = Float.SIZE_BYTES * 2
+        fun create(): Vec2 = Vec2(NativeHeap.allocate(SIZE_BYTES))
+    }
 
-internal fun pack(x: Float, y: Float): Long {
-    val xBits = x.toBits().toLong() shl 32
-    val yBits = y.toBits().toLong() and 0xFFFF_FFFFL
-    return xBits or yBits
 }
 
 fun dot(v1: Vec2, v2: Vec2): Float {

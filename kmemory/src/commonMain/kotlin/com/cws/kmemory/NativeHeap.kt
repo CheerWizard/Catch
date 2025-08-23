@@ -48,7 +48,7 @@ object NativeHeap : NativeBuffer(1024 * 1024) {
             resize(capacity * 2)
         }
 
-        setPosition(index + size)
+        position = index + size
         return@lock index
     }
 

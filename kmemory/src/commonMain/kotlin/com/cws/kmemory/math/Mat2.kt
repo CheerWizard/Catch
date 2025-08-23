@@ -9,15 +9,15 @@ value class Mat2(
 ) {
 
     var v1: Vec2
-        get() = NativeHeap.getVec2(index + Vec2.SIZE_BYTES * 0)
+        get() = Vec2(index + Vec2.SIZE_BYTES * 0)
         set(value) {
-            NativeHeap.setVec2(index + Vec2.SIZE_BYTES * 0, value)
+            NativeHeap.copy(value.index, index + Vec2.SIZE_BYTES * 0, Vec2.SIZE_BYTES)
         }
 
     var v2: Vec2
-        get() = NativeHeap.getVec2(index + Vec2.SIZE_BYTES * 1)
+        get() = Vec2(index + Vec2.SIZE_BYTES * 1)
         set(value) {
-            NativeHeap.setVec2(index + Vec2.SIZE_BYTES * 1, value)
+            NativeHeap.copy(value.index, index + Vec2.SIZE_BYTES * 1, Vec2.SIZE_BYTES)
         }
 
     fun free() {

@@ -1,6 +1,6 @@
 package com.cws.kmemory
 
-expect open class PlatformBuffer(size: Int) {
+expect open class PlatformBuffer(size: Int) : LockFreeBuffer {
 
     val position: Int
     val capacity: Int
@@ -40,6 +40,8 @@ expect open class PlatformBuffer(size: Int) {
     fun copy(src: Int, dest: Int, size: Int)
 
     fun copy(destBuffer: PlatformBuffer, src: Int, dest: Int, size: Int)
+
+    fun copy(srcBuffer: NativeBuffer, src: Int, dest: Int, size: Int)
 
     fun setArray(value: IntArray)
 

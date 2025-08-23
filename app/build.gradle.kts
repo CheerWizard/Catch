@@ -85,7 +85,6 @@ kotlin {
                 implementation(libs.coil.compose)
                 implementation(libs.coil.network.okhttp)
                 implementation(libs.ktor.client.okhttp)
-                implementation(libs.timber)
                 // Compose
                 implementation(compose.runtime)
                 implementation(compose.foundation)

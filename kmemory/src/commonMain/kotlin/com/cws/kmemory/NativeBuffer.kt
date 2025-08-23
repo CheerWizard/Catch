@@ -1,77 +1,118 @@
 package com.cws.kmemory
 
-import com.cws.kmemory.math.Color
-import com.cws.kmemory.math.Vec2
-import com.cws.kmemory.math.Vec3
-import com.cws.kmemory.math.Vec4
-import kotlinx.atomicfu.atomic
+open class NativeBuffer(size: Int) : LockFreeBuffer() {
 
-open class NativeBuffer(size: Int) : PlatformBuffer(size) {
+    internal var buffer = ByteArray(size)
 
-    private val lock = atomic(false)
+    var position: Int = 0
+        protected set
 
-    protected fun <T> lock(block: () -> T): T {
-        while (!lock.compareAndSet(expect = false, update = true)) {}
-        val result = block()
-        lock.value = false
-        return result
+    val capacity: Int = buffer.size
+
+    protected open fun resize(newCapacity: Int) {
+        buffer = buffer.copyOf(newCapacity)
     }
 
-    fun setVec2(index: Int, value: Vec2) {
-        setFloat(index, value.x)
-        setFloat(index + Float.SIZE_BYTES, value.y)
+    private fun setBits(index: Int, bits: Long, size: Int) {
+        repeat(size) { i ->
+            buffer[index + i] = ((bits ushr (i * 8)) and 0xFF).toByte()
+        }
     }
 
-    fun getVec2(index: Int): Vec2 {
-        return Vec2(
-            getFloat(index),
-            getFloat(index * Float.SIZE_BYTES)
+    private fun getBits(index: Int, size: Int): Long {
+        var bits = 0L
+        repeat(size) { i ->
+            bits = bits or (buffer[index + i].toLong() and 0xFF shl (i * 8))
+        }
+        return bits
+    }
+
+    fun setDouble(index: Int, value: Double) = setBits(index, value.toBits(), Double.SIZE_BYTES)
+
+    fun getDouble(index: Int) = Double.fromBits(getBits(index, Double.SIZE_BYTES))
+
+    fun setLong(index: Int, value: Long) = setBits(index, value, Long.SIZE_BYTES)
+
+    fun getLong(index: Int) = getBits(index, Long.SIZE_BYTES)
+
+    fun setFloat(index: Int, value: Float) = setBits(index, value.toBits().toLong(), Float.SIZE_BYTES)
+
+    fun getFloat(index: Int) = Float.fromBits(getBits(index, Float.SIZE_BYTES).toInt())
+
+    fun setInt(index: Int, value: Int) = setBits(index, value.toLong(), Int.SIZE_BYTES)
+
+    fun setInt(index: Int, value: Boolean) = setBits(index, 1.toLong(), Int.SIZE_BYTES)
+
+    fun getInt(index: Int) = getBits(index, Int.SIZE_BYTES).toInt()
+
+    fun setShort(index: Int, value: Short) = setBits(index, value.toLong(), Short.SIZE_BYTES)
+
+    fun getShort(index: Int) = getBits(index, Short.SIZE_BYTES)
+
+    fun setBoolean(index: Int, value: Boolean) {
+        buffer[index] = if (value) 1.toByte() else 0.toByte()
+    }
+
+    fun getBoolean(index: Int) = buffer[index] == 1.toByte()
+
+    fun copy(src: Int, dest: Int, size: Int) {
+        buffer.copyInto(
+            destination = buffer,
+            destinationOffset = dest,
+            startIndex = src,
+            endIndex = src + size
         )
     }
 
-    fun setVec3(index: Int, value: Vec3) {
-        setFloat(index, value.x)
-        setFloat(index + Float.SIZE_BYTES, value.y)
-        setFloat(index + Float.SIZE_BYTES * 2, value.z)
-    }
-
-    fun getVec3(index: Int): Vec3 {
-        return Vec3(
-            getFloat(index),
-            getFloat(index * Float.SIZE_BYTES),
-            getFloat(index * Float.SIZE_BYTES * 2),
+    fun copy(destBuffer: NativeBuffer, src: Int, dest: Int, size: Int) {
+        buffer.copyInto(
+            destination = destBuffer.buffer,
+            destinationOffset = dest,
+            startIndex = src,
+            endIndex = src + size
         )
     }
 
-    fun setVec4(index: Int, value: Vec4) {
-        setFloat(index, value.x)
-        setFloat(index + Float.SIZE_BYTES, value.y)
-        setFloat(index + Float.SIZE_BYTES * 2, value.z)
-        setFloat(index + Float.SIZE_BYTES * 3, value.w)
+    fun setArray(index: Int, value: IntArray) {
+        value.forEachIndexed { i, v ->
+            setInt(index + i * Int.SIZE_BYTES, v)
+        }
     }
 
-    fun getVec4(index: Int): Vec4 {
-        return Vec4(
-            getFloat(index),
-            getFloat(index * Float.SIZE_BYTES),
-            getFloat(index * Float.SIZE_BYTES * 2),
-            getFloat(index * Float.SIZE_BYTES * 3),
-        )
+    fun setArray(index: Int, value: FloatArray) {
+        value.forEachIndexed { i, v ->
+            setFloat(index + i * Float.SIZE_BYTES, v)
+        }
     }
 
-    fun setColor(index: Int, value: Color) {
-        setInt(index, value.r)
-        setInt(index + Int.SIZE_BYTES, value.g)
-        setInt(index + Int.SIZE_BYTES * 2, value.b)
-        setInt(index + Int.SIZE_BYTES * 3, value.a)
+    fun setArray(index: Int, value: LongArray) {
+        value.forEachIndexed { i, v ->
+            setLong(index + i * Long.SIZE_BYTES, v)
+        }
     }
 
-    fun getColor(index: Int): Color {
-        return Color(
-            getInt(index),
-            getInt(index + Int.SIZE_BYTES),
-            getInt(index + Int.SIZE_BYTES * 2),
-            getInt(index + Int.SIZE_BYTES * 3),
+    fun setArray(index: Int, value: DoubleArray) {
+        value.forEachIndexed { i, v ->
+            setDouble(index + i * Double.SIZE_BYTES, v)
+        }
+    }
+
+    fun setArray(index: Int, value: ShortArray) {
+        value.forEachIndexed { i, v ->
+            setShort(index + i * Short.SIZE_BYTES, v)
+        }
+    }
+
+    fun setArray(index: Int, value: BooleanArray) {
+        value.forEachIndexed { i, v ->
+            setBoolean(index + i * Byte.SIZE_BYTES, v)
+        }
+    }
+
+    fun setArray(index: Int, value: ByteArray) {
+        value.copyInto(
+            destination = buffer,
+            destinationOffset = index
         )
     }
 

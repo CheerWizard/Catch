@@ -1,12 +1,12 @@
 package com.cws.kanvas
 
-import com.cws.kmemory.NativeBuffer
+import com.cws.kmemory.PlatformBuffer
 
-open class KanvasBuffer(
+open class GpuBuffer(
     protected val type: Int,
     protected val elementSizeBytes: Int,
     size: Int
-) : NativeBuffer(size) {
+) : PlatformBuffer(size) {
 
     protected lateinit var handle: BufferID
 

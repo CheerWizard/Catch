@@ -8,6 +8,7 @@ import java.nio.ByteBuffer
 actual typealias VertexArrayID = Int
 actual typealias BufferID = Int
 actual typealias TextureID = Int
+actual typealias FrameBufferID = Int
 actual typealias ShaderStageID = Int
 actual typealias ShaderID = Int
 
@@ -20,10 +21,14 @@ actual object Kanvas {
     actual val INT: Int = GL_INT
     actual val UINT: Int = GL_UNSIGNED_INT
     actual val BOOLEAN: Int = GL_BOOL
+    actual val UBYTE: Int = GL_UNSIGNED_BYTE
+    actual val TRIANGLES: Int = GL_TRIANGLES
     actual val VERTEX_BUFFER: Int = GL_ARRAY_BUFFER
     actual val INDEX_BUFFER: Int = GL_ELEMENT_ARRAY_BUFFER
     actual val UNIFORM_BUFFER: Int = GL_UNIFORM_BUFFER
     actual val FRAME_BUFFER: Int = GL_FRAMEBUFFER
+    actual val READ_FRAME_BUFFER: Int = GL_READ_FRAMEBUFFER
+    actual val DRAW_FRAME_BUFFER: Int = GL_DRAW_FRAMEBUFFER
     actual val VERTEX_SHADER: Int = GL_VERTEX_SHADER
     actual val FRAGMENT_SHADER: Int = GL_FRAGMENT_SHADER
     actual val GEOMETRY_SHADER: Int = GL_GEOMETRY_SHADER
@@ -35,6 +40,18 @@ actual object Kanvas {
     actual val COLOR_BUFFER_BIT: Int = GL_COLOR_BUFFER_BIT
     actual val DEPTH_BUFFER_BIT: Int = GL_DEPTH_BUFFER_BIT
     actual val STENCIL_BUFFER_BIT: Int = GL_STENCIL_BUFFER_BIT
+    actual val FORMAT_RGBA: Int = GL_RGBA
+    actual val FORMAT_RGB: Int = GL_RGB
+    actual val LINEAR: Int = GL_LINEAR
+    actual val CLAMP_TO_EDGE: Int = GL_CLAMP_TO_EDGE
+    actual val REPEAT: Int = GL_REPEAT
+    actual val TEXTURE_2D: Int = GL_TEXTURE_2D
+    actual val TEXTURE_CUBE_MAP: Int = GL_TEXTURE_CUBE_MAP
+    actual val TEXTURE_MIN_FILTER: Int = GL_TEXTURE_MIN_FILTER
+    actual val TEXTURE_MAG_FILTER: Int = GL_TEXTURE_MAG_FILTER
+    actual val TEXTURE_WRAP_S: Int = GL_TEXTURE_WRAP_S
+    actual val TEXTURE_WRAP_T: Int = GL_TEXTURE_WRAP_T
+    actual val TEXTURE_WRAP_R: Int = GL_TEXTURE_WRAP_R
 
     actual fun clear(bitmask: Int) {
         glClear(bitmask)
@@ -183,6 +200,132 @@ actual object Kanvas {
 
     actual fun shaderUse(shader: ShaderID) {
         glUseProgram(shader)
+    }
+
+    actual fun textureInit(type: Int): TextureID {
+        return glGenTextures()
+    }
+
+    actual fun textureParameter(type: Int, name: Int, value: Int) {
+        glTexParameteri(type, name, value)
+    }
+
+    actual fun textureRelease(texture: TextureID) {
+        glDeleteTextures(texture)
+    }
+
+    actual fun textureBind(type: Int, texture: TextureID) {
+        glBindTexture(type, texture)
+    }
+
+    actual fun textureUnbind(type: Int) {
+        glBindTexture(type, 0)
+    }
+
+    actual fun textureActive(slot: Int) {
+        glActiveTexture(GL_TEXTURE0 + slot)
+    }
+
+    actual fun textureGenerateMipmap(type: Int) {
+        glGenerateMipmap(type)
+    }
+
+    actual fun textureImage2D(type: Int, texture: Texture) {
+        glTexImage2D(
+            type,
+            texture.mipLevel,
+            texture.format,
+            texture.width,
+            texture.height,
+            texture.border,
+            texture.format,
+            texture.pixelFormat,
+            texture.pixels as ByteBuffer
+        )
+    }
+
+    actual fun drawArrays(mode: Int, first: Int, count: Int) {
+        glDrawArrays(mode, first, count)
+    }
+
+    actual fun drawArraysInstanced(mode: Int, first: Int, count: Int, instances: Int) {
+        glDrawArraysInstanced(mode, first, count, instances)
+    }
+
+    actual fun drawElements(mode: Int, indices: Int, type: Int, indicesOffset: Int) {
+        glDrawElements(mode, indices, type, indicesOffset.toLong())
+    }
+
+    actual fun drawElementsInstanced(mode: Int, indices: Int, type: Int, indicesOffset: Int, instances: Int) {
+        glDrawElementsInstanced(mode, indices, type, indicesOffset.toLong(), instances)
+    }
+
+    actual fun frameBufferInit(): FrameBufferID {
+        return glGenFramebuffers()
+    }
+
+    actual fun frameBufferRelease(frameBufferID: FrameBufferID) {
+        glDeleteFramebuffers(frameBufferID)
+    }
+
+    actual fun frameBufferBind(type: Int, frameBufferID: FrameBufferID) {
+        glBindFramebuffer(type, frameBufferID)
+    }
+
+    actual fun frameBufferUnbind(type: Int) {
+        glBindFramebuffer(type, 0)
+    }
+
+    actual fun frameBufferBlit(
+        srcX: Int,
+        srcY: Int,
+        srcWidth: Int,
+        srcHeight: Int,
+        destX: Int,
+        destY: Int,
+        destWidth: Int,
+        destHeight: Int,
+        bitmask: Int,
+        filter: Int
+    ) {
+        glBlitFramebuffer(
+            srcX, srcY, srcWidth, srcHeight,
+            destX, destY, destWidth, destHeight,
+            bitmask, filter
+        )
+    }
+
+    actual fun frameBufferCheckStatus(): Boolean {
+        return glCheckFramebufferStatus(FRAME_BUFFER) == GL_FRAMEBUFFER_COMPLETE
+    }
+
+    actual fun frameBufferAttachColor(
+        index: Int,
+        textureType: Int,
+        textureID: TextureID,
+        textureLevel: Int
+    ) {
+        glFramebufferTexture2D(
+            FRAME_BUFFER,
+            GL_COLOR_ATTACHMENT0 + index,
+            textureType,
+            textureID,
+            textureLevel
+        )
+    }
+
+    actual fun frameBufferAttachDepth(
+        textureType: Int,
+        textureID: TextureID,
+        textureLevel: Int
+    ) {
+        glFramebufferTexture2D(
+            FRAME_BUFFER,
+            GL_DEPTH_ATTACHMENT,
+            textureType,
+            textureID,
+            textureLevel
+        )
     }
 
 }

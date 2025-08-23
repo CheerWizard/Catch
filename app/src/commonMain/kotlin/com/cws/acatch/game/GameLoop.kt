@@ -7,8 +7,6 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.PointerInputScope
 import com.cws.acatch.game.collision.CollisionBox
 import com.cws.acatch.game.data.EntityData
 import com.cws.acatch.game.data.GameGrid
@@ -27,7 +25,7 @@ import kotlin.collections.forEachIndexed
 import kotlin.collections.get
 import kotlin.math.abs
 
-class GameManager(
+class GameLoop(
     private val width: Float,
     private val height: Float,
     private val context: Context,
@@ -37,7 +35,7 @@ class GameManager(
     var score = mutableStateOf(Score())
     val animateScore = mutableStateOf(false)
 
-    private val tag = GameManager::class.java.simpleName
+    private val tag = GameLoop::class.java.simpleName
     private val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     private val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
@@ -228,18 +226,4 @@ class GameManager(
         sensorDZ = if (z > 3f) -1f else 1f
     }
 
-}
-
-suspend fun PointerInputScope.handleInput(gameManager: GameManager) {
-    awaitPointerEventScope {
-        while (true) {
-            val event = awaitPointerEvent()
-            when (event.type) {
-                PointerEventType.Press -> {
-                    val position = event.changes.first().position
-                    gameManager.onTap(position)
-                }
-            }
-        }
-    }
 }

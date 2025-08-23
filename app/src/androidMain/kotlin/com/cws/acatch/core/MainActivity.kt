@@ -7,13 +7,13 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import com.cws.acatch.game.GameManager
+import com.cws.acatch.game.GameLoop
 import com.cws.acatch.game.rendering.GameRenderer
 import com.cws.acatch.game.ui.GameScreen
 
 class MainActivity : ComponentActivity() {
 
-    private lateinit var gameManager: GameManager
+    private lateinit var gameLoop: GameLoop
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,8 +27,8 @@ class MainActivity : ComponentActivity() {
             val screenWidthPx = with(density) { screenWidthDp.toPx() }
             val screenHeightPx = with(density) { screenHeightDp.toPx() }
 
-            if (!::gameManager.isInitialized) {
-                gameManager = GameManager(
+            if (!::gameLoop.isInitialized) {
+                gameLoop = GameLoop(
                     context = applicationContext,
                     width = screenWidthPx,
                     height = screenHeightPx,
@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
             }
 
             GameScreen(
-                gameManager = gameManager
+                gameLoop = gameLoop
             )
         }
     }

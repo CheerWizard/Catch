@@ -9,21 +9,21 @@ value class Mat3(
 ) {
 
     var v1: Vec3
-        get() = NativeHeap.getVec3(index + Vec3.SIZE_BYTES * 0)
+        get() = Vec3(index + Vec3.SIZE_BYTES * 0)
         set(value) {
-            NativeHeap.setVec3(index + Vec3.SIZE_BYTES * 0, value)
+            NativeHeap.copy(value.index, index + Vec3.SIZE_BYTES * 0, Vec3.SIZE_BYTES)
         }
 
     var v2: Vec3
-        get() = NativeHeap.getVec3(index + Vec3.SIZE_BYTES * 1)
+        get() = Vec3(index + Vec3.SIZE_BYTES * 1)
         set(value) {
-            NativeHeap.setVec3(index + Vec3.SIZE_BYTES * 1, value)
+            NativeHeap.copy(value.index, index + Vec3.SIZE_BYTES * 1, Vec3.SIZE_BYTES)
         }
 
     var v3: Vec3
-        get() = NativeHeap.getVec3(index + Vec3.SIZE_BYTES * 2)
+        get() = Vec3(index + Vec3.SIZE_BYTES * 2)
         set(value) {
-            NativeHeap.setVec3(index + Vec3.SIZE_BYTES * 2, value)
+            NativeHeap.copy(value.index, index + Vec3.SIZE_BYTES * 2, Vec3.SIZE_BYTES)
         }
 
     fun free() {

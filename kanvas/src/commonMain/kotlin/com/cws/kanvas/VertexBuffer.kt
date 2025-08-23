@@ -1,6 +1,6 @@
 package com.cws.kanvas
 
-class VertexBuffer(size: Int) : KanvasBuffer(
+class VertexBuffer(size: Int) : GpuBuffer(
     type = Kanvas.VERTEX_BUFFER,
     elementSizeBytes = Float.SIZE_BYTES,
     size = size

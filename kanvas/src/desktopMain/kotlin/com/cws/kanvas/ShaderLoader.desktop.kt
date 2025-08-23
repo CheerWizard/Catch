@@ -5,7 +5,13 @@ import java.io.File
 actual class ShaderLoader {
 
     actual suspend fun load(filepath: String): String {
-        return File(filepath).readText()
+        val file = File(filepath)
+        if (file.exists()) {
+            return file.readText()
+        } else {
+
+            return ""
+        }
     }
 
 }

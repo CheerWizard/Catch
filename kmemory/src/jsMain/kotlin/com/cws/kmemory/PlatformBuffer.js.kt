@@ -10,7 +10,7 @@ import org.khronos.webgl.get
 import org.khronos.webgl.set
 import kotlin.math.roundToLong
 
-actual open class PlatformBuffer actual constructor(size: Int) {
+actual open class PlatformBuffer actual constructor(size: Int) : LockFreeBuffer() {
 
     private var buffer = ArrayBuffer(size)
 

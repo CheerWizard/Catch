@@ -26,14 +26,14 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.cws.acatch.game.GameManager
+import com.cws.acatch.game.GameLoop
 import com.cws.acatch.game.handleInput
 import com.cws.acatch.game.rendering.GameRenderer
 import com.cws.acatch.game.rendering.GameSurfaceView
 
 @Composable
 fun GameScreen(
-    gameManager: GameManager
+    gameLoop: GameLoop
 ) {
     val density = LocalDensity.current
 
@@ -45,25 +45,25 @@ fun GameScreen(
     var running by remember { mutableStateOf(true) }
     var tick by remember { mutableLongStateOf(0L) }
 
-    val score by gameManager.score
+    val score by gameLoop.score
 
     val animateScoreScale by animateFloatAsState(
-        targetValue = if (gameManager.animateScore.value) 1.5f else 1f,
+        targetValue = if (gameLoop.animateScore.value) 1.5f else 1f,
         animationSpec = tween(100),
         label = "animateScoreScale",
         finishedListener = {
-            if (it == 1.5f) gameManager.animateScore.value = false
+            if (it == 1.5f) gameLoop.animateScore.value = false
         }
     )
 
     LaunchedEffect(Unit) {
         withFrameMillis { time ->
-            gameManager.onCreate(time)
+            gameLoop.onCreate(time)
             tick = time
         }
         while (running) {
             withFrameMillis { time ->
-                gameManager.onUpdate(time)
+                gameLoop.onUpdate(time)
                 tick = time
             }
         }
@@ -72,7 +72,7 @@ fun GameScreen(
     DisposableEffect(Unit) {
         onDispose {
             running = false
-            gameManager.onDestroy()
+            gameLoop.onDestroy()
         }
     }
 
@@ -91,12 +91,12 @@ fun GameScreen(
                     ),
                 )
                 .pointerInput(Unit) {
-                    handleInput(gameManager)
+                    handleInput(gameLoop)
                 },
             factory = {
                 GameSurfaceView(
                     context = context,
-                    renderer = gameManager.renderer
+                    renderer = gameLoop.renderer
                 )
             }
         )
@@ -117,7 +117,7 @@ fun GameScreen(
 @Composable
 fun Preview_Game() {
     GameScreen(
-        gameManager = GameManager(
+        gameLoop = GameLoop(
             context = LocalContext.current,
             width = LocalConfiguration.current.screenWidthDp.toFloat(),
             height = LocalConfiguration.current.screenHeightDp.toFloat(),

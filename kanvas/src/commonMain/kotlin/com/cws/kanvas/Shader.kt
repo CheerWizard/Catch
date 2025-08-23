@@ -1,5 +1,7 @@
 package com.cws.kanvas
 
+import com.cws.klog.KLog
+
 class Shader(
     private val stages: MutableList<ShaderStage> = mutableListOf(),
     private val loader: ShaderLoader
@@ -23,7 +25,7 @@ class Shader(
             contains("_vert") -> Kanvas.VERTEX_SHADER
             contains("_frag") -> Kanvas.FRAGMENT_SHADER
             else -> {
-                println("Unsupported shader type $this")
+                KLog.warn("Unsupported shader type $this")
                 Kanvas.NULL
             }
         }

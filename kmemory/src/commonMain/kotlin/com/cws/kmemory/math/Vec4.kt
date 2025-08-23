@@ -1,23 +1,54 @@
 package com.cws.kmemory.math
 
+import com.cws.kmemory.NativeHeap
 import kotlin.jvm.JvmInline
 import kotlin.math.sqrt
 
 @JvmInline
-value class Vec4(val packed: Long) {
+value class Vec4(val index: Int) {
 
-    companion object {
-        const val SIZE_BYTES = Float.SIZE_BYTES * 4
+    constructor(x: Float, y: Float, z: Float, w: Float) : this(create().index) {
+        this.x = x
+        this.y = y
+        this.z = z
+        this.w = w
     }
 
-    constructor(x: Float, y: Float, z: Float, w: Float) : this(pack(x, y, z, w))
+    var x: Float
+        get() = NativeHeap.getFloat(index + Float.SIZE_BYTES * 0)
+        set(value) {
+            NativeHeap.setFloat(index + Float.SIZE_BYTES * 0, value)
+        }
 
-    val x: Float get() = unpack(((packed shr 48) and 0xFFFF).toShort())
-    val y: Float get() = unpack(((packed shr 32) and 0xFFFF).toShort())
-    val z: Float get() = unpack(((packed shr 16) and 0xFFFF).toShort())
-    val w: Float get() = unpack((packed and 0xFFFF).toShort())
+    var y: Float
+        get() = NativeHeap.getFloat(index + Float.SIZE_BYTES * 1)
+        set(value) {
+            NativeHeap.setFloat(index + Float.SIZE_BYTES * 1, value)
+        }
 
-    fun length() = sqrt(x * x + y * y + z * z + w * w)
+    var z: Float
+        get() = NativeHeap.getFloat(index + Float.SIZE_BYTES * 2)
+        set(value) {
+            NativeHeap.setFloat(index + Float.SIZE_BYTES * 2, value)
+        }
+
+    var w: Float
+        get() = NativeHeap.getFloat(index + Float.SIZE_BYTES * 3)
+        set(value) {
+            NativeHeap.setFloat(index + Float.SIZE_BYTES * 3, value)
+        }
+
+    fun free() {
+        NativeHeap.free(index, SIZE_BYTES)
+    }
+
+    fun length(): Float {
+        val x = x
+        val y = y
+        val z = z
+        val w = w
+        return sqrt(x * x + y * y + z * z + w * w)
+    }
 
     fun normalized(): Vec4 {
         val length = length()
@@ -39,14 +70,11 @@ value class Vec4(val packed: Long) {
     operator fun times(v: Vec4): Vec4 = Vec4(x * v.x, y * v.y, z * v.z, w * v.w)
     operator fun div(v: Vec4): Vec4 = Vec4(x / v.x, y / v.y, z / v.z, w / v.w)
 
-}
+    companion object {
+        const val SIZE_BYTES = Float.SIZE_BYTES * 4
+        fun create(): Vec4 = Vec4(NativeHeap.allocate(SIZE_BYTES))
+    }
 
-internal fun pack(x: Float, y: Float, z: Float, w: Float): Long {
-    val xBits = quantize(x).toLong() and 0xFFFF
-    val yBits = quantize(y).toLong() and 0xFFFF
-    val zBits = quantize(z).toLong() and 0xFFFF
-    val wBits = quantize(w).toLong() and 0xFFFF
-    return (xBits shl 48) or (yBits shl 32) or (zBits shl 16) or wBits
 }
 
 fun dot(v1: Vec4, v2: Vec4): Float {

@@ -8,22 +8,21 @@ kotlin {
     js(IR) {
         browser()
     }
-    androidTarget()
     jvm("desktop")
+    androidTarget()
+    iosArm64()
+    iosX64()
+    iosSimulatorArm64()
 
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(project(":kmemory"))
-                implementation(kotlin("stdlib-common"))
                 // Coroutines
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-            }
-        }
 
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
+                implementation(project(":klog"))
+                implementation(project(":kmemory"))
+                implementation(kotlin("stdlib-common"))
             }
         }
 
@@ -31,13 +30,12 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.core.ktx)
             }
+            dependsOn(commonMain)
         }
 
-//        val iosMain by getting {
-//            dependencies {
-//
-//            }
-//        }
+        val iosMain by creating {
+            dependsOn(commonMain)
+        }
 
         val desktopMain by getting {
             dependencies {
@@ -46,12 +44,26 @@ kotlin {
                 implementation("org.lwjgl:lwjgl-glfw:3.3.6")
                 implementation("org.lwjgl:lwjgl-stb:3.3.6")
             }
+            dependsOn(commonMain)
         }
 
         val jsMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-browser:0.16.0")
             }
+            dependsOn(commonMain)
+        }
+
+        val iosX64Main by getting {
+            dependsOn(iosMain)
+        }
+        
+        val iosArm64Main by getting {
+            dependsOn(iosMain)
+        }
+
+        val iosSimulatorArm64Main by getting {
+            dependsOn(iosMain)
         }
     }
 }

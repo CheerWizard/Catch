@@ -8,7 +8,7 @@ object NativeStack : NativeBuffer(1024 * 1024) {
         if (index == capacity) {
             resize(capacity * 2)
         }
-        setPosition(index + size)
+        position = index + size
         index
     }
 
@@ -16,7 +16,7 @@ object NativeStack : NativeBuffer(1024 * 1024) {
         lock {
             val index = position
             if (index >= size) {
-                setPosition(index - size)
+                position = index - size
             }
         }
     }

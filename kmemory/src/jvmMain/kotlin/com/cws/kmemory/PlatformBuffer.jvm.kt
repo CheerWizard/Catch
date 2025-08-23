@@ -3,7 +3,7 @@ package com.cws.kmemory
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-actual open class PlatformBuffer actual constructor(size: Int) {
+actual open class PlatformBuffer actual constructor(size: Int) : LockFreeBuffer() {
 
     protected var buffer = ByteBuffer
         .allocateDirect(size)
@@ -73,20 +73,36 @@ actual open class PlatformBuffer actual constructor(size: Int) {
     actual fun getBoolean(index: Int) = buffer.get(index) == 1.toByte()
 
     actual fun copy(src: Int, dest: Int, size: Int) {
-        val srcSlice = buffer.duplicate()
-        srcSlice.position(src)
-        srcSlice.limit(src + size)
-        val destSlice = buffer.duplicate()
-        destSlice.position(dest)
-        destSlice.put(srcSlice)
+        lock {
+            val srcSlice = buffer.duplicate()
+            srcSlice.position(src)
+            srcSlice.limit(src + size)
+            val lastPosition = position
+            buffer.position(dest)
+            buffer.put(srcSlice)
+            buffer.position(lastPosition)
+        }
     }
 
     actual fun copy(destBuffer: PlatformBuffer, src: Int, dest: Int, size: Int) {
-        val srcSlice = buffer.duplicate()
-        srcSlice.position(src)
-        srcSlice.limit(src + size)
-        destBuffer.setPosition(dest)
-        destBuffer.buffer.put(srcSlice)
+        lock {
+            val srcSlice = buffer.duplicate()
+            srcSlice.position(src)
+            srcSlice.limit(src + size)
+            val destLastPosition = destBuffer.position
+            destBuffer.setPosition(dest)
+            destBuffer.buffer.put(srcSlice)
+            destBuffer.setPosition(destLastPosition)
+        }
+    }
+
+    actual fun copy(srcBuffer: NativeBuffer, src: Int, dest: Int, size: Int) {
+        lock {
+            val lastPosition = position
+            buffer.position(dest)
+            buffer.put(srcBuffer.buffer, src, size)
+            buffer.position(lastPosition)
+        }
     }
 
     actual fun setArray(value: IntArray) {
