@@ -1,7 +1,6 @@
 package com.cws.kanvas
 
 import com.cws.klog.KLog
-import com.cws.kmemory.math.Color
 import kotlinx.cinterop.ByteVar
 import kotlinx.cinterop.CArrayPointer
 import kotlinx.cinterop.CValuesRef
@@ -62,9 +61,8 @@ actual object Kanvas {
         glClear(bitmask)
     }
 
-    actual fun clearColor(color: Color) {
-        val vec4 = color.toVec4()
-        glClearColor(vec4.x, vec4.y, vec4.z, vec4.w)
+    actual fun clearColor(r: Float, g: Float, b: Float, a: Float) {
+        glClearColor(r, g, b, a)
     }
 
     actual fun viewport(x: Int, y: Int, w: Int, h: Int) {

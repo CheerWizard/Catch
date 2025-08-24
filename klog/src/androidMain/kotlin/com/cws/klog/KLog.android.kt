@@ -4,28 +4,42 @@ import android.util.Log
 
 actual object KLog {
 
+    actual var enabled: Boolean = BuildConfig.DEBUG
+
     actual fun verbose(message: String) {
-        Log.v(tag(), message)
+        if (enabled) {
+            Log.v(tag(), message)
+        }
     }
 
     actual fun info(message: String) {
-        Log.i(tag(), message)
+        if (enabled) {
+            Log.i(tag(), message)
+        }
     }
 
     actual fun debug(message: String) {
-        Log.d(tag(), message)
+        if (enabled) {
+            Log.d(tag(), message)
+        }
     }
 
     actual fun warn(message: String) {
-        Log.w(tag(), message)
+        if (enabled) {
+            Log.w(tag(), message)
+        }
     }
 
     actual fun error(message: String) {
-        Log.e(tag(), message)
+        if (enabled) {
+            Log.e(tag(), message)
+        }
     }
 
     actual fun error(message: String, exception: Throwable) {
-        Log.e(tag(), message, exception)
+        if (enabled) {
+            Log.e(tag(), message, exception)
+        }
     }
 
     actual fun tag(): String {

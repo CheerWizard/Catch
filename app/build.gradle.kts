@@ -66,9 +66,8 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                // Kotlin Graphics
                 implementation(project(":kanvas"))
-                // Kotlin Memory
+                implementation(project(":klog"))
                 implementation(project(":kmemory"))
                 // Coroutines
                 implementation(libs.kotlinx.coroutines.core)

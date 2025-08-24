@@ -33,12 +33,11 @@ class NativeProcessor(
     )
 
     private val primitiveTypes = arrayOf(
-        "Int", "Double", "Float", "Long", "Boolean", "Byte", "Short",
-        "Color", "Vec2", "Vec3", "Vec4"
+        "Int", "Double", "Float", "Long", "Boolean", "Byte", "Short"
     )
 
     private val commonTypes = arrayOf(
-        "Mat2", "Mat3", "Mat4"
+        "Vec2", "Vec3", "Vec4", "Mat2", "Mat3", "Mat4"
     )
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
@@ -337,13 +336,5 @@ class NativeProcessor(
     }
 
     private fun String.firstToUppercase() = replace(this[0], this[0].uppercaseChar())
-
-    private fun generateJVMFile() {
-
-    }
-
-    private fun generateJSFile() {
-
-    }
 
 }

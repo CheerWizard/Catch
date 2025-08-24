@@ -37,13 +37,7 @@ actual class Window : BaseWindow {
 
     actual fun applySwapChain() = Unit
 
-    actual inline fun pollEvents(crossinline block: () -> Unit) {
-        window.requestAnimationFrame { block() }
-    }
-
     actual fun setCurrent() = Unit
-
-    actual fun onMotionEvent(event: Any?) = Unit
 
     private fun initEventListeners() {
         window.onresize = { e ->

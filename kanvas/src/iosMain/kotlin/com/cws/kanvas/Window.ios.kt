@@ -2,7 +2,7 @@ package com.cws.kanvas
 
 actual typealias WindowID = Unit
 
-actual class Window {
+actual class Window : BaseWindow {
 
     actual companion object {
         actual fun free() = Unit
@@ -21,8 +21,11 @@ actual class Window {
 
     actual fun applySwapChain() {}
 
-    actual inline fun pollEvents(crossinline block: () -> Unit) {}
-
     actual fun setCurrent() {}
+
+    override fun dispatchEvent(event: Any) {
+        super.dispatchEvent(event)
+        // TODO: dispatch motion event for iOS
+    }
 
 }

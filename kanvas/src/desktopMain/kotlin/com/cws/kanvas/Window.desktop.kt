@@ -48,7 +48,8 @@ actual class Window : BaseWindow {
         glfwSwapBuffers(handle)
     }
 
-    actual inline fun pollEvents(crossinline block: () -> Unit) {
+    override fun pollEvents() {
+        super.pollEvents()
         glfwPollEvents()
     }
 
@@ -168,7 +169,5 @@ actual class Window : BaseWindow {
             else -> MouseCode.Null
         }
     }
-
-    actual fun onMotionEvent(event: Any?) = Unit
 
 }

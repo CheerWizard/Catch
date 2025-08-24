@@ -1,29 +1,42 @@
 package com.cws.kanvas
 
+import kotlinx.atomicfu.locks.ReentrantLock
+import kotlinx.atomicfu.locks.withLock
+
 expect class WindowID
 
-open class BaseWindow {
+abstract class BaseWindow {
 
     protected val eventListeners = mutableSetOf<EventListener>()
     protected val events = ArrayDeque<Any>()
 
+    private val lock = ReentrantLock()
+
     fun addEventListener(eventListener: EventListener) {
-        eventListeners.add(eventListener)
+        lock.withLock {
+            eventListeners.add(eventListener)
+        }
     }
 
     fun removeEventListener(eventListener: EventListener) {
-        eventListeners.remove(eventListener)
+        lock.withLock {
+            eventListeners.remove(eventListener)
+        }
     }
 
     fun addEvent(event: Any) {
-        events.addLast(event)
-    }
-
-    protected fun popEvents() {
-        while (events.isNotEmpty()) {
-
+        lock.withLock {
+            events.addLast(event)
         }
     }
+
+    open fun pollEvents() {
+        while (events.isNotEmpty()) {
+            dispatchEvent(events.removeFirst())
+        }
+    }
+
+    open fun dispatchEvent(event: Any) {}
 
 }
 
@@ -44,6 +57,5 @@ expect class Window : BaseWindow {
     fun isClosed(): Boolean
     fun applySwapChain()
     fun setCurrent()
-    fun pollEvents()
 
 }

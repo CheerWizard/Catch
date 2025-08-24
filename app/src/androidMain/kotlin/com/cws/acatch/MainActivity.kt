@@ -1,4 +1,4 @@
-package com.cws.acatch.core
+package com.cws.acatch
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -8,7 +8,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.cws.acatch.game.GameLoop
-import com.cws.acatch.game.rendering.GameRenderer
 import com.cws.acatch.game.ui.GameScreen
 
 class MainActivity : ComponentActivity() {

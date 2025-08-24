@@ -2,29 +2,43 @@ package com.cws.klog
 
 actual object KLog {
 
+    actual var enabled: Boolean = BuildConfig.DEBUG
+
     actual fun verbose(message: String) {
-        console.info("[VERBOSE] ${tag()}: $message")
+        if (enabled) {
+            console.info("[VERBOSE] ${tag()}: $message")
+        }
     }
 
     actual fun info(message: String) {
-        console.info("[INFO] ${tag()}: $message")
+        if (enabled) {
+            console.info("[INFO] ${tag()}: $message")
+        }
     }
 
     actual fun debug(message: String) {
-        console.info("[DEBUG] ${tag()}: $message")
+        if (enabled) {
+            console.info("[DEBUG] ${tag()}: $message")
+        }
     }
 
     actual fun warn(message: String) {
-        console.warn("[WARNING] ${tag()}: $message")
+        if (enabled) {
+            console.warn("[WARNING] ${tag()}: $message")
+        }
     }
 
     actual fun error(message: String) {
-        console.error("[ERROR] ${tag()}: $message")
+        if (enabled) {
+            console.error("[ERROR] ${tag()}: $message")
+        }
     }
 
     actual fun error(message: String, exception: Throwable) {
-        console.error("[ERROR] ${tag()}: $message")
-        console.error(exception.message)
+        if (enabled) {
+            console.error("[ERROR] ${tag()}: $message")
+            console.error(exception.message)
+        }
     }
 
     actual fun tag(): String {

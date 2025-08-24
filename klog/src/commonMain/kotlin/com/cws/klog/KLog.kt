@@ -1,6 +1,7 @@
 package com.cws.klog
 
 expect object KLog {
+    var enabled: Boolean
     fun verbose(message: String)
     fun info(message: String)
     fun debug(message: String)

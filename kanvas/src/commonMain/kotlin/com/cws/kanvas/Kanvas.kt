@@ -1,7 +1,5 @@
 package com.cws.kanvas
 
-import com.cws.kmemory.math.Color
-
 expect class VertexArrayID
 expect class BufferID
 expect class TextureID
@@ -61,7 +59,7 @@ expect object Kanvas {
     val TEXTURE_WRAP_R: Int
 
     fun clear(bitmask: Int)
-    fun clearColor(color: Color)
+    fun clearColor(r: Float, g: Float, b: Float, a: Float)
 
     fun viewport(x: Int, y: Int, w: Int, h: Int)
 

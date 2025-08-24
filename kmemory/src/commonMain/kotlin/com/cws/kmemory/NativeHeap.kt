@@ -2,14 +2,13 @@ package com.cws.kmemory
 
 class FreeBlocks(size: Int) {
 
-    private val indices = ArrayList<Int>(size)
-    private val sizes = ArrayList<Int>(size)
+    private val indices = IntArrayList(size)
+    private val sizes = IntArrayList(size)
     private var position = -1
 
     fun push(index: Int, size: Int) {
-        ++position
-        indices.add(position, index)
-        sizes.add(position, size)
+        indices[++position] = index
+        sizes[position] = size
     }
 
     fun pop(size: Int): Int {
@@ -22,8 +21,8 @@ class FreeBlocks(size: Int) {
             }
             else if (freeSize > size) {
                 val freeIndex = indices[position]
-                indices.add(position, freeIndex + size)
-                sizes.add(position, freeSize - size)
+                indices[position] = freeIndex + size
+                sizes[position] = freeSize - size
                 return freeIndex
             }
         }
@@ -32,7 +31,7 @@ class FreeBlocks(size: Int) {
 
 }
 
-object NativeHeap : NativeBuffer(1024 * 1024) {
+object NativeHeap : NativeBuffer(1024 * 1024 * 256) {
 
     private val freeBlocks = FreeBlocks(100)
 

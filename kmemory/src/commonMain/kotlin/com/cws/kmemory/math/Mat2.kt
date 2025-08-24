@@ -26,7 +26,7 @@ value class Mat2(
 
     companion object {
         const val SIZE_BYTES = Vec2.SIZE_BYTES * 2
-        fun create(): Mat2 = Mat2(NativeHeap.allocate(SIZE_BYTES))
+        private fun create(): Mat2 = Mat2(NativeHeap.allocate(SIZE_BYTES))
     }
 
 }

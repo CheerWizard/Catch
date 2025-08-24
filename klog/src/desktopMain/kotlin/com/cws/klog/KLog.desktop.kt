@@ -4,29 +4,43 @@ import kotlin.experimental.ExperimentalNativeApi
 
 actual object KLog {
 
+    actual var enabled: Boolean = BuildConfig.DEBUG
+
     actual fun verbose(message: String) {
-        println("[VERBOSE] ${tag()}: $message")
+        if (enabled) {
+            println("[VERBOSE] ${tag()}: $message")
+        }
     }
 
     actual fun info(message: String) {
-        println("[INFO] ${tag()}: $message")
+        if (enabled) {
+            println("[INFO] ${tag()}: $message")
+        }
     }
 
     actual fun debug(message: String) {
-        println("[DEBUG] ${tag()}: $message")
+        if (enabled) {
+            println("[DEBUG] ${tag()}: $message")
+        }
     }
 
     actual fun warn(message: String) {
-        println("[WARNING] ${tag()}: $message")
+        if (enabled) {
+            println("[WARNING] ${tag()}: $message")
+        }
     }
 
     actual fun error(message: String) {
-        println("[ERROR] ${tag()}: $message")
+        if (enabled) {
+            println("[ERROR] ${tag()}: $message")
+        }
     }
 
     actual fun error(message: String, exception: Throwable) {
-        println("[ERROR] ${tag()}: $message")
-        exception.printStackTrace()
+        if (enabled) {
+            println("[ERROR] ${tag()}: $message")
+            exception.printStackTrace()
+        }
     }
 
     @OptIn(ExperimentalNativeApi::class)

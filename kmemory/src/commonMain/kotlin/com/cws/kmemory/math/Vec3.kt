@@ -1,13 +1,19 @@
 package com.cws.kmemory.math
 
 import com.cws.kmemory.NativeHeap
+import com.cws.kmemory.NativeStack
 import kotlin.jvm.JvmInline
 import kotlin.math.sqrt
 
 @JvmInline
 value class Vec3(val index: Int) {
 
-    constructor(x: Float, y: Float, z: Float) : this(create().index) {
+    constructor(
+        x: Float = 0f,
+        y: Float = 0f,
+        z: Float = 0f,
+        index: Int = create().index
+    ) : this(index) {
         this.x = x
         this.y = y
         this.z = z
@@ -63,9 +69,13 @@ value class Vec3(val index: Int) {
 
     companion object {
         const val SIZE_BYTES = Float.SIZE_BYTES * 3
-        fun create(): Vec3 = Vec3(NativeHeap.allocate(SIZE_BYTES))
+        private fun create(): Vec3 = Vec3(NativeHeap.allocate(SIZE_BYTES))
     }
 
+}
+
+fun NativeStack.Vec3(x: Float = 0f, y: Float = 0f, z: Float = 0f): Vec3 {
+    return Vec3(x, y, z, push(Vec3.SIZE_BYTES))
 }
 
 fun dot(v1: Vec3, v2: Vec3): Float {

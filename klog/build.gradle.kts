@@ -22,6 +22,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {}
+            kotlin.srcDir("build/generated/src/commonMain/kotlin")
         }
 
         val androidMain by getting {
@@ -62,4 +63,28 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+}
+
+val generateBuildConfig by tasks.registering {
+    val outputDir = layout.buildDirectory.dir("generated/src/commonMain/kotlin")
+    val packageName = "com.cws.klog"
+    val build = project.properties["build"]?.toString()?.lowercase()
+    println("Build: $build")
+    val isDebug = build == "debug"
+
+    outputs.dir(outputDir)
+
+    val file = outputDir.get().file("$packageName/BuildConfig.kt").asFile
+    file.parentFile.mkdirs()
+    file.writeText("""
+            package $packageName
+
+            object BuildConfig {
+                const val DEBUG = $isDebug
+            }
+        """.trimIndent())
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class.java).configureEach {
+    dependsOn(generateBuildConfig)
 }

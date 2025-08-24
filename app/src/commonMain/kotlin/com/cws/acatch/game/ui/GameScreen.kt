@@ -28,8 +28,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cws.acatch.game.GameLoop
 import com.cws.acatch.game.handleInput
-import com.cws.acatch.game.rendering.GameRenderer
-import com.cws.acatch.game.rendering.GameSurfaceView
 
 @Composable
 fun GameScreen(
