@@ -1,7 +1,6 @@
 package com.cws.kanvas
 
 import android.opengl.GLES30.*
-import com.cws.kmemory.math.Color
 import java.nio.Buffer
 import java.nio.ByteBuffer
 
@@ -86,20 +85,30 @@ actual object Kanvas {
     actual fun bufferData(
         type: Int,
         offset: Int,
-        data: Any?,
+        data: Any,
         size: Int,
         usage: Int
     ) {
-        glBufferData(type, size, data as Buffer, usage)
+        data as Buffer
+        if (data.remaining() < size) {
+            glBufferData(type, size, null, usage)
+        } else {
+            glBufferData(type, size, data, usage)
+        }
     }
 
     actual fun bufferSubData(
         type: Int,
         offset: Int,
-        data: Any?,
+        data: Any,
         size: Int
     ) {
-        glBufferSubData(type, offset, size, data as Buffer)
+        data as Buffer
+        if (data.remaining() < size) {
+            glBufferSubData(type, offset, size, null)
+        } else {
+            glBufferSubData(type, offset, size, data)
+        }
     }
 
     actual fun vertexArrayInit(): VertexArrayID {

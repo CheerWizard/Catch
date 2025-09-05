@@ -2,8 +2,8 @@ package com.cws.kmemory
 
 class FreeBlocks(size: Int) {
 
-    private val indices = IntArrayList(size)
-    private val sizes = IntArrayList(size)
+    private val indices = SmallArray<Int>(size)
+    private val sizes = SmallArray<Int>(size)
     private var position = -1
 
     fun push(index: Int, size: Int) {
@@ -18,9 +18,8 @@ class FreeBlocks(size: Int) {
             freeSize = sizes[position]
             if (freeSize == size) {
                 return indices[position--]
-            }
-            else if (freeSize > size) {
-                val freeIndex = indices[position]
+            } else if (freeSize > size) {
+                val freeIndex: Int = indices[position]
                 indices[position] = freeIndex + size
                 sizes[position] = freeSize - size
                 return freeIndex
@@ -31,7 +30,7 @@ class FreeBlocks(size: Int) {
 
 }
 
-object NativeHeap : NativeBuffer(1024 * 1024 * 256) {
+object NativeHeap : NativeArray(BigBuffer(1024 * 1024 * 256)) {
 
     private val freeBlocks = FreeBlocks(100)
 

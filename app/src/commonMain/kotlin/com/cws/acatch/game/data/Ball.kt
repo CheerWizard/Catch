@@ -3,8 +3,8 @@ package com.cws.acatch.game.data
 import com.cws.acatch.game.rendering.CircleData
 import com.cws.acatch.game.rendering.center
 import com.cws.kmemory.NativeData
-import com.cws.kmemory.math.Color
 import com.cws.kmemory.math.Vec2
+import com.cws.kmemory.math.Vec4
 
 @NativeData(
     autoCreate = true,
@@ -15,18 +15,18 @@ class Ball(
     visible: Boolean,
     var velocity: Vec2,
     val dir: Vec2,
-    val color: Color,
+    val color: Vec4,
     val radius: Float
 ) : Entity(pos, visible)
 
 fun generateBalls(size: Int, width: Float, height: Float): BallArray {
     val balls = BallArray(size)
     repeat(size) { i ->
-        val color = Color(
-            (0..255).random(),
-            (0..255).random(),
-            (0..255).random(),
-            255
+        val color = Vec4(
+            (0..255).random() / 255f,
+            (0..255).random() / 255f,
+            (0..255).random() / 255f,
+            1f
         )
         val r = (80..100).random().toFloat()
         balls[i] = BallData.create().apply {

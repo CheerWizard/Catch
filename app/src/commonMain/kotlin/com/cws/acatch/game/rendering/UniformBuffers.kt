@@ -1,9 +1,9 @@
 package com.cws.acatch.game.rendering
 
 import com.cws.kanvas.UniformBuffer
-import com.cws.kmemory.NativeData
 import com.cws.kmemory.math.Vec2
 import com.cws.kmemory.math.Vec4
+import com.cws.kmemory.NativeData
 
 @NativeData
 data class Circle(

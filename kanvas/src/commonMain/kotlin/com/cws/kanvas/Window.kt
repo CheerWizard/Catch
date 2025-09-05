@@ -5,12 +5,11 @@ import kotlinx.atomicfu.locks.withLock
 
 expect class WindowID
 
-abstract class BaseWindow {
+interface BaseWindow {
 
-    protected val eventListeners = mutableSetOf<EventListener>()
-    protected val events = ArrayDeque<Any>()
-
-    private val lock = ReentrantLock()
+    val eventListeners: MutableSet<EventListener>
+    val events: ArrayDeque<Any>
+    val lock: ReentrantLock
 
     fun addEventListener(eventListener: EventListener) {
         lock.withLock {
@@ -30,13 +29,15 @@ abstract class BaseWindow {
         }
     }
 
-    open fun pollEvents() {
-        while (events.isNotEmpty()) {
-            dispatchEvent(events.removeFirst())
+    fun pollEvents() {
+        lock.withLock {
+            while (events.isNotEmpty()) {
+                dispatchEvent(events.removeFirst())
+            }
         }
     }
 
-    open fun dispatchEvent(event: Any) {}
+    fun dispatchEvent(event: Any) {}
 
 }
 
@@ -46,16 +47,22 @@ expect class Window : BaseWindow {
         fun free()
     }
 
+    override val eventListeners: MutableSet<EventListener>
+    override val events: ArrayDeque<Any>
+    override val lock: ReentrantLock
+
     constructor(
+        x: Int,
+        y: Int,
         width: Int,
         height: Int,
-        title: String,
-        surface: Any? = null
+        title: String
     )
 
     fun release()
     fun isClosed(): Boolean
     fun applySwapChain()
     fun setCurrent()
+    fun setSurface(surface: Any?)
 
 }

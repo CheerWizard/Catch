@@ -4,11 +4,16 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.cws.acatch.game.GameLoop
+import com.cws.kanvas.input.InputSensorManager
 import com.cws.acatch.game.ui.GameScreen
+import com.cws.kanvas.KanvasEntryPoint
+import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
 
@@ -28,16 +33,23 @@ class MainActivity : ComponentActivity() {
 
             if (!::gameLoop.isInitialized) {
                 gameLoop = GameLoop(
-                    context = applicationContext,
-                    width = screenWidthPx,
-                    height = screenHeightPx,
-                    renderer = GameRenderer()
+                    x = 0,
+                    y = 0,
+                    width = screenWidthPx.roundToInt(),
+                    height = screenHeightPx.roundToInt(),
+                    title = "",
+                    inputSensorManager = InputSensorManager(applicationContext)
                 )
             }
 
-            GameScreen(
-                gameLoop = gameLoop
-            )
+            KanvasEntryPoint(
+                modifier = Modifier.fillMaxSize(),
+                renderLoop = gameLoop
+            ) {
+                GameScreen(
+                    gameLoop = gameLoop
+                )
+            }
         }
     }
 

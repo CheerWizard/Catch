@@ -1,6 +1,6 @@
 package com.cws.acatch.game.data
 
-import androidx.collection.MutableIntList
+import com.cws.kmemory.IntArrayList
 
 class GameGrid(
     width: Int,
@@ -10,7 +10,7 @@ class GameGrid(
 
     val cols = width / cellSize
     val rows = height / cellSize
-    val cells = Array(rows * cols) { MutableIntList() }
+    val cells = Array(rows * cols) { IntArrayList(0) }
 
     fun clear() {
         cells.forEach { it.clear() }

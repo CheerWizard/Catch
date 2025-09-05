@@ -1,8 +1,8 @@
 package com.cws.acatch.game.data
 
-import com.cws.kmemory.math.Color
+import com.cws.kmemory.math.Vec4
 
 data class Score(
     var value: Int = 0,
-    var color: Color = Color.Black
+    var color: Vec4 = Vec4(0f, 0f, 0f, 1f)
 )

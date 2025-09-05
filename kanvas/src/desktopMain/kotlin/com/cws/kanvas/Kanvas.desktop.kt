@@ -1,6 +1,5 @@
 package com.cws.kanvas
 
-import com.cws.kmemory.math.Color
 import org.lwjgl.opengl.GL46.*
 
 import java.nio.ByteBuffer
@@ -84,7 +83,7 @@ actual object Kanvas {
     actual fun bufferData(
         type: Int,
         offset: Int,
-        data: Any?,
+        data: Any,
         size: Int,
         usage: Int
     ) {
@@ -94,7 +93,7 @@ actual object Kanvas {
     actual fun bufferSubData(
         type: Int,
         offset: Int,
-        data: Any?,
+        data: Any,
         size: Int
     ) {
         glBufferSubData(type, offset.toLong(), data as ByteBuffer)

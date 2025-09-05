@@ -1,3 +1,4 @@
+import com.google.devtools.ksp.gradle.KspTask
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -7,6 +8,7 @@ plugins {
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
     id("com.android.application")
+    id("com.google.devtools.ksp") version "2.2.10-2.0.2"
 }
 
 val keystoreProperties = Properties()
@@ -54,58 +56,53 @@ kotlin {
     androidTarget()
     jvm("desktop")
     js(IR) {
-        browser()
-        nodejs()
+        browser {
+            binaries.executable()
+        }
+        nodejs {
+            binaries.executable()
+        }
     }
 //    iosArm64()
 //    iosX64()
 //    iosSimulatorArm64()
-//    linuxX64()
-//    mingwX64()
 
     sourceSets {
         val commonMain by getting {
+            ksp { arg("target", "common") }
+            kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
             dependencies {
                 implementation(project(":kanvas"))
-                implementation(project(":klog"))
-                implementation(project(":kmemory"))
-                // Coroutines
-                implementation(libs.kotlinx.coroutines.core)
-                // JSON
-                implementation(libs.kotlinx.serialization.json)
-                // Ktor
-                implementation(libs.ktor.client.core)
-                implementation(libs.ktor.client.content)
             }
         }
 
         val androidMain by getting {
-            dependencies {
-                implementation(libs.coil.compose)
-                implementation(libs.coil.network.okhttp)
-                implementation(libs.ktor.client.okhttp)
-                // Compose
-                implementation(compose.runtime)
-                implementation(compose.foundation)
-                implementation(compose.material3)
-                implementation(compose.components.resources)
-                // Lifecycle
-                implementation(libs.androidx.core.ktx)
-                implementation(libs.androidx.lifecycle.runtime.ktx)
-            }
+            ksp { arg("target", "android") }
+            kotlin.srcDir("build/generated/ksp/android/androidMain/kotlin")
+            dependsOn(commonMain)
         }
 
-//        val iosMain by getting {
-//            dependencies {
-//                implementation(libs.ktor.client.darwin)
-//            }
-//        }
+        val iosMain by creating {
+            ksp { arg("target", "ios") }
+            kotlin.srcDir("build/generated/ksp/ios/iosMain/kotlin")
+            dependsOn(commonMain)
+        }
 
         val desktopMain by getting {
-            dependencies {
-                implementation(compose.desktop.currentOs)
-                implementation(libs.ktor.client.cio)
-            }
+            ksp { arg("target", "desktop") }
+            kotlin.srcDir("build/generated/ksp/desktop/desktopMain/kotlin")
+            dependsOn(commonMain)
+        }
+
+        val jsMain by getting {
+            ksp { arg("target", "js") }
+            kotlin.srcDir("build/generated/ksp/js/jsMain/kotlin")
+            dependsOn(commonMain)
         }
     }
+}
+
+dependencies {
+    ksp(project(":kmemory-proc"))
+    implementation(project(":kmemory-proc"))
 }

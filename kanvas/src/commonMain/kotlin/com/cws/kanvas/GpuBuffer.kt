@@ -1,12 +1,12 @@
 package com.cws.kanvas
 
-import com.cws.kmemory.PlatformBuffer
+import com.cws.kmemory.BigBuffer
 
 open class GpuBuffer(
     protected val type: Int,
     protected val elementSizeBytes: Int,
     size: Int
-) : PlatformBuffer(size) {
+) : BigBuffer(size) {
 
     protected lateinit var handle: BufferID
 
@@ -15,7 +15,8 @@ open class GpuBuffer(
         resizeBuffer()
     }
 
-    open fun release() {
+    override fun release() {
+        super.release()
         Kanvas.bufferRelease(handle)
     }
 
@@ -56,7 +57,7 @@ open class GpuBuffer(
         bind()
         Kanvas.bufferData(
             type = type,
-            data = null,
+            data = getBuffer(),
             offset = 0,
             size = capacity * elementSizeBytes,
             usage = Kanvas.DYNAMIC_DRAW

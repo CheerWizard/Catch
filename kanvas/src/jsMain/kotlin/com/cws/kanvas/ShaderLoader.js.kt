@@ -5,8 +5,8 @@ import kotlinx.coroutines.await
 
 actual class ShaderLoader {
 
-    actual suspend fun load(filepath: String): String {
-        return window.fetch(filepath).await().text().await()
+    actual suspend fun load(name: String): String {
+        return window.fetch("./shaders/$name").await().text().await()
     }
 
 }

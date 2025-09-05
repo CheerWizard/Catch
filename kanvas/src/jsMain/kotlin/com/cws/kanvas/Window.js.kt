@@ -1,5 +1,6 @@
 package com.cws.kanvas
 
+import kotlinx.atomicfu.locks.ReentrantLock
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.HTMLCanvasElement
@@ -12,13 +13,18 @@ actual class Window : BaseWindow {
         actual fun free() = Unit
     }
 
+    actual override val eventListeners: MutableSet<EventListener> = mutableSetOf()
+    actual override val events: ArrayDeque<Any> = ArrayDeque()
+    actual override val lock: ReentrantLock = ReentrantLock()
+
     private var handle: WindowID
 
     actual constructor(
+        x: Int,
+        y: Int,
         width: Int,
         height: Int,
-        title: String,
-        surface: Any?,
+        title: String
     ) {
         val canvas = document.getElementById("canvas") as HTMLCanvasElement?
             ?: error("Canvas element with id canvas is not found")
@@ -38,6 +44,8 @@ actual class Window : BaseWindow {
     actual fun applySwapChain() = Unit
 
     actual fun setCurrent() = Unit
+
+    actual fun setSurface(surface: Any?) = Unit
 
     private fun initEventListeners() {
         window.onresize = { e ->

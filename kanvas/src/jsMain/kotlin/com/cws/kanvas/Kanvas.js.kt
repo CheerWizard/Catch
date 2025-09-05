@@ -1,6 +1,5 @@
 package com.cws.kanvas
 
-import com.cws.kmemory.math.Color
 import kotlinx.browser.document
 import org.khronos.webgl.ArrayBufferView
 import org.khronos.webgl.BufferDataSource
@@ -62,9 +61,9 @@ actual object Kanvas {
 
     private val context: WebGL2RenderingContext = createContext()
 
-    private fun createContext(canvasId: String = "canvas"): WebGL2RenderingContext {
-        val canvas = document.getElementById("canvas") as HTMLCanvasElement?
-            ?: error("Canvas element with id $canvasId is not found")
+    private fun createContext(): WebGL2RenderingContext {
+        val canvas = document.getElementById(KANVAS_RUNTIME) as HTMLCanvasElement?
+            ?: error("Canvas element with id $KANVAS_RUNTIME is not found")
 
         val context = canvas.getContext("webgl2") as WebGL2RenderingContext?
             ?: error("Failed to initialize WebGL2")
@@ -107,24 +106,20 @@ actual object Kanvas {
     actual fun bufferData(
         type: Int,
         offset: Int,
-        data: Any?,
+        data: Any,
         size: Int,
         usage: Int
     ) {
-        if (data == null) {
-            context.bufferData(type, size, usage)
-        } else {
-            context.bufferData(type, data as BufferDataSource?, usage)
-        }
+        context.bufferData(type, data as BufferDataSource, usage)
     }
 
     actual fun bufferSubData(
         type: Int,
         offset: Int,
-        data: Any?,
+        data: Any,
         size: Int,
     ) {
-        context.bufferSubData(type, offset, data as BufferDataSource?)
+        context.bufferSubData(type, offset, data as BufferDataSource)
     }
 
     actual fun vertexArrayInit(): VertexArrayID {

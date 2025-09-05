@@ -67,8 +67,8 @@ expect object Kanvas {
     fun bufferRelease(buffer: BufferID)
     fun bufferBind(type: Int, buffer: BufferID)
     fun bufferBindLocation(type: Int, buffer: BufferID, location: Int)
-    fun bufferData(type: Int, offset: Int, data: Any?, size: Int, usage: Int)
-    fun bufferSubData(type: Int, offset: Int, data: Any?, size: Int)
+    fun bufferData(type: Int, offset: Int, data: Any, size: Int, usage: Int)
+    fun bufferSubData(type: Int, offset: Int, data: Any, size: Int)
 
     fun vertexArrayInit(): VertexArrayID
     fun vertexArrayRelease(vertexArray: VertexArrayID)

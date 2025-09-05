@@ -20,21 +20,21 @@ value class Vec3(val index: Int) {
     }
 
     var x: Float
-        get() = NativeHeap.getFloat(index + Float.SIZE_BYTES * 0)
+        get() = NativeHeap[index + Float.SIZE_BYTES * 0]
         set(value) {
-            NativeHeap.setFloat(index + Float.SIZE_BYTES * 0, value)
+            NativeHeap[index + Float.SIZE_BYTES * 0] = value
         }
 
     var y: Float
-        get() = NativeHeap.getFloat(index + Float.SIZE_BYTES * 1)
+        get() = NativeHeap[index + Float.SIZE_BYTES * 1]
         set(value) {
-            NativeHeap.setFloat(index + Float.SIZE_BYTES * 1, value)
+            NativeHeap[index + Float.SIZE_BYTES * 1] = value
         }
 
     var z: Float
-        get() = NativeHeap.getFloat(index + Float.SIZE_BYTES * 2)
+        get() = NativeHeap[index + Float.SIZE_BYTES * 2]
         set(value) {
-            NativeHeap.setFloat(index + Float.SIZE_BYTES * 2, value)
+            NativeHeap[index + Float.SIZE_BYTES * 2] = value
         }
 
     fun free() {
@@ -50,6 +50,7 @@ value class Vec3(val index: Int) {
 
     fun normalized(): Vec3 {
         val length = length()
+        if (length == 0f) return Vec3()
         return Vec3(x / length, y / length, z / length)
     }
 

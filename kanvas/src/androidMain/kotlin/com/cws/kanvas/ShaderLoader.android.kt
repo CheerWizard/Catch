@@ -1,16 +1,11 @@
 package com.cws.kanvas
 
-import android.content.Context
-import kotlin.use
+actual class ShaderLoader {
 
-actual class ShaderLoader(context: Context) {
-
-    private val assetManager = context.assets
-
-    actual suspend fun load(filepath: String): String {
-        return assetManager.open(filepath).use {
-            it.readBytes().decodeToString()
-        }
+    actual suspend fun load(name: String): String {
+        val stream = this::class.java.getResourceAsStream("shaders/$name")
+            ?: error("Failed to find shader $name")
+        return stream.bufferedReader().use { it.readText() }
     }
 
 }

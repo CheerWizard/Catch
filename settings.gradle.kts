@@ -14,8 +14,8 @@ pluginManagement {
         kotlin("multiplatform") version "2.2.10"
     }
 }
+
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
@@ -24,6 +24,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "Catch"
 include(":app")
-include(":kmemory")
-include(":klog")
 include(":kanvas")
+include(":klog")
+include(":kmemory-proc")
+include(":kmemory")

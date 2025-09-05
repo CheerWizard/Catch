@@ -6,18 +6,18 @@ plugins {
 
 kotlin {
     androidTarget()
-
+    jvm("desktop")
     js(IR) {
-        browser()
-        nodejs()
+        browser {
+            binaries.library()
+        }
+        nodejs {
+            binaries.library()
+        }
     }
-
     iosArm64()
     iosX64()
     iosSimulatorArm64()
-
-    linuxX64()
-    mingwX64()
 
     sourceSets {
         val commonMain by getting {
@@ -37,16 +37,13 @@ kotlin {
             dependsOn(commonMain)
         }
 
-        val desktopMain by creating {
+        val desktopMain by getting {
             dependsOn(commonMain)
         }
 
         val iosX64Main by getting { dependsOn(iosMain) }
         val iosArm64Main by getting { dependsOn(iosMain) }
         val iosSimulatorArm64Main by getting { dependsOn(iosMain) }
-
-        val linuxX64Main by getting { dependsOn(desktopMain) }
-        val mingwX64Main by getting { dependsOn(desktopMain) }
     }
 }
 
@@ -68,7 +65,7 @@ android {
 val generateBuildConfig by tasks.registering {
     val outputDir = layout.buildDirectory.dir("generated/src/commonMain/kotlin")
     val packageName = "com.cws.klog"
-    val build = project.properties["build"]?.toString()?.lowercase()
+    val build = project.properties["buildConfig.build"]?.toString()?.lowercase()
     println("Build: $build")
     val isDebug = build == "debug"
 

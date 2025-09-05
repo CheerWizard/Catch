@@ -8,46 +8,52 @@ actual object KLog {
 
     actual fun verbose(message: String) {
         if (enabled) {
-            Log.v(tag(), message)
+            val tag = tag()
+            Log.v(tag.className, "${tag.methodName}: $message")
         }
     }
 
     actual fun info(message: String) {
         if (enabled) {
-            Log.i(tag(), message)
+            val tag = tag()
+            Log.i(tag.className, "${tag.methodName}: $message")
         }
     }
 
     actual fun debug(message: String) {
         if (enabled) {
-            Log.d(tag(), message)
+            val tag = tag()
+            Log.d(tag.className, "${tag.methodName}: $message")
         }
     }
 
     actual fun warn(message: String) {
         if (enabled) {
-            Log.w(tag(), message)
+            val tag = tag()
+            Log.w(tag.className, "${tag.methodName}: $message")
         }
     }
 
     actual fun error(message: String) {
         if (enabled) {
-            Log.e(tag(), message)
+            val tag = tag()
+            Log.e(tag.className, "${tag.methodName}: $message")
         }
     }
 
     actual fun error(message: String, exception: Throwable) {
         if (enabled) {
-            Log.e(tag(), message, exception)
+            val tag = tag()
+            Log.e(tag.className, "${tag.methodName}: $message", exception)
         }
     }
 
-    actual fun tag(): String {
+    actual fun tag(): Tag {
         val stack = Throwable().stackTrace
         val caller = stack.getOrNull(3)
-        val className = caller?.className?.substringAfterLast('.') ?: "Unknown"
-        val methodName = caller?.methodName ?: "unknown"
-        return "$className.$methodName()"
+        val className = caller?.className?.substringAfterLast('.') ?: ""
+        val methodName = caller?.methodName ?: ""
+        return Tag(className, methodName)
     }
 
 }

@@ -1,7 +1,7 @@
 package com.cws.kmemory
 
 class NativeStack(
-    private val index: Int,
+    index: Int,
     private val capacity: Int
 ) {
 
@@ -16,7 +16,7 @@ class NativeStack(
         if (position == capacity) {
             throw RuntimeException("NativeStack overflow error, size = $size bytes")
         }
-        position = position + size
+        position += size
         return position
     }
 
@@ -24,7 +24,7 @@ class NativeStack(
         if (position < size) {
             throw RuntimeException("NativeStack underflow error, size = $size bytes")
         } else {
-            position = position - size
+            position -= size
         }
     }
 

@@ -6,6 +6,7 @@ import android.opengl.EGLContext
 import android.opengl.EGLDisplay
 import android.opengl.EGLSurface
 import android.view.MotionEvent
+import kotlinx.atomicfu.locks.ReentrantLock
 
 actual typealias WindowID = Unit
 
@@ -17,16 +18,41 @@ actual class Window : BaseWindow {
         actual fun free() = Unit
     }
 
+    actual override val eventListeners: MutableSet<EventListener> = mutableSetOf()
+    actual override val events: ArrayDeque<Any> = ArrayDeque()
+    actual override val lock: ReentrantLock = ReentrantLock()
+
     private var display: EGLDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY)
     private var surface: EGLSurface? = null
     private var context: EGLContext? = null
 
     actual constructor(
+        x: Int,
+        y: Int,
         width: Int,
         height: Int,
-        title: String,
-        surface: Any?
-    ) {
+        title: String
+    )
+
+    actual fun release() {
+        eglDestroySurface(display, surface)
+        eglDestroyContext(display, context)
+        eglTerminate(display)
+    }
+
+    actual fun isClosed(): Boolean = false
+
+    actual fun applySwapChain() {
+        eglSwapBuffers(display, surface)
+    }
+
+    actual fun setCurrent() {
+        eglMakeCurrent(display, surface, surface, context)
+    }
+
+    actual fun setSurface(surface: Any?) {
+        if (surface == null) return
+
         val version = IntArray(2)
         eglInitialize(display, version, 0, version, 1)
 
@@ -59,22 +85,6 @@ actual class Window : BaseWindow {
 
         val surfaceAttributes = intArrayOf(EGL_NONE)
         this.surface = eglCreateWindowSurface(display, eglConfig, surface, surfaceAttributes, 0)
-    }
-
-    actual fun release() {
-        eglDestroySurface(display, surface)
-        eglDestroyContext(display, context)
-        eglTerminate(display)
-    }
-
-    actual fun isClosed(): Boolean = false
-
-    actual fun applySwapChain() {
-        eglSwapBuffers(display, surface)
-    }
-
-    actual fun setCurrent() {
-        eglMakeCurrent(display, surface, surface, context)
     }
 
     override fun dispatchEvent(event: Any) {

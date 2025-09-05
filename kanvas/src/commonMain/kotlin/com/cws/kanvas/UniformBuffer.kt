@@ -1,7 +1,7 @@
 package com.cws.kanvas
 
-import com.cws.kmemory.NativeArray
 import com.cws.kmemory.NativeHeap
+import com.cws.kmemory.copyFrom
 
 open class UniformBuffer<T>(
     private val binding: Int,
@@ -19,10 +19,10 @@ open class UniformBuffer<T>(
     }
 
     fun update(index: Int, heapIndex: Int) {
-        copy(
-            srcBuffer = NativeHeap,
-            src = heapIndex,
-            dest = index * elementSizeBytes,
+        copyFrom(
+            src = NativeHeap,
+            srcIndex = heapIndex,
+            destIndex = index * elementSizeBytes,
             size = elementSizeBytes
         )
     }

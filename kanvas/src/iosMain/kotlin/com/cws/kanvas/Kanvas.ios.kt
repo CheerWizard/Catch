@@ -14,6 +14,7 @@ import kotlinx.cinterop.get
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.toKString
 import platform.gles3.*
+import kotlin.toUInt
 
 actual typealias VertexArrayID = Any
 actual typealias BufferID = Any
@@ -80,30 +81,30 @@ actual object Kanvas {
     }
 
     actual fun bufferBind(type: Int, buffer: BufferID) {
-        glBindBuffer(type, (buffer as CArrayPointer<UIntVar>)[0])
+        glBindBuffer(type.toUInt(), (buffer as CArrayPointer<UIntVar>)[0])
     }
 
     actual fun bufferBindLocation(type: Int, buffer: BufferID, location: Int) {
-        glBindBufferBase(type, location, (buffer as CArrayPointer<UIntVar>)[0])
+        glBindBufferBase(type.toUInt(), location.toUInt(), (buffer as CArrayPointer<UIntVar>)[0])
     }
 
     actual fun bufferData(
         type: Int,
         offset: Int,
-        data: Any?,
+        data: Any,
         size: Int,
         usage: Int
     ) {
-        glBufferData(type, size.toLong(), data as CArrayPointer<*>, usage)
+        glBufferData(type.toUInt(), size.toLong(), data as CArrayPointer<*>, usage.toUInt())
     }
 
     actual fun bufferSubData(
         type: Int,
         offset: Int,
-        data: Any?,
+        data: Any,
         size: Int
     ) {
-        glBufferSubData(type, offset.toLong(), size.toLong(), data as CArrayPointer<*>)
+        glBufferSubData(type.toUInt(), offset.toLong(), size.toLong(), data as CArrayPointer<*>)
     }
 
     actual fun vertexArrayInit(): VertexArrayID = memScoped {
@@ -123,17 +124,17 @@ actual object Kanvas {
     actual fun vertexArrayEnableAttributes(attributes: List<VertexAttribute>) {
         var attributeOffset = 0
         attributes.forEach { attribute ->
-            glEnableVertexAttribArray(attribute.location)
+            glEnableVertexAttribArray(attribute.location.toUInt())
             glVertexAttribPointer(
-                attribute.location,
+                attribute.location.toUInt(),
                 attribute.type.size,
-                attribute.type.type,
+                attribute.type.type.toUInt(),
                 0u,
                 attribute.type.stride,
-                attributeOffset.toLong()
+                attributeOffset.toULong()
             )
             glVertexAttribDivisor(
-                attribute.location,
+                attribute.location.toUInt(),
                 if (attribute.enableInstancing) 1u else 0u
             )
             attributeOffset += attribute.type.stride
@@ -142,12 +143,12 @@ actual object Kanvas {
 
     actual fun vertexArrayDisableAttributes(attributes: List<VertexAttribute>) {
         attributes.forEach { attribute ->
-            glDisableVertexAttribArray(attribute.location)
+            glDisableVertexAttribArray(attribute.location.toUInt())
         }
     }
 
     actual fun shaderStageInit(type: Int): ShaderStageID {
-        return glCreateShader(type).toInt()
+        return glCreateShader(type.toUInt())
     }
 
     actual fun shaderStageRelease(shaderStage: ShaderStageID) {
@@ -159,7 +160,7 @@ actual object Kanvas {
     }
 
     actual fun shaderStageCompile(shaderStage: ShaderStageID, source: String): Boolean {
-        if (shaderStage == NULL) {
+        if (shaderStage == NULL.toUInt()) {
             KLog.error("Shader is not created")
             return false
         }
@@ -170,12 +171,12 @@ actual object Kanvas {
         }
 
         glCompileShader(shaderStage)
-        glGetShaderiv(shaderStage, GL_COMPILE_STATUS, compileStatus)
+        glGetShaderiv(shaderStage, GL_COMPILE_STATUS.toUInt(), compileStatus)
 
         if (compileStatus[0] == 0) {
             val log = memScoped {
                 val logLength = alloc<IntVar>()
-                glGetShaderiv(shaderStage, GL_INFO_LOG_LENGTH, logLength.ptr)
+                glGetShaderiv(shaderStage, GL_INFO_LOG_LENGTH.toUInt(), logLength.ptr)
                 if (logLength.value <= 0) return ""
                 val logBuffer = allocArray<ByteVar>(logLength.value)
                 glGetShaderInfoLog(shaderStage, logLength.value, null, logBuffer)

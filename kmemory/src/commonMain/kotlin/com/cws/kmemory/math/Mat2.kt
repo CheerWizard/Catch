@@ -1,6 +1,7 @@
 package com.cws.kmemory.math
 
 import com.cws.kmemory.NativeHeap
+import com.cws.kmemory.clone
 import kotlin.jvm.JvmInline
 
 @JvmInline
@@ -11,13 +12,13 @@ value class Mat2(
     var v1: Vec2
         get() = Vec2(index + Vec2.SIZE_BYTES * 0)
         set(value) {
-            NativeHeap.copy(value.index, index + Vec2.SIZE_BYTES * 0, Vec2.SIZE_BYTES)
+            NativeHeap.clone(value.index, index + Vec2.SIZE_BYTES * 0, Vec2.SIZE_BYTES)
         }
 
     var v2: Vec2
         get() = Vec2(index + Vec2.SIZE_BYTES * 1)
         set(value) {
-            NativeHeap.copy(value.index, index + Vec2.SIZE_BYTES * 1, Vec2.SIZE_BYTES)
+            NativeHeap.clone(value.index, index + Vec2.SIZE_BYTES * 1, Vec2.SIZE_BYTES)
         }
 
     fun free() {

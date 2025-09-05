@@ -1,15 +1,27 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.compose.multiplatform)
+    alias(libs.plugins.compose.compiler)
     id("com.android.library")
 }
 
 kotlin {
+    androidTarget()
     js(IR) {
-        browser()
+        browser {
+            binaries.library()
+            commonWebpackConfig {
+                cssSupport {
+                    enabled = true
+                }
+            }
+        }
+        nodejs {
+            binaries.library()
+        }
     }
     jvm("desktop")
-    androidTarget()
     iosArm64()
     iosX64()
     iosSimulatorArm64()
@@ -17,41 +29,75 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                // Coroutines
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-
-                implementation(project(":klog"))
-                implementation(project(":kmemory"))
-                implementation(kotlin("stdlib-common"))
+                api(project(":klog"))
+                api(project(":kmemory"))
+                // Compose
+                api("org.jetbrains.compose.runtime:runtime:1.7.1")
+                api("org.jetbrains.compose.foundation:foundation:1.7.1")
+                api("org.jetbrains.compose.material:material:1.7.1")
+                api(compose.components.uiToolingPreview)
+                // Coroutines and Atomics
+                api(libs.atomicfu)
+                api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+                api(kotlin("stdlib-common"))
             }
+        }
+
+        val composeUiMain by creating {
+            dependsOn(commonMain)
+        }
+
+        val webUiMain by creating {
+            dependencies {
+                api("org.jetbrains.skiko:skiko-js:0.8.9")
+                api(compose.web.core)
+            }
+            dependsOn(commonMain)
         }
 
         val androidMain by getting {
             dependencies {
-                implementation(libs.androidx.core.ktx)
+                // Compose
+                api("androidx.activity:activity-compose:1.10.1")
+                api(libs.androidx.core.ktx)
             }
-            dependsOn(commonMain)
+            dependsOn(composeUiMain)
         }
 
         val iosMain by creating {
-            dependsOn(commonMain)
+            dependsOn(composeUiMain)
         }
 
         val desktopMain by getting {
             dependencies {
-                implementation("org.lwjgl:lwjgl:3.3.6")
-                implementation("org.lwjgl:lwjgl-opengl:3.3.6")
-                implementation("org.lwjgl:lwjgl-glfw:3.3.6")
-                implementation("org.lwjgl:lwjgl-stb:3.3.6")
+                // Compose
+                api(compose.desktop.currentOs)
+
+                val lwjglVersion = "3.3.6"
+                val lwjglNatives = when (System.getProperty("os.name").lowercase()) {
+                    "linux" -> "natives-linux"
+                    "windows" -> "natives-windows"
+                    "mac os x" -> "natives-macos"
+                    else -> throw GradleException("Unsupported OS")
+                }
+
+                // LWJGL core
+                implementation("org.lwjgl:lwjgl:$lwjglVersion")
+                implementation("org.lwjgl:lwjgl-opengl:$lwjglVersion")
+                implementation("org.lwjgl:lwjgl-glfw:$lwjglVersion")
+                implementation("org.lwjgl:lwjgl-stb:$lwjglVersion")
+
+                // LWJGL natives
+                runtimeOnly("org.lwjgl:lwjgl:$lwjglVersion:$lwjglNatives")
+                runtimeOnly("org.lwjgl:lwjgl-opengl:$lwjglVersion:$lwjglNatives")
+                runtimeOnly("org.lwjgl:lwjgl-glfw:$lwjglVersion:$lwjglNatives")
+                runtimeOnly("org.lwjgl:lwjgl-stb:$lwjglVersion:$lwjglNatives")
             }
-            dependsOn(commonMain)
+            dependsOn(composeUiMain)
         }
 
         val jsMain by getting {
-            dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-browser:0.16.0")
-            }
-            dependsOn(commonMain)
+            dependsOn(webUiMain)
         }
 
         val iosX64Main by getting {

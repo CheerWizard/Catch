@@ -3,8 +3,7 @@ package com.cws.kanvas
 import com.cws.klog.KLog
 
 class Shader(
-    private val stages: MutableList<ShaderStage> = mutableListOf(),
-    private val loader: ShaderLoader
+    private val stages: MutableList<ShaderStage> = mutableListOf()
 ) {
 
     private lateinit var handle: ShaderID
@@ -15,7 +14,7 @@ class Shader(
         val sources = paths.map { path ->
             val shaderType = path.toShaderType()
             if (shaderType == Kanvas.NULL) return@map shaderType to ""
-            shaderType to loader.load(path)
+            shaderType to ShaderLoader().load(path)
         }
         init(sources)
     }

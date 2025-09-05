@@ -9,10 +9,11 @@ actual class Window : BaseWindow {
     }
 
     actual constructor(
+        x: Int,
+        y: Int,
         width: Int,
         height: Int,
-        title: String,
-        surface: Any?,
+        title: String
     ) {}
 
     actual fun release() {}
@@ -22,6 +23,8 @@ actual class Window : BaseWindow {
     actual fun applySwapChain() {}
 
     actual fun setCurrent() {}
+
+    actual fun setSurface(surface: Any?) {}
 
     override fun dispatchEvent(event: Any) {
         super.dispatchEvent(event)

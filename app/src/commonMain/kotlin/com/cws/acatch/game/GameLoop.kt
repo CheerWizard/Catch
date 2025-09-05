@@ -1,56 +1,58 @@
 package com.cws.acatch.game
 
+import androidx.compose.runtime.mutableStateOf
 import com.cws.acatch.game.collision.CollisionBox
-import com.cws.acatch.game.data.*
 import com.cws.acatch.game.data.EntityData
+import com.cws.acatch.game.data.GameGrid
+import com.cws.acatch.game.data.GameScene
 import com.cws.acatch.game.data.ProjectileArray
-import com.cws.acatch.game.platform.GameSensorManager
+import com.cws.acatch.game.data.Score
+import com.cws.acatch.game.data.acceleration
+import com.cws.acatch.game.data.color
+import com.cws.acatch.game.data.dir
+import com.cws.acatch.game.data.generateBalls
+import com.cws.acatch.game.data.length
+import com.cws.acatch.game.data.pos
+import com.cws.acatch.game.data.radius
+import com.cws.acatch.game.data.toCircleData
+import com.cws.acatch.game.data.velocity
+import com.cws.acatch.game.data.visible
+import com.cws.kanvas.input.InputSensorManager
 import com.cws.acatch.game.rendering.CircleArray
 import com.cws.kanvas.EventListener
 import com.cws.kanvas.RenderLoop
-import com.cws.kmemory.math.Color
 import com.cws.kmemory.math.Vec2
-import kotlin.Float
-import kotlin.Int
-import kotlin.Long
-import kotlin.collections.forEachIndexed
-import kotlin.collections.get
-import kotlin.collections.map
-import kotlin.collections.minus
-import kotlin.collections.plus
-import kotlin.collections.plusAssign
-import kotlin.compareTo
-import kotlin.map
-import kotlin.plus
-import kotlin.repeat
-import kotlin.sequences.map
-import kotlin.sequences.minus
-import kotlin.sequences.plus
-import kotlin.text.compareTo
-import kotlin.text.map
-import kotlin.text.plus
-import kotlin.text.set
+import com.cws.kmemory.math.Vec4
 
 class GameLoop(
-    private val width: Float,
-    private val height: Float,
-    private val gameSensorManager: GameSensorManager
-) : RenderLoop(), EventListener {
+    x: Int,
+    y: Int,
+    width: Int,
+    height: Int,
+    title: String,
+    private val inputSensorManager: InputSensorManager
+) : RenderLoop(
+    x = x,
+    y = y,
+    width = width,
+    height = height,
+    title = title
+), EventListener {
 
-    var score = Score()
-    val animateScore = false
+    var score = mutableStateOf(Score())
+    val animateScore = mutableStateOf(false)
 
     private var scene: GameScene? = null
 
     override fun onCreate() {
         super.onCreate()
         window.addEventListener(this)
-        gameSensorManager.init()
+        inputSensorManager.init()
 
         val balls = generateBalls(
             size = 100,
-            width = width,
-            height = height
+            width = width.toFloat(),
+            height = height.toFloat()
         )
 
         val circles = CircleArray(100).create()
@@ -62,12 +64,12 @@ class GameLoop(
             screenBox = CollisionBox(
                 x = 0f,
                 y = 0f,
-                w = width,
-                h = height
+                w = width.toFloat(),
+                h = height.toFloat()
             ),
             grid = GameGrid(
-                width = width.toInt(),
-                height = height.toInt(),
+                width = width,
+                height = height,
                 cellSize = 20
             ),
             balls = balls,
@@ -79,7 +81,7 @@ class GameLoop(
     }
 
     override fun onDestroy() {
-        gameSensorManager.release()
+        inputSensorManager.release()
         window.removeEventListener(this)
         super.onDestroy()
     }
@@ -93,6 +95,7 @@ class GameLoop(
         val balls = scene.balls
         val projectiles = scene.projectiles
         val grid = scene.grid
+        val sensor = inputSensorManager.sensor
 
         grid.clear()
         grid.fill(balls.map { EntityData(it.index) })
@@ -104,12 +107,11 @@ class GameLoop(
                 val y0 = screenBox.y
                 val y1 = screenBox.y + screenBox.h
                 val r = ball.radius
-                ball.velocity += Vec2(sensorAX * t, sensorAY * t)
-                val dx = ball.pos.x + sensorDX * ball.velocity.x * t
-                val dy = ball.pos.y + sensorDY * ball.velocity.y * t
-
+                ball.velocity += Vec2(sensor.acceleration.x * t, sensor.acceleration.y * t)
                 var x = ball.pos.x
                 var y = ball.pos.y
+                val dx = x + sensor.direction.x * ball.velocity.x * t
+                val dy = y + sensor.direction.y * ball.velocity.y * t
                 if (dx - r > x0 && dx + r < x1) x = dx
                 if (dy - r > y0 && dy + r < y1) y = dy
                 ball.pos = Vec2(x, y)
@@ -178,7 +180,6 @@ class GameLoop(
     private fun spawnProjectile(x: Float, y: Float) {
         val scene = this.scene ?: return
         val projectiles = scene.projectiles
-        val x = position.x
         val y = 2000f
         val i = 0
         val projectile = projectiles[i]
@@ -187,7 +188,7 @@ class GameLoop(
         projectile.dir = Vec2(0f, -1f)
         projectile.acceleration = Vec2(0f, 9.8f * 1000f)
         projectile.length = (64..128).random().toFloat()
-        projectile.color = Color.Black
+        projectile.color = Vec4(0f, 0f, 0f, 1f)
         projectile.visible = true
     }
 
