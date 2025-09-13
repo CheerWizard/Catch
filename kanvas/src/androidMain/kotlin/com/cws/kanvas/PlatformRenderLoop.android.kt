@@ -26,7 +26,7 @@ actual open class PlatformRenderLoop actual constructor(name: String, priority: 
             onCreate()
             Looper.loop()
         } finally {
-//            onDestroy()
+            onDestroy()
         }
     }
 

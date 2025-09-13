@@ -1,10 +1,10 @@
 package com.cws.acatch.game.data
 
-import com.cws.kmemory.NativeData
-import com.cws.kmemory.math.Vec2
+import com.cws.kanvas.math.Vec2
+import com.cws.kmemory.FastObject
 
-@NativeData
-open class Entity(
+@FastObject
+open class _Entity(
     var pos: Vec2,
     var visible: Boolean,
 )

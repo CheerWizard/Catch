@@ -1,4 +1,3 @@
-import com.google.devtools.ksp.gradle.KspTask
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -48,10 +47,6 @@ android {
     }
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    compilerOptions {}
-}
-
 kotlin {
     androidTarget()
     jvm("desktop")
@@ -69,34 +64,26 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
-            ksp { arg("target", "common") }
             kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
             dependencies {
                 implementation(project(":kanvas"))
+                implementation(project(":kmemory"))
             }
         }
 
         val androidMain by getting {
-            ksp { arg("target", "android") }
-            kotlin.srcDir("build/generated/ksp/android/androidMain/kotlin")
             dependsOn(commonMain)
         }
 
         val iosMain by creating {
-            ksp { arg("target", "ios") }
-            kotlin.srcDir("build/generated/ksp/ios/iosMain/kotlin")
             dependsOn(commonMain)
         }
 
         val desktopMain by getting {
-            ksp { arg("target", "desktop") }
-            kotlin.srcDir("build/generated/ksp/desktop/desktopMain/kotlin")
             dependsOn(commonMain)
         }
 
         val jsMain by getting {
-            ksp { arg("target", "js") }
-            kotlin.srcDir("build/generated/ksp/js/jsMain/kotlin")
             dependsOn(commonMain)
         }
     }
@@ -104,5 +91,31 @@ kotlin {
 
 dependencies {
     ksp(project(":kmemory-proc"))
-    implementation(project(":kmemory-proc"))
+}
+
+afterEvaluate {
+    tasks.named("kspDebugKotlinAndroid") {
+        enabled = false
+    }
+    tasks.named("kspReleaseKotlinAndroid") {
+        enabled = false
+    }
+    tasks.named("kspKotlinDesktop") {
+        enabled = false
+    }
+    tasks.named("kspKotlinJs") {
+        enabled = false
+    }
+}
+
+tasks.register<Copy>("copySkikoWasmToDevOutput") {
+    dependsOn("jsDevelopmentExecutableCompileSync")
+    dependsOn("compileDevelopmentExecutableKotlinJs")
+    dependsOn("jsProcessResources")
+    from("$buildDir/processedResources/js/main/skiko.wasm")
+    into("$buildDir/processedResources/js/main/kotlin") // Gradle will create 'kotlin/' automatically
+}
+
+tasks.named("jsBrowserDevelopmentRun") {
+    dependsOn("copySkikoWasmToDevOutput")
 }

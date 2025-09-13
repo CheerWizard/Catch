@@ -4,8 +4,6 @@ import android.content.Context
 import android.graphics.SurfaceTexture
 import android.view.MotionEvent
 import android.view.Surface
-import android.view.SurfaceHolder
-import android.view.SurfaceView
 import android.view.TextureView
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -13,11 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import com.cws.klog.KLog
-
-// replaced by Composable entry point for Android platform
-actual class KanvasEntryPoint {
-    actual constructor(renderLoop: RenderLoop, content: @Composable ((RenderLoop) -> Unit))
-}
 
 @Composable
 fun KanvasEntryPoint(
@@ -48,11 +41,12 @@ class KanvasView(
 
     init {
         focusable = FOCUSABLE_AUTO
+        surfaceTextureListener = this
     }
 
     override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {
         KLog.debug()
-        renderLoop?.onViewportChanged(width = width, height = height, format = 0)
+        renderLoop?.onViewportChanged(width = width, height = height)
     }
 
     override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
@@ -69,7 +63,9 @@ class KanvasView(
         return true
     }
 
-    override fun onSurfaceTextureUpdated(surface: SurfaceTexture) = Unit
+    override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
+        KLog.debug()
+    }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         KLog.debug()

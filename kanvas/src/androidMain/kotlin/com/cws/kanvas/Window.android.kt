@@ -46,10 +46,6 @@ actual class Window : BaseWindow {
         eglSwapBuffers(display, surface)
     }
 
-    actual fun setCurrent() {
-        eglMakeCurrent(display, surface, surface, context)
-    }
-
     actual fun setSurface(surface: Any?) {
         if (surface == null) return
 
@@ -85,6 +81,8 @@ actual class Window : BaseWindow {
 
         val surfaceAttributes = intArrayOf(EGL_NONE)
         this.surface = eglCreateWindowSurface(display, eglConfig, surface, surfaceAttributes, 0)
+
+        eglMakeCurrent(display, this.surface, this.surface, context)
     }
 
     override fun dispatchEvent(event: Any) {

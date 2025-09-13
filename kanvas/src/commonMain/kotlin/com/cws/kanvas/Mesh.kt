@@ -1,6 +1,8 @@
 package com.cws.kanvas
 
+import com.cws.kmemory.FastList
+
 data class Mesh(
-    val vertices: Vertices,
-    val indices: IntArray
+    val vertices: FastList,
+    val indices: FastList
 )

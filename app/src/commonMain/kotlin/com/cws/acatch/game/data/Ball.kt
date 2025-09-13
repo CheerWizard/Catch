@@ -1,52 +1,47 @@
 package com.cws.acatch.game.data
 
-import com.cws.acatch.game.rendering.CircleData
-import com.cws.acatch.game.rendering.center
-import com.cws.kmemory.NativeData
-import com.cws.kmemory.math.Vec2
-import com.cws.kmemory.math.Vec4
+import com.cws.kanvas.math.Vec2
+import com.cws.kanvas.math.Vec4
+import com.cws.kmemory.FastObject
+import com.cws.kmemory.stack
 
-@NativeData(
-    autoCreate = true,
+@FastObject(
     gpuAlignment = true
 )
-class Ball(
+class _Ball(
     pos: Vec2,
     visible: Boolean,
     var velocity: Vec2,
     val dir: Vec2,
     val color: Vec4,
     val radius: Float
-) : Entity(pos, visible)
+) : _Entity(pos, visible)
 
-fun generateBalls(size: Int, width: Float, height: Float): BallArray {
-    val balls = BallArray(size)
-    repeat(size) { i ->
-        val color = Vec4(
-            (0..255).random() / 255f,
-            (0..255).random() / 255f,
-            (0..255).random() / 255f,
-            1f
-        )
+fun generateBalls(size: Int, width: Float, height: Float): BallList {
+    val balls = BallList(size)
+    stack {
         val r = (80..100).random().toFloat()
-        balls[i] = BallData.create().apply {
-            pos = Vec2(
-                (r.toInt()..(width - r).toInt()).random().toFloat(),
-                (r.toInt()..(height - r).toInt()).random().toFloat()
+        repeat(size) { i ->
+            balls[i] = Ball(
+                pos = Vec2(
+                    (r.toInt()..(width - r).toInt()).random().toFloat(),
+                    (r.toInt()..(height - r).toInt()).random().toFloat()
+                ),
+                velocity = Vec2(0f, 0f),
+                dir = Vec2(
+                    (-2..2).random().toFloat() / 2f + 0.1f,
+                    (-2..2).random().toFloat() / 2f + 0.1f
+                ),
+                radius = r,
+                color = Vec4(
+                    (0..255).random() / 255f,
+                    (0..255).random() / 255f,
+                    (0..255).random() / 255f,
+                    1f
+                ),
+                visible = 1
             )
-            velocity = Vec2(0f, 0f)
-            dir = Vec2(
-                (-2..2).random().toFloat() / 2f + 0.1f,
-                (-2..2).random().toFloat() / 2f + 0.1f
-            )
-            radius = r
-            this.color = color
-            visible = true
         }
     }
     return balls
-}
-
-fun BallData.toCircleData(index: Int = CircleData.create().index) = CircleData(index).apply {
-    center = pos
 }

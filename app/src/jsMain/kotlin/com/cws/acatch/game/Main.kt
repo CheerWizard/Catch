@@ -1,11 +1,10 @@
 package com.cws.acatch.game
 
-import com.cws.kanvas.input.InputSensorManager
 import com.cws.acatch.game.ui.GameScreen
 import com.cws.kanvas.KanvasEntryPoint
+import com.cws.kanvas.input.InputSensorManager
 
 fun main() {
-    println("Main started")
     KanvasEntryPoint(
         renderLoop = GameLoop(
             x = 0,

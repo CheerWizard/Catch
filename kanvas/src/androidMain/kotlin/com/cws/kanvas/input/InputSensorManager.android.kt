@@ -5,7 +5,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import com.cws.kmemory.math.Vec3
+import com.cws.kanvas.math.Vec3
 import kotlin.math.abs
 
 actual class InputSensorManager(context: Context) : SensorEventListener {

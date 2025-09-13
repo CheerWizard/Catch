@@ -85,3 +85,9 @@ val generateBuildConfig by tasks.registering {
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class.java).configureEach {
     dependsOn(generateBuildConfig)
 }
+
+afterEvaluate {
+    tasks.named("compileKotlinJs") {
+        dependsOn(generateBuildConfig)
+    }
+}

@@ -14,7 +14,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
 import com.cws.acatch.game.GameLoop
-import com.cws.kanvas.ui.KText
+import com.cws.kanvas.ui.UiBox
+import com.cws.kanvas.ui.UiModifier
+import com.cws.kanvas.ui.UiText
 
 @Composable
 fun GameScreen(
@@ -31,8 +33,8 @@ fun GameScreen(
         }
     )
 
-    Box(
-        modifier = Modifier
+    UiBox(
+        modifier = UiModifier()
             .fillMaxSize()
             .background(Color.Transparent)
 //            .background(
@@ -43,8 +45,8 @@ fun GameScreen(
 //                ),
 //            )
     ) {
-        KText(
-            modifier = Modifier
+        UiText(
+            modifier = UiModifier()
                 .align(Alignment.Center)
                 .scale(animateScoreScale),
             text = score.value.toString(),
@@ -54,4 +56,5 @@ fun GameScreen(
             )
         )
     }
+
 }

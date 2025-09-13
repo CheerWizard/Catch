@@ -2,27 +2,17 @@ package com.cws.acatch.game
 
 import androidx.compose.runtime.mutableStateOf
 import com.cws.acatch.game.collision.CollisionBox
-import com.cws.acatch.game.data.EntityData
 import com.cws.acatch.game.data.GameGrid
 import com.cws.acatch.game.data.GameScene
-import com.cws.acatch.game.data.ProjectileArray
+import com.cws.acatch.game.data.ProjectileList
 import com.cws.acatch.game.data.Score
-import com.cws.acatch.game.data.acceleration
-import com.cws.acatch.game.data.color
-import com.cws.acatch.game.data.dir
 import com.cws.acatch.game.data.generateBalls
-import com.cws.acatch.game.data.length
-import com.cws.acatch.game.data.pos
-import com.cws.acatch.game.data.radius
-import com.cws.acatch.game.data.toCircleData
-import com.cws.acatch.game.data.velocity
-import com.cws.acatch.game.data.visible
 import com.cws.kanvas.input.InputSensorManager
-import com.cws.acatch.game.rendering.CircleArray
 import com.cws.kanvas.EventListener
 import com.cws.kanvas.RenderLoop
-import com.cws.kmemory.math.Vec2
-import com.cws.kmemory.math.Vec4
+import com.cws.kanvas.math.Vec2
+import com.cws.kanvas.math.Vec4
+import com.cws.kmemory.stack
 
 class GameLoop(
     x: Int,
@@ -55,11 +45,6 @@ class GameLoop(
             height = height.toFloat()
         )
 
-        val circles = CircleArray(100).create()
-        repeat(circles.size) { i ->
-            circles[i] = balls[i].toCircleData(circles[i].index)
-        }
-
         val scene = GameScene(
             screenBox = CollisionBox(
                 x = 0f,
@@ -73,8 +58,7 @@ class GameLoop(
                 cellSize = 20
             ),
             balls = balls,
-            projectiles = ProjectileArray(1),
-            circles = circles
+            projectiles = ProjectileList(1),
         )
 
         this.scene = scene
@@ -98,56 +82,62 @@ class GameLoop(
         val sensor = inputSensorManager.sensor
 
         grid.clear()
-        grid.fill(balls.map { EntityData(it.index) })
+        grid.fill(
+            entities = balls,
+            visible = { balls[it].visible == 1 },
+            pos = { balls[it].pos },
+        )
 
-        balls.forEachIndexed { i, ball ->
-            if (ball.visible) {
-                val x0 = screenBox.x
-                val x1 = screenBox.x + screenBox.w
-                val y0 = screenBox.y
-                val y1 = screenBox.y + screenBox.h
-                val r = ball.radius
-                ball.velocity += Vec2(sensor.acceleration.x * t, sensor.acceleration.y * t)
-                var x = ball.pos.x
-                var y = ball.pos.y
-                val dx = x + sensor.direction.x * ball.velocity.x * t
-                val dy = y + sensor.direction.y * ball.velocity.y * t
-                if (dx - r > x0 && dx + r < x1) x = dx
-                if (dy - r > y0 && dy + r < y1) y = dy
-                ball.pos = Vec2(x, y)
+        stack {
+            balls.forEachIndexed { i, ball ->
+                if (ball.visible == 1) {
+                    val x0 = screenBox.x
+                    val x1 = screenBox.x + screenBox.w
+                    val y0 = screenBox.y
+                    val y1 = screenBox.y + screenBox.h
+                    val r = ball.radius
+                    ball.velocity += Vec2(sensor.acceleration.x * t, sensor.acceleration.y * t)
+                    var x = ball.pos.x
+                    var y = ball.pos.y
+                    val dx = x + sensor.direction.x * ball.velocity.x * t
+                    val dy = y + sensor.direction.y * ball.velocity.y * t
+                    if (dx - r > x0 && dx + r < x1) x = dx
+                    if (dy - r > y0 && dy + r < y1) y = dy
+                    ball.pos = Vec2(x, y)
+                }
             }
-        }
 
-        projectiles.forEachIndexed { i, projectile ->
-            if (projectile.visible) {
-                projectile.velocity += projectile.acceleration * t
-                projectile.pos += projectile.dir * projectile.velocity * t
+            projectiles.forEachIndexed { i, projectile ->
+                if (projectile.visible) {
+                    projectile.velocity += projectile.acceleration * t
+                    projectile.pos += projectile.dir * projectile.velocity * t
 
-                val px = projectile.pos.x
-                val py = projectile.pos.y
-                val col = grid.col(px)
-                val row = grid.row(py)
+                    val px = projectile.pos.x
+                    val py = projectile.pos.y
+                    val col = grid.col(px)
+                    val row = grid.row(py)
 
-                for (dy in -1..1) {
-                    for (dx in -1..1) {
-                        val c = (col + dx).coerceIn(0, grid.cols - 1)
-                        val r = (row + dy).coerceIn(0, grid.rows - 1)
-                        val cellIndex = r * grid.cols + c
-                        val cellBalls = grid.cells[cellIndex]
-                        repeat(cellBalls.size) { j ->
-                            val ball = balls[j]
-                            val dx = px - ball.pos.x
-                            val dy = py - ball.pos.y
-                            val r = ball.radius * ball.radius
-                            val l = dx * dx + dy * dy
-                            when {
-                                r >= l -> {
-                                    onProjectileHit(j)
-                                    destroyProjectile(i)
-                                    return
-                                }
-                                r < l -> {
-                                    onProjectileMissed(j)
+                    for (dy in -1..1) {
+                        for (dx in -1..1) {
+                            val c = (col + dx).coerceIn(0, grid.cols - 1)
+                            val r = (row + dy).coerceIn(0, grid.rows - 1)
+                            val cellIndex = r * grid.cols + c
+                            val cellBalls = grid.cells[cellIndex]
+                            repeat(cellBalls.size) { j ->
+                                val ball = balls[j]
+                                val dx = px - ball.pos.x
+                                val dy = py - ball.pos.y
+                                val r = ball.radius * ball.radius
+                                val l = dx * dx + dy * dy
+                                when {
+                                    r >= l -> {
+                                        onProjectileHit(j)
+                                        destroyProjectile(i)
+                                        return@forEachIndexed
+                                    }
+                                    r < l -> {
+                                        onProjectileMissed(j)
+                                    }
                                 }
                             }
                         }
@@ -167,12 +157,13 @@ class GameLoop(
         val scene = this.scene ?: return
         val balls = scene.balls
         val oldScore = score.value
+        val ball = balls[i]
         score.value = score.value.copy(
             value = oldScore.value + 1,
-            color = balls[i].color
+            color = ball.color
         )
         animateScore.value = true
-        balls[i].visible = false
+        ball.visible = 0
     }
 
     private fun onProjectileMissed(i: Int) {}
@@ -182,14 +173,16 @@ class GameLoop(
         val projectiles = scene.projectiles
         val y = 2000f
         val i = 0
-        val projectile = projectiles[i]
-        projectile.pos = Vec2(x, y)
-        projectile.velocity = Vec2(0f, 0f)
-        projectile.dir = Vec2(0f, -1f)
-        projectile.acceleration = Vec2(0f, 9.8f * 1000f)
-        projectile.length = (64..128).random().toFloat()
-        projectile.color = Vec4(0f, 0f, 0f, 1f)
-        projectile.visible = true
+        stack {
+            val projectile = projectiles[i]
+            projectile.pos = Vec2(x, y)
+            projectile.velocity = Vec2()
+            projectile.dir = Vec2(y = -1f)
+            projectile.acceleration = Vec2(y = 9.8f * 1000f)
+            projectile.length = (64..128).random().toFloat()
+            projectile.color = Vec4(0f, 0f, 0f, 1f)
+            projectile.visible = true
+        }
     }
 
     private fun destroyProjectile(i: Int) {

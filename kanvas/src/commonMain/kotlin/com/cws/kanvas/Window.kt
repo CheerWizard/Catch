@@ -62,7 +62,6 @@ expect class Window : BaseWindow {
     fun release()
     fun isClosed(): Boolean
     fun applySwapChain()
-    fun setCurrent()
     fun setSurface(surface: Any?)
 
 }

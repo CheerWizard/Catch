@@ -1,5 +1,6 @@
 package com.cws.kanvas
 
+import com.cws.klog.KLog
 import kotlin.concurrent.thread
 
 actual open class PlatformRenderLoop actual constructor(name: String, priority: Int) {

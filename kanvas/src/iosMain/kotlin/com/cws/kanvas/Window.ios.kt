@@ -1,5 +1,7 @@
 package com.cws.kanvas
 
+import kotlinx.atomicfu.locks.ReentrantLock
+
 actual typealias WindowID = Unit
 
 actual class Window : BaseWindow {
@@ -7,6 +9,10 @@ actual class Window : BaseWindow {
     actual companion object {
         actual fun free() = Unit
     }
+
+    actual override val eventListeners: MutableSet<EventListener> = mutableSetOf()
+    actual override val events: ArrayDeque<Any> = ArrayDeque()
+    actual override val lock: ReentrantLock = ReentrantLock()
 
     actual constructor(
         x: Int,
@@ -21,8 +27,6 @@ actual class Window : BaseWindow {
     actual fun isClosed(): Boolean = false
 
     actual fun applySwapChain() {}
-
-    actual fun setCurrent() {}
 
     actual fun setSurface(surface: Any?) {}
 

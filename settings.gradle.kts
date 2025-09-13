@@ -26,5 +26,5 @@ rootProject.name = "Catch"
 include(":app")
 include(":kanvas")
 include(":klog")
-include(":kmemory-proc")
 include(":kmemory")
+include(":kmemory-proc")

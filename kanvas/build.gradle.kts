@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
     id("com.android.library")
+    id("com.google.devtools.ksp") version "2.2.10-2.0.2"
 }
 
 kotlin {
@@ -28,14 +29,13 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
+            kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
             dependencies {
                 api(project(":klog"))
                 api(project(":kmemory"))
                 // Compose
                 api("org.jetbrains.compose.runtime:runtime:1.7.1")
                 api("org.jetbrains.compose.foundation:foundation:1.7.1")
-                api("org.jetbrains.compose.material:material:1.7.1")
-                api(compose.components.uiToolingPreview)
                 // Coroutines and Atomics
                 api(libs.atomicfu)
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
@@ -44,13 +44,18 @@ kotlin {
         }
 
         val composeUiMain by creating {
+            dependencies {
+                // Compose
+                api("org.jetbrains.compose.material:material:1.7.1")
+                api(compose.components.uiToolingPreview)
+            }
             dependsOn(commonMain)
         }
 
         val webUiMain by creating {
             dependencies {
-                api("org.jetbrains.skiko:skiko-js:0.8.9")
-                api(compose.web.core)
+                api(compose.html.core)
+                api(compose.runtime)
             }
             dependsOn(commonMain)
         }
@@ -82,10 +87,10 @@ kotlin {
                 }
 
                 // LWJGL core
-                implementation("org.lwjgl:lwjgl:$lwjglVersion")
-                implementation("org.lwjgl:lwjgl-opengl:$lwjglVersion")
-                implementation("org.lwjgl:lwjgl-glfw:$lwjglVersion")
-                implementation("org.lwjgl:lwjgl-stb:$lwjglVersion")
+                api("org.lwjgl:lwjgl:$lwjglVersion")
+                api("org.lwjgl:lwjgl-opengl:$lwjglVersion")
+                api("org.lwjgl:lwjgl-glfw:$lwjglVersion")
+                api("org.lwjgl:lwjgl-stb:$lwjglVersion")
 
                 // LWJGL natives
                 runtimeOnly("org.lwjgl:lwjgl:$lwjglVersion:$lwjglNatives")
@@ -126,5 +131,24 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+}
+
+dependencies {
+    ksp(project(":kmemory-proc"))
+}
+
+afterEvaluate {
+    tasks.named("kspDebugKotlinAndroid") {
+        enabled = false
+    }
+    tasks.named("kspReleaseKotlinAndroid") {
+        enabled = false
+    }
+    tasks.named("kspKotlinDesktop") {
+        enabled = false
+    }
+    tasks.named("kspKotlinJs") {
+        enabled = false
     }
 }

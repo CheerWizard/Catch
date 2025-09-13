@@ -1,16 +1,15 @@
 package com.cws.kanvas
 
-import com.cws.kmemory.NativeHeap
-import com.cws.kmemory.copyFrom
+import com.cws.kmemory.HeapMemory
 
-open class UniformBuffer<T>(
+open class UniformBuffer(
     private val binding: Int,
-    structSize: Int,
-    structCount: Int
+    typeSize: Int,
+    count: Int
 ) : GpuBuffer(
     type = Kanvas.UNIFORM_BUFFER,
-    elementSizeBytes = structSize,
-    size = structCount,
+    typeSize = typeSize,
+    capacity = count * typeSize,
 ) {
 
     override fun init() {
@@ -19,18 +18,7 @@ open class UniformBuffer<T>(
     }
 
     fun update(index: Int, heapIndex: Int) {
-        copyFrom(
-            src = NativeHeap,
-            srcIndex = heapIndex,
-            destIndex = index * elementSizeBytes,
-            size = elementSizeBytes
-        )
-    }
-
-    fun update(nativeArray: NativeArray<T>) {
-        nativeArray.forEachIndexed { i, data ->
-            update(i, nativeArray.toIndex(data))
-        }
+        HeapMemory.copyTo(this, heapIndex, index * typeSize, typeSize)
     }
 
 }

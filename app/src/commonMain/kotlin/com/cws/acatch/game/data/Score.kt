@@ -1,6 +1,6 @@
 package com.cws.acatch.game.data
 
-import com.cws.kmemory.math.Vec4
+import com.cws.kanvas.math.Vec4
 
 data class Score(
     var value: Int = 0,

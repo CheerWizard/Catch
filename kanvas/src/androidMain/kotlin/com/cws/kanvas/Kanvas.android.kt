@@ -1,6 +1,7 @@
 package com.cws.kanvas
 
 import android.opengl.GLES30.*
+import com.cws.kmemory.BigBuffer
 import java.nio.Buffer
 import java.nio.ByteBuffer
 
@@ -85,29 +86,27 @@ actual object Kanvas {
     actual fun bufferData(
         type: Int,
         offset: Int,
-        data: Any,
+        data: BigBuffer,
         size: Int,
         usage: Int
     ) {
-        data as Buffer
-        if (data.remaining() < size) {
+        if (data.buffer.remaining() < size) {
             glBufferData(type, size, null, usage)
         } else {
-            glBufferData(type, size, data, usage)
+            glBufferData(type, size, data.buffer, usage)
         }
     }
 
     actual fun bufferSubData(
         type: Int,
         offset: Int,
-        data: Any,
+        data: BigBuffer,
         size: Int
     ) {
-        data as Buffer
-        if (data.remaining() < size) {
+        if (data.buffer.remaining() < size) {
             glBufferSubData(type, offset, size, null)
         } else {
-            glBufferSubData(type, offset, size, data)
+            glBufferSubData(type, offset, size, data.buffer)
         }
     }
 

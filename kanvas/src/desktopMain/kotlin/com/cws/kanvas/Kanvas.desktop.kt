@@ -1,5 +1,6 @@
 package com.cws.kanvas
 
+import com.cws.kmemory.BigBuffer
 import org.lwjgl.opengl.GL46.*
 
 import java.nio.ByteBuffer
@@ -83,20 +84,20 @@ actual object Kanvas {
     actual fun bufferData(
         type: Int,
         offset: Int,
-        data: Any,
+        data: BigBuffer,
         size: Int,
         usage: Int
     ) {
-        glBufferData(type, data as ByteBuffer, usage)
+        glBufferData(type, data.buffer, usage)
     }
 
     actual fun bufferSubData(
         type: Int,
         offset: Int,
-        data: Any,
+        data: BigBuffer,
         size: Int
     ) {
-        glBufferSubData(type, offset.toLong(), data as ByteBuffer)
+        glBufferSubData(type, offset.toLong(), data.buffer)
     }
 
     actual fun vertexArrayInit(): VertexArrayID {

@@ -13,57 +13,84 @@ import platform.posix.memcpy
 import platform.posix.realloc
 
 @OptIn(ExperimentalForeignApi::class)
-actual open class BigBuffer actual constructor(capacity: Int) : SmallBuffer(0) {
+actual class BigBuffer actual constructor(capacity: Int) : LockFree(), FastBuffer {
 
-    override var position: Int
+    actual override var position: Int
         set(value) {
             _position = value
         }
         get() = _position
 
-    override val capacity: Int get() = _capacity
+    actual override val capacity: Int get() = _capacity
 
-    private var buffer: CPointer<ByteVar> = malloc(capacity.toULong()) as CPointer<ByteVar>
+    var buffer: CPointer<ByteVar> = malloc(capacity.toULong()) as CPointer<ByteVar>
     private var _position = 0
     private var _capacity = capacity
 
-    override fun release() {
+    actual override fun release() {
         free(buffer)
         _position = 0
         _capacity = 0
     }
 
-    override fun getBuffer(): Any = buffer
+    actual override fun getBuffer(): Any = buffer
 
-    override fun resize(newCapacity: Int) {
+    actual override fun resize(newCapacity: Int) {
         buffer = realloc(buffer, newCapacity.toULong()) as CPointer<ByteVar>
         _capacity = newCapacity
     }
 
-    override operator fun set(index: Int, value: Byte) {
+    actual override operator fun set(index: Int, value: Byte) {
         buffer[index] = value
     }
 
-    override operator fun get(index: Int): Byte = buffer[index]
+    actual override operator fun get(index: Int): Byte = buffer[index]
 
-    override fun copy(
-        src: SmallBuffer,
-        dest: SmallBuffer,
+    actual override fun copyTo(
+        dest: FastBuffer,
         srcIndex: Int,
         destIndex: Int,
-        size: Int
+        size: Int,
     ) {
         lock {
-            src as BigBuffer
-            dest as BigBuffer
-            memcpy(dest.buffer + destIndex, src.buffer + srcIndex, size.toULong())
+            val result = if (dest is SmallBuffer) {
+                memcpy(
+                    dest.smallBuffer.toCValues() + destIndex,
+                    buffer + srcIndex,
+                    size.toULong()
+                )
+            } else if (dest is BigBuffer) {
+                memcpy(
+                    dest.buffer + destIndex,
+                    buffer + srcIndex,
+                    size.toULong()
+                )
+            } else {}
         }
     }
 
-    override fun setBytes(index: Int, bytes: ByteArray) {
+    actual fun copyFrom(src: SmallBuffer, destIndex: Int, srcIndex: Int, size: Int) {
         lock {
-            memcpy(buffer + index, bytes.toCValues(), bytes.size.toULong())
+            val result = memcpy(
+                buffer + destIndex,
+                src.smallBuffer.toCValues() + srcIndex,
+                size.toULong()
+            )
         }
+    }
+
+    actual override fun setBytes(index: Int, bytes: ByteArray) {
+        lock {
+            val result = memcpy(
+                buffer + index,
+                bytes.toCValues(),
+                bytes.size.toULong()
+            )
+        }
+    }
+
+    actual override fun clone(): FastBuffer {
+        return BigBuffer(capacity)
     }
 
 }

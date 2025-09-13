@@ -17,7 +17,7 @@ actual class Window : BaseWindow {
     actual override val events: ArrayDeque<Any> = ArrayDeque()
     actual override val lock: ReentrantLock = ReentrantLock()
 
-    private var handle: WindowID
+    private var handle: WindowID = Kanvas.NULL
 
     actual constructor(
         x: Int,
@@ -26,13 +26,13 @@ actual class Window : BaseWindow {
         height: Int,
         title: String
     ) {
-        val canvas = document.getElementById("canvas") as HTMLCanvasElement?
-            ?: error("Canvas element with id canvas is not found")
-        canvas.width = width
-        canvas.height = height
-        canvas.title = title
-        handle = canvas
-        initEventListeners()
+        Kanvas.getCanvas()?.let { canvas ->
+            canvas.width = width
+            canvas.height = height
+            canvas.title = title
+            handle = canvas
+            initEventListeners()
+        }
     }
 
     actual fun release() {
@@ -42,8 +42,6 @@ actual class Window : BaseWindow {
     actual fun isClosed(): Boolean = window.closed
 
     actual fun applySwapChain() = Unit
-
-    actual fun setCurrent() = Unit
 
     actual fun setSurface(surface: Any?) = Unit
 

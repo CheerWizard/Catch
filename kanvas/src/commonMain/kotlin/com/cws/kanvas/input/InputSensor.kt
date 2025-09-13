@@ -1,6 +1,6 @@
 package com.cws.kanvas.input
 
-import com.cws.kmemory.math.Vec3
+import com.cws.kanvas.math.Vec3
 
 data class InputSensor(
     var acceleration: Vec3 = Vec3(),

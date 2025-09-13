@@ -1,6 +1,7 @@
 package com.cws.kanvas
 
 import com.cws.klog.KLog
+import com.cws.kmemory.BigBuffer
 import kotlinx.cinterop.ByteVar
 import kotlinx.cinterop.CArrayPointer
 import kotlinx.cinterop.CValuesRef
@@ -91,20 +92,20 @@ actual object Kanvas {
     actual fun bufferData(
         type: Int,
         offset: Int,
-        data: Any,
+        data: BigBuffer,
         size: Int,
         usage: Int
     ) {
-        glBufferData(type.toUInt(), size.toLong(), data as CArrayPointer<*>, usage.toUInt())
+        glBufferData(type.toUInt(), size.toLong(), data.buffer, usage.toUInt())
     }
 
     actual fun bufferSubData(
         type: Int,
         offset: Int,
-        data: Any,
+        data: BigBuffer,
         size: Int
     ) {
-        glBufferSubData(type.toUInt(), offset.toLong(), size.toLong(), data as CArrayPointer<*>)
+        glBufferSubData(type.toUInt(), offset.toLong(), size.toLong(), data.buffer)
     }
 
     actual fun vertexArrayInit(): VertexArrayID = memScoped {

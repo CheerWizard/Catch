@@ -4,50 +4,69 @@ import org.khronos.webgl.Uint8Array
 import org.khronos.webgl.get
 import org.khronos.webgl.set
 
-actual open class BigBuffer actual constructor(capacity: Int) : SmallBuffer(0) {
+actual class BigBuffer actual constructor(capacity: Int) : LockFree(), FastBuffer {
 
-    override var position: Int
+    actual override var position: Int
         set(value) {
             _position = value
         }
         get() = _position
 
-    override val capacity: Int get() = buffer.byteLength
+    actual override val capacity: Int get() = buffer.byteLength
 
-    protected var buffer = Uint8Array(capacity)
+    var buffer = Uint8Array(capacity)
     protected var _position = 0
 
-    override fun getBuffer(): Any = buffer
+    actual override fun getBuffer(): Any = buffer
 
-    override fun resize(newCapacity: Int) {
+    actual override fun resize(newCapacity: Int) {
         buffer = Uint8Array(newCapacity)
     }
 
-    override operator fun set(index: Int, value: Byte) {
+    actual override operator fun set(index: Int, value: Byte) {
         buffer[index] = value
     }
 
-    override operator fun get(index: Int): Byte = buffer.get(index)
+    actual override operator fun get(index: Int): Byte = buffer.get(index)
 
-    override fun copy(
-        src: SmallBuffer,
-        dest: SmallBuffer,
-        srcIndex: Int,
-        destIndex: Int,
-        size: Int
-    ) {
+    actual override fun setBytes(index: Int, bytes: ByteArray) {
         lock {
-            src as BigBuffer
-            dest as BigBuffer
-            dest.buffer.set(src.buffer.subarray(srcIndex, srcIndex + size), destIndex)
+            buffer.set(bytes.toTypedArray())
         }
     }
 
-    override fun setBytes(index: Int, bytes: ByteArray) {
+    actual override fun clone(): FastBuffer {
+        return BigBuffer(capacity)
+    }
+
+    actual override fun release() = Unit
+
+    actual override fun copyTo(
+        dest: FastBuffer,
+        srcIndex: Int,
+        destIndex: Int,
+        size: Int,
+    ) {
         lock {
-            // todo find more efficient way to copy into buffer
-            bytes.forEachIndexed { i, byte ->
-                buffer[i] = byte
+            if (dest is SmallBuffer) {
+                for (i in 0..<size) {
+                    dest.smallBuffer[destIndex + i] = buffer[srcIndex + i]
+                }
+            } else if (dest is BigBuffer) {
+                dest.buffer.set(buffer.subarray(srcIndex, srcIndex + size), destIndex)
+            }
+        }
+    }
+
+    actual fun copyFrom(
+        src: SmallBuffer,
+        destIndex: Int,
+        srcIndex: Int,
+        size: Int
+    ) {
+        lock {
+            for (i in 0..<size) {
+                buffer[destIndex + i] = src.smallBuffer[srcIndex + i]
             }
         }
     }

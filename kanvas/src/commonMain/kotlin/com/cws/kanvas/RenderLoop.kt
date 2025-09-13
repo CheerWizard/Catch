@@ -1,5 +1,7 @@
 package com.cws.kanvas
 
+import com.cws.klog.KLog
+
 abstract class RenderLoop(
     val x: Int,
     val y: Int,
@@ -12,7 +14,7 @@ abstract class RenderLoop(
         protected set
 
     protected val renderers: MutableSet<Renderer> = mutableSetOf()
-    protected val vertexArray: VertexArray = VertexArray(Vertices.ATTRIBUTES)
+    protected val vertexArray: VertexArray = VertexArray(VERTEX_ATTRIBUTES)
     protected val vertexBuffer: VertexBuffer = VertexBuffer(1000)
     protected val indexBuffer: IndexBuffer = IndexBuffer(1000)
 
@@ -43,6 +45,7 @@ abstract class RenderLoop(
     }
 
     override fun onUpdate(dtMillis: Float) {
+        KLog.debug("dt=${dtMillis}ms FPS=${dtMillis.fps}")
         window.pollEvents()
         onFrameUpdate(dtMillis)
         render(dtMillis)
@@ -63,7 +66,7 @@ abstract class RenderLoop(
     protected abstract fun onFrameUpdate(dt: Float)
     protected abstract fun onRender(dt: Float)
 
-    fun onViewportChanged(width: Int, height: Int, format: Int) {
+    fun onViewportChanged(width: Int, height: Int) {
         viewport.width = width
         viewport.height = height
     }

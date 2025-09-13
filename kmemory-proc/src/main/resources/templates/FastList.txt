@@ -1,0 +1,59 @@
+package #pkg
+
+import com.cws.kmemory.FastList
+
+class #TList(capacity: Int) : FastList(capacity, #S.SIZE_BYTES) {
+
+    fun clone(): #TList = #TList(capacity)
+
+    fun add(value: #T) = #add
+
+    operator fun set(index: Int, value: #T) = #set
+
+    operator fun get(index: Int): #T = #get
+
+    inline fun forEachIndexed(crossinline block: (i: Int, v: #T) -> Unit) {
+        var i = 0
+        val step = typeSize
+        while (i < size) {
+            block(i, get(i))
+            i += step
+        }
+    }
+
+    inline fun forEach(crossinline block: (v: #T) -> Unit) {
+        forEachIndexed { _, v -> block(v) }
+    }
+
+    inline fun filterIndexed(crossinline block: (i: Int, v: #T) -> Boolean): #TList {
+        var i = 0
+        val step = typeSize
+        val filtered = clone()
+        filtered.clear()
+        while (i < size) {
+            val v = get(i)
+            if (block(i, v)) filtered.add(v)
+            i += step
+        }
+        return filtered
+    }
+
+    inline fun filter(crossinline block: (v: #T) -> Boolean): #TList {
+        return filterIndexed { _, v -> block(v) }
+    }
+
+    inline fun findIndexed(default: #T, crossinline block: (i: Int, v: #T) -> Boolean): #T {
+        var i = 0
+        val step = typeSize
+        while (i < size) {
+            val v = get(i)
+            if (block(i, v)) return v
+            i += step
+        }
+        return default
+    }
+
+    inline fun find(default: #T, crossinline block: (v: #T) -> Boolean): #T {
+        return findIndexed(default) { _, v -> block(v) }
+    }
+}

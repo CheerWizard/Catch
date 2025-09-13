@@ -1,20 +1,22 @@
 package com.cws.kanvas
 
+import com.cws.kmemory.FastList
+
 class VertexBuffer(size: Int) : GpuBuffer(
     type = Kanvas.VERTEX_BUFFER,
-    elementSizeBytes = Float.SIZE_BYTES,
-    size = size
+    typeSize = Vertex.SIZE_BYTES,
+    capacity = size
 ) {
 
-    fun add(vertices: Vertices) {
-        ensureCapacity(size = vertices.values.size)
-        setArray(vertices.values)
+    fun add(vertices: FastList) {
+        ensureCapacity(size = vertices.size)
+        addArray(vertices)
     }
 
-    fun update(index: Int, vertices: Vertices) {
-        ensureCapacity(index = index, size = vertices.values.size)
+    fun update(index: Int, vertices: FastList) {
+        ensureCapacity(index = index, size = vertices.size)
         update(index) {
-            setArray(vertices.values)
+            setArray(index, vertices)
         }
     }
 

@@ -1,12 +1,19 @@
 package com.cws.kanvas
 
 import com.cws.kmemory.BigBuffer
+import com.cws.kmemory.FastBuffer
+import com.cws.kmemory.FastList
+import com.cws.kmemory.SmallBuffer
 
 open class GpuBuffer(
     protected val type: Int,
-    protected val elementSizeBytes: Int,
-    size: Int
-) : BigBuffer(size) {
+    typeSize: Int,
+    capacity: Int
+) : FastList(
+    capacity = capacity,
+    typeSize = typeSize,
+    requireBigBuffer = true
+) {
 
     protected lateinit var handle: BufferID
 
@@ -26,18 +33,19 @@ open class GpuBuffer(
 
     fun flush(index: Int = 0, size: Int = position) {
         bind()
-        setPosition(index * elementSizeBytes)
+        position = index * typeSize
         Kanvas.bufferSubData(
             type = type,
-            size = size * elementSizeBytes,
-            offset = index * elementSizeBytes,
-            data = getBuffer()
+            size = size * typeSize,
+            offset = position,
+            data = buffer as BigBuffer
         )
     }
 
-    override fun resize(newCapacity: Int) {
+    override fun resize(newCapacity: Int): FastBuffer {
         super.resize(newCapacity)
         resizeBuffer()
+        return buffer
     }
 
     protected fun ensureCapacity(index: Int = position, size: Int) {
@@ -48,18 +56,18 @@ open class GpuBuffer(
 
     protected inline fun update(index: Int, updateBlock: () -> Unit) {
         val lastIndex = position
-        setPosition(index)
+        position = index
         updateBlock()
-        setPosition(lastIndex)
+        position = lastIndex
     }
 
-    protected fun resizeBuffer() {
+    private fun resizeBuffer() {
         bind()
         Kanvas.bufferData(
             type = type,
-            data = getBuffer(),
+            data = buffer as BigBuffer,
             offset = 0,
-            size = capacity * elementSizeBytes,
+            size = capacity,
             usage = Kanvas.DYNAMIC_DRAW
         )
     }

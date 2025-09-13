@@ -1,5 +1,6 @@
 package com.cws.kanvas
 
+import com.cws.kmemory.BigBuffer
 import kotlinx.browser.document
 import org.khronos.webgl.ArrayBufferView
 import org.khronos.webgl.BufferDataSource
@@ -62,10 +63,7 @@ actual object Kanvas {
     private val context: WebGL2RenderingContext = createContext()
 
     private fun createContext(): WebGL2RenderingContext {
-        val canvas = document.getElementById(KANVAS_RUNTIME) as HTMLCanvasElement?
-            ?: error("Canvas element with id $KANVAS_RUNTIME is not found")
-
-        val context = canvas.getContext("webgl2") as WebGL2RenderingContext?
+        val context = getCanvas()?.getContext("webgl2") as WebGL2RenderingContext?
             ?: error("Failed to initialize WebGL2")
 
         if (context.asDynamic().createVertexArray == undefined) {
@@ -73,6 +71,11 @@ actual object Kanvas {
         }
 
         return context
+    }
+
+    fun getCanvas(): HTMLCanvasElement? {
+        return document.getElementById(KANVAS_RUNTIME) as HTMLCanvasElement?
+            ?: error("Canvas element with id $KANVAS_RUNTIME is not found")
     }
 
     actual fun clear(bitmask: Int) {
@@ -106,20 +109,20 @@ actual object Kanvas {
     actual fun bufferData(
         type: Int,
         offset: Int,
-        data: Any,
+        data: BigBuffer,
         size: Int,
         usage: Int
     ) {
-        context.bufferData(type, data as BufferDataSource, usage)
+        context.bufferData(type, data.buffer, usage)
     }
 
     actual fun bufferSubData(
         type: Int,
         offset: Int,
-        data: Any,
+        data: BigBuffer,
         size: Int,
     ) {
-        context.bufferSubData(type, offset, data as BufferDataSource)
+        context.bufferSubData(type, offset, data.buffer)
     }
 
     actual fun vertexArrayInit(): VertexArrayID {

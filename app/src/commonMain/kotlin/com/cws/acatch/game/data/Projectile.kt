@@ -1,11 +1,11 @@
 package com.cws.acatch.game.data
 
-import com.cws.kmemory.NativeData
-import com.cws.kmemory.math.Vec2
-import com.cws.kmemory.math.Vec4
+import com.cws.kanvas.math.Vec2
+import com.cws.kanvas.math.Vec4
+import com.cws.kmemory.FastObject
 
-@NativeData
-class Projectile(
+@FastObject
+class _Projectile(
     pos: Vec2,
     visible: Boolean,
     var velocity: Vec2,
@@ -13,4 +13,4 @@ class Projectile(
     var length: Float,
     var acceleration: Vec2,
     var color: Vec4
-) : Entity(pos, visible)
+) : _Entity(pos, visible)
