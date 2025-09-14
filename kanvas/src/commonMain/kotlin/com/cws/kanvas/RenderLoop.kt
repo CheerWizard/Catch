@@ -13,7 +13,6 @@ abstract class RenderLoop(
     lateinit var window: Window
         protected set
 
-    protected val renderers: MutableSet<Renderer> = mutableSetOf()
     protected val vertexArray: VertexArray = VertexArray(VERTEX_ATTRIBUTES)
     protected val vertexBuffer: VertexBuffer = VertexBuffer(1000)
     protected val indexBuffer: IndexBuffer = IndexBuffer(1000)
@@ -33,11 +32,9 @@ abstract class RenderLoop(
         vertexArray.init()
         vertexBuffer.init()
         indexBuffer.init()
-        renderers.forEach { it.init() }
     }
 
     override fun onDestroy() {
-        renderers.forEach { it.release() }
         vertexArray.release()
         vertexBuffer.release()
         indexBuffer.release()
@@ -48,6 +45,7 @@ abstract class RenderLoop(
         KLog.debug("dt=${dtMillis}ms FPS=${dtMillis.fps}")
         window.pollEvents()
         onFrameUpdate(dtMillis)
+        RenderLoopJobs.execute()
         render(dtMillis)
         window.applySwapChain()
         running = !window.isClosed()
@@ -59,7 +57,6 @@ abstract class RenderLoop(
             clear(COLOR_BUFFER_BIT or DEPTH_BUFFER_BIT)
         }
         vertexArray.bind()
-        renderers.forEach { it.render() }
         onRender(dt)
     }
 

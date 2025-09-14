@@ -20,14 +20,11 @@ actual open class PlatformRenderLoop actual constructor(name: String, priority: 
 
     override fun run() {
         Looper.prepare()
-        try {
-            choreographer = Choreographer.getInstance()
-            ready.countDown()
-            onCreate()
-            Looper.loop()
-        } finally {
-            onDestroy()
-        }
+        choreographer = Choreographer.getInstance()
+        ready.countDown()
+        onCreate()
+        Looper.loop()
+        onDestroy()
     }
 
     actual fun startLoop() {

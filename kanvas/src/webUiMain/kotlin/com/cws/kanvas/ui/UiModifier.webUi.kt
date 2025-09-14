@@ -2,10 +2,7 @@ package com.cws.kanvas.ui
 
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
@@ -17,13 +14,12 @@ import org.jetbrains.compose.web.dom.AttrBuilderContext
 
 actual class UiModifier actual constructor() {
 
-    private var attrs: AttrBuilderContext<*>? = null
+    var attrs: AttrBuilderContext<*>? = null
+        private set
 
     constructor(attrs: AttrBuilderContext<*>?) : this() {
         this.attrs = attrs
     }
-
-    fun toAttrs(): AttrBuilderContext<*>? = attrs
 
     actual fun background(color: Color, shape: Shape) = UiModifier {
         attrs?.invoke(this)
@@ -46,24 +42,6 @@ actual class UiModifier actual constructor() {
         attrs?.invoke(this)
         style {
             property("transform", "scale(${scale.toDouble()})")
-        }
-    }
-
-    actual fun align(alignment: Alignment) = UiModifier {
-        attrs?.invoke(this)
-        style {
-            alignContent(alignment.alignContent)
-        }
-    }
-
-    private val Alignment.alignContent: AlignContent get() {
-        return when (this) {
-            Alignment.Center -> AlignContent.Center
-            Alignment.TopStart, Alignment.TopEnd -> AlignContent.FlexStart
-            Alignment.BottomStart, Alignment.BottomEnd -> AlignContent.FlexEnd
-            Alignment.Start -> AlignContent.Start
-            Alignment.End -> AlignContent.End
-            else -> AlignContent.Stretch
         }
     }
 

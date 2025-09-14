@@ -7,6 +7,7 @@ import com.cws.acatch.game.data.GameScene
 import com.cws.acatch.game.data.ProjectileList
 import com.cws.acatch.game.data.Score
 import com.cws.acatch.game.data.generateBalls
+import com.cws.acatch.game.rendering.BallRenderer
 import com.cws.kanvas.input.InputSensorManager
 import com.cws.kanvas.EventListener
 import com.cws.kanvas.RenderLoop
@@ -34,10 +35,13 @@ class GameLoop(
 
     private var scene: GameScene? = null
 
+    private val ballRenderer = BallRenderer()
+
     override fun onCreate() {
         super.onCreate()
         window.addEventListener(this)
         inputSensorManager.init()
+        ballRenderer.init()
 
         val balls = generateBalls(
             size = 100,
@@ -65,6 +69,7 @@ class GameLoop(
     }
 
     override fun onDestroy() {
+        ballRenderer.release()
         inputSensorManager.release()
         window.removeEventListener(this)
         super.onDestroy()
@@ -147,7 +152,11 @@ class GameLoop(
         }
     }
 
-    override fun onRender(dt: Float) {}
+    override fun onRender(dt: Float) {
+        scene?.let { scene ->
+            ballRenderer.render(scene.balls)
+        }
+    }
 
     override fun onTapPressed(x: Float, y: Float) {
         spawnProjectile(x, y)

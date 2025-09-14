@@ -3,7 +3,6 @@ package com.cws.kanvas
 import com.cws.kmemory.BigBuffer
 import com.cws.kmemory.FastBuffer
 import com.cws.kmemory.FastList
-import com.cws.kmemory.SmallBuffer
 
 open class GpuBuffer(
     protected val type: Int,

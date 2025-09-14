@@ -14,7 +14,7 @@ import androidx.compose.ui.window.WindowState
 import kotlinx.atomicfu.locks.ReentrantLock
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.opengl.GL
-import org.lwjgl.opengl.GL30.*
+import org.lwjgl.opengl.GL33.*
 import java.nio.ByteBuffer
 import kotlin.math.roundToInt
 

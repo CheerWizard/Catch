@@ -1,6 +1,7 @@
 package com.cws.kanvas
 
 import android.opengl.GLES30.*
+import com.cws.klog.KLog
 import com.cws.kmemory.BigBuffer
 import java.nio.Buffer
 import java.nio.ByteBuffer
@@ -162,7 +163,7 @@ actual object Kanvas {
 
     actual fun shaderStageCompile(shaderStage: ShaderStageID, source: String): Boolean {
         if (shaderStage == NULL) {
-            IllegalArgumentException("Shader is not created!").printStackTrace()
+            KLog.error("Shader is not created!")
             return false
         }
 
@@ -173,7 +174,7 @@ actual object Kanvas {
         if (compileStatus[0] == 0) {
             val log = glGetShaderInfoLog(shaderStage)
             shaderStageRelease(shaderStage)
-            RuntimeException("Failed to compile shader: $log").printStackTrace()
+            KLog.error("Failed to compile shader: $log")
             return false
         }
 
@@ -202,7 +203,7 @@ actual object Kanvas {
         glLinkProgram(shader)
         glGetProgramiv(shader, LINK_STATUS, linkStatus, 0)
         if (linkStatus[0] == 0) {
-            RuntimeException("Failed to link shader: ${glGetProgramInfoLog(shader)}").printStackTrace()
+            KLog.error("Failed to link shader: ${glGetProgramInfoLog(shader)}")
             shaderRelease(shader)
             return false
         }

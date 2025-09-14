@@ -7,8 +7,7 @@ import com.cws.kmemory.FastObject
 @FastObject
 data class _Vertex(
     val pos: Vec3,
-    val uv: Vec2,
-    val normal: Vec3
+    val uv: Vec2
 )
 
 val VERTEX_ATTRIBUTES = listOf(

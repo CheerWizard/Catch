@@ -10,49 +10,18 @@ plugins {
     id("com.google.devtools.ksp") version "2.2.10-2.0.2"
 }
 
-val keystoreProperties = Properties()
-keystoreProperties.load(FileInputStream(rootProject.file("keystore.properties")))
-
-android {
-    namespace = "com.cws.acatch"
-    compileSdk = 36
-
-    defaultConfig {
-        applicationId = "com.cws.acatch"
-        minSdk = 26
-        targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
-    }
-
-    signingConfigs {
-        create("release") {
-            keyAlias = keystoreProperties["KEY_ALIAS"] as String
-            keyPassword = keystoreProperties["KEY_PASSWORD"] as String
-            storeFile = file(keystoreProperties["STORE_FILE"] as String)
-            storePassword = keystoreProperties["STORE_PASSWORD"] as String
-        }
-    }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            isShrinkResources = false
-        }
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-}
-
 kotlin {
     androidTarget()
     jvm("desktop")
     js(IR) {
         browser {
             binaries.executable()
+            webpackTask {
+                copy {
+                    from("$projectDir/src/commonMain/resources")
+                    into("$buildDir/processedResources/js/main")
+                }
+            }
         }
         nodejs {
             binaries.executable()
@@ -89,6 +58,45 @@ kotlin {
     }
 }
 
+val keystoreProperties = Properties()
+keystoreProperties.load(FileInputStream(rootProject.file("keystore.properties")))
+
+android {
+    namespace = "com.cws.acatch"
+    compileSdk = 36
+
+    defaultConfig {
+        applicationId = "com.cws.acatch"
+        minSdk = 26
+        targetSdk = 36
+        versionCode = 1
+        versionName = "1.0"
+    }
+
+    signingConfigs {
+        create("release") {
+            keyAlias = keystoreProperties["KEY_ALIAS"] as String
+            keyPassword = keystoreProperties["KEY_PASSWORD"] as String
+            storeFile = file(keystoreProperties["STORE_FILE"] as String)
+            storePassword = keystoreProperties["STORE_PASSWORD"] as String
+        }
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            isShrinkResources = false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    sourceSets["main"].assets.srcDir("$buildDir/generated/commonAssets")
+}
+
 dependencies {
     ksp(project(":kmemory-proc"))
 }
@@ -108,14 +116,15 @@ afterEvaluate {
     }
 }
 
-tasks.register<Copy>("copySkikoWasmToDevOutput") {
-    dependsOn("jsDevelopmentExecutableCompileSync")
-    dependsOn("compileDevelopmentExecutableKotlinJs")
-    dependsOn("jsProcessResources")
-    from("$buildDir/processedResources/js/main/skiko.wasm")
-    into("$buildDir/processedResources/js/main/kotlin") // Gradle will create 'kotlin/' automatically
+tasks.register<Copy>("copyCommonResourcesToAssets") {
+    from("src/commonMain/resources")
+    into("$buildDir/generated/commonAssets")
 }
 
-tasks.named("jsBrowserDevelopmentRun") {
-    dependsOn("copySkikoWasmToDevOutput")
+tasks.named("preBuild") {
+    dependsOn("copyCommonResourcesToAssets")
+}
+
+tasks.register("ksp") {
+    dependsOn("kspCommonMainKotlinMetadata")
 }

@@ -3,9 +3,12 @@ package com.cws.kanvas.ui
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.Button
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -15,21 +18,18 @@ import androidx.compose.ui.semantics.Role
 
 actual class UiModifier actual constructor() {
 
-    private var modifier: Modifier = Modifier
+    var modifier: Modifier = Modifier
+        private set
 
     constructor(modifier: Modifier = Modifier) : this() {
         this.modifier = modifier
     }
-
-    fun toModifier(): Modifier = modifier
 
     actual fun background(color: Color, shape: Shape) = UiModifier(modifier.background(color, shape))
 
     actual fun fillMaxSize(fraction: Float) = UiModifier(modifier.fillMaxSize(fraction))
 
     actual fun scale(scale: Float) = UiModifier(modifier.scale(scale))
-
-    actual fun align(alignment: Alignment) = UiModifier(modifier)
 
     actual fun clickable(
         interactionSource: MutableInteractionSource?,
@@ -51,17 +51,6 @@ actual class UiModifier actual constructor() {
         onDoubleClick: (() -> Unit)?,
         hapticFeedbackEnabled: Boolean,
         onClick: () -> Unit
-    ) = UiModifier(modifier.combinedClickable(
-        interactionSource,
-        indication,
-        enabled,
-        onClickLabel,
-        role,
-        onLongClickLabel,
-        onLongClick,
-        onDoubleClick,
-        hapticFeedbackEnabled,
-        onClick
-    ))
+    ) = UiModifier(modifier)
 
 }

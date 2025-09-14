@@ -20,7 +20,7 @@ actual fun UiText(
 ) {
     Div(
         attrs = {
-            modifier.toAttrs()?.invoke(this)
+            modifier.attrs?.invoke(this)
             style {
                 color(rgba(style.color.red, style.color.green, style.color.blue, style.color.alpha))
                 fontSize(style.fontSize.value.px)

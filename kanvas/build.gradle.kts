@@ -132,6 +132,8 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
+    sourceSets["main"].assets.srcDir("$buildDir/generated/commonAssets")
 }
 
 dependencies {
@@ -151,4 +153,17 @@ afterEvaluate {
     tasks.named("kspKotlinJs") {
         enabled = false
     }
+}
+
+tasks.register<Copy>("copyCommonResourcesToAssets") {
+    from("src/commonMain/resources")
+    into("$buildDir/generated/commonAssets")
+}
+
+tasks.named("preBuild") {
+    dependsOn("copyCommonResourcesToAssets")
+}
+
+tasks.register("ksp") {
+    dependsOn("kspCommonMainKotlinMetadata")
 }

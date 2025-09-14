@@ -13,7 +13,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.cws.klog.KLog
 
 @Composable
-fun KanvasEntryPoint(
+fun KanvasView(
     modifier: Modifier,
     renderLoop: RenderLoop,
     content: @Composable BoxScope.() -> Unit

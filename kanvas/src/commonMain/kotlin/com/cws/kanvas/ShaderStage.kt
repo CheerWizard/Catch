@@ -2,26 +2,26 @@ package com.cws.kanvas
 
 class ShaderStage {
 
-    private lateinit var handle: ShaderStageID
+    private var id: ShaderStageID? = null
 
     fun init(type: Int) {
-        handle = Kanvas.shaderStageInit(type)
+        id = Kanvas.shaderStageInit(type)
     }
 
     fun release() {
-        Kanvas.shaderStageRelease(handle)
+        Kanvas.shaderStageRelease(id ?: return)
     }
 
     fun compile(source: String): Boolean {
-        return Kanvas.shaderStageCompile(handle, source)
+        return Kanvas.shaderStageCompile(id ?: return false, source)
     }
 
     fun attach(shader: ShaderID) {
-        Kanvas.shaderStageAttach(shader, handle)
+        Kanvas.shaderStageAttach(shader, id ?: return)
     }
 
     fun detach(shader: ShaderID) {
-        Kanvas.shaderStageDetach(shader, handle)
+        Kanvas.shaderStageDetach(shader, id ?: return)
     }
 
 }

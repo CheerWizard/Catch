@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 @Composable
 actual fun UiBox(
     modifier: UiModifier,
-    content: @Composable (() -> Unit)?,
+    content: @Composable (UiBoxScope.() -> Unit)?,
 ) {
-    Box(modifier.toModifier()) { content?.invoke() }
+    Box(modifier.modifier) { content?.invoke(UiBoxScope(this)) }
 }

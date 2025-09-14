@@ -11,7 +11,7 @@ actual fun UiText(
     style: TextStyle
 ) {
     Text(
-        modifier = modifier.toModifier(),
+        modifier = modifier.modifier,
         text = text,
         style = style
     )

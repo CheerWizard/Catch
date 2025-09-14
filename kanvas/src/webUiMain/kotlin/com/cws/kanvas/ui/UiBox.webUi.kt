@@ -6,7 +6,7 @@ import org.jetbrains.compose.web.dom.Div
 @Composable
 actual fun UiBox(
     modifier: UiModifier,
-    content: @Composable (() -> Unit)?,
+    content: @Composable (UiBoxScope.() -> Unit)?,
 ) {
-    Div(modifier.toAttrs()) { content?.invoke() }
+    Div(modifier.attrs) { content?.invoke(UiBoxScope()) }
 }

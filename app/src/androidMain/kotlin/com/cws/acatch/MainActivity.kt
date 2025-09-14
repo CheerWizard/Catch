@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import com.cws.acatch.game.GameLoop
 import com.cws.kanvas.input.InputSensorManager
 import com.cws.acatch.game.ui.GameScreen
-import com.cws.kanvas.KanvasEntryPoint
+import com.cws.kanvas.KanvasView
 import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
                 )
             }
 
-            KanvasEntryPoint(
+            KanvasView(
                 modifier = Modifier.fillMaxSize(),
                 renderLoop = gameLoop
             ) {

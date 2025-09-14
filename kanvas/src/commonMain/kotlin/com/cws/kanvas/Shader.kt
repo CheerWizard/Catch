@@ -1,37 +1,13 @@
 package com.cws.kanvas
 
-import com.cws.klog.KLog
-
 class Shader(
     private val stages: MutableList<ShaderStage> = mutableListOf()
 ) {
 
-    private lateinit var handle: ShaderID
-
-    suspend fun init(
-        paths: List<String>
-    ) {
-        val sources = paths.map { path ->
-            val shaderType = path.toShaderType()
-            if (shaderType == Kanvas.NULL) return@map shaderType to ""
-            shaderType to ShaderLoader().load(path)
-        }
-        init(sources)
-    }
-
-    private fun String.toShaderType(): Int {
-        return when {
-            contains("_vert") -> Kanvas.VERTEX_SHADER
-            contains("_frag") -> Kanvas.FRAGMENT_SHADER
-            else -> {
-                KLog.warn("Unsupported shader type $this")
-                Kanvas.NULL
-            }
-        }
-    }
+    private var id: ShaderID? = null
 
     fun init(sources: List<Pair<Int, String>>) {
-        handle = Kanvas.shaderInit()
+        id = Kanvas.shaderInit()
 
         sources.forEachIndexed { i, source ->
             val stage = ShaderStage()
@@ -40,27 +16,29 @@ class Shader(
             stages.add(i, stage)
         }
 
-        stages.forEach {
-            it.attach(handle)
-        }
-
-        Kanvas.shaderLink(handle)
-
-        stages.forEach {
-            it.detach(handle)
-            it.release()
+        id?.let { id ->
+            stages.forEach {
+                it.attach(id)
+            }
+            Kanvas.shaderLink(id)
+            stages.forEach {
+                it.detach(id)
+                it.release()
+            }
         }
     }
 
     fun release() {
-        Kanvas.shaderRelease(handle)
+        Kanvas.shaderRelease(id ?: return)
         stages.forEach {
             it.release()
         }
     }
 
     fun run() {
-        Kanvas.shaderUse(handle)
+        Kanvas.shaderUse(id ?: return)
     }
+
+    fun isReady() = id != null
 
 }

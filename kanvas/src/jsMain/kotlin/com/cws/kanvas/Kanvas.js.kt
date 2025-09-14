@@ -1,5 +1,6 @@
 package com.cws.kanvas
 
+import com.cws.klog.KLog
 import com.cws.kmemory.BigBuffer
 import kotlinx.browser.document
 import org.khronos.webgl.ArrayBufferView
@@ -173,7 +174,7 @@ actual object Kanvas {
 
     actual fun shaderStageCompile(shaderStage: ShaderStageID, source: String): Boolean {
         if (shaderStage == NULL) {
-            IllegalArgumentException("Shader is not created!").printStackTrace()
+            KLog.error("Shader is not created!")
             return false
         }
 
@@ -184,7 +185,7 @@ actual object Kanvas {
         if (compileStatus == null) {
             val log = context.getShaderInfoLog(shaderStage)
             shaderStageRelease(shaderStage)
-            RuntimeException("Failed to compile shader: $log").printStackTrace()
+            KLog.error("Failed to compile shader: $log")
             return false
         }
 
@@ -211,7 +212,7 @@ actual object Kanvas {
         context.linkProgram(shader as WebGLProgram)
         val linkStatus = context.getProgramParameter(shader, LINK_STATUS)
         if (linkStatus == null) {
-            RuntimeException("Failed to link shader: ${context.getProgramInfoLog(shader)}").printStackTrace()
+            KLog.error("Failed to link shader: ${context.getProgramInfoLog(shader)}")
             shaderRelease(shader)
             return false
         }
