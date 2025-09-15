@@ -12,4 +12,6 @@ actual class UiBoxScope() {
         }
     }
 
+    actual fun UiModifier.matchParentSize() = fillMaxSize()
+
 }

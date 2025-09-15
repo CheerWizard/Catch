@@ -5,7 +5,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -43,7 +45,7 @@ class MainActivity : ComponentActivity() {
             }
 
             KanvasView(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().offset().,
                 renderLoop = gameLoop
             ) {
                 GameScreen(
