@@ -17,12 +17,17 @@ import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.toKString
 import platform.gles3.*
+import kotlin.native.internal.NativePtr
 import kotlin.toUInt
 
-actual typealias VertexArrayID = Int
-actual typealias BufferID = Int
-actual typealias TextureID = Int
-actual typealias FrameBufferID = UIntVar
+@OptIn(ExperimentalForeignApi::class)
+actual typealias VertexArrayID = NativePtr
+@OptIn(ExperimentalForeignApi::class)
+actual typealias BufferID = NativePtr
+@OptIn(ExperimentalForeignApi::class)
+actual typealias TextureID = NativePtr
+@OptIn(ExperimentalForeignApi::class)
+actual typealias FrameBufferID = NativePtr
 actual typealias ShaderStageID = Int
 actual typealias ShaderID = Int
 
@@ -82,7 +87,7 @@ actual object Kanvas {
     actual fun bufferInit(): BufferID = memScoped {
         val buffer = allocArray<UIntVar>(1)
         glGenBuffers(1, buffer)
-        buffer[0]
+        buffer.rawValue
     }
 
     actual fun bufferRelease(buffer: BufferID) {
@@ -119,7 +124,7 @@ actual object Kanvas {
     actual fun vertexArrayInit(): VertexArrayID = memScoped {
         val vertexArray = allocArray<UIntVar>(1)
         glGenVertexArrays(1, vertexArray)
-        vertexArray
+        vertexArray.rawValue
     }
 
     actual fun vertexArrayRelease(vertexArray: VertexArrayID) {
@@ -237,15 +242,37 @@ actual object Kanvas {
         glUseProgram(shader.toUInt())
     }
 
-    actual fun textureInit(type: Int, texture: Texture): TextureID = memScoped {
+    actual fun textureInit(type: Int): TextureID = memScoped {
         val textureID = allocArray<UIntVar>(1)
-        glGenTextures(1, textureID)
-        glBindTexture(type.toUInt(), textureID[0])
-        textureParameter(type, GL_TEXTURE_MIN_FILTER, texture.minFilter)
-        textureParameter(type, GL_TEXTURE_MAG_FILTER, texture.magFilter)
-        textureParameter(type, GL_TEXTURE_WRAP_S, texture.wrapS)
-        textureParameter(type, GL_TEXTURE_WRAP_T, texture.wrapT)
-        textureParameter(type, GL_TEXTURE_WRAP_R, texture.wrapR)
+        glGenTextures(1, textureID, 0)
+        return textureID.rawValue
+    }
+
+    actual fun textureParameter(type: Int, name: Int, value: Int) {
+        glTexParameteri(type.toUInt(), name.toUInt(), value)
+    }
+
+    actual fun textureRelease(texture: TextureID) {
+        glDeleteTextures(1, texture.toUInt(), 0u)
+    }
+
+    actual fun textureBind(type: Int, texture: TextureID) {
+        glBindTexture(type.toUInt(), texture)
+    }
+
+    actual fun textureUnbind(type: Int) {
+        glBindTexture(type.toUInt(), 0u)
+    }
+
+    actual fun textureActive(slot: Int) {
+        glActiveTexture(GL_TEXTURE0.toUInt() + slot.toUInt())
+    }
+
+    actual fun textureGenerateMipmap(type: Int) {
+        glGenerateMipmap(type.toUInt())
+    }
+
+    actual fun textureImage2D(type: Int, texture: Texture) {
         glTexImage2D(
             type.toUInt(),
             texture.mipLevel,
@@ -257,24 +284,6 @@ actual object Kanvas {
             texture.pixelFormat.toUInt(),
             texture.pixels as CValuesRef<*>
         )
-        glGenerateMipmap(type.toUInt())
-        glBindTexture(type.toUInt(), 0u)
-        textureID
-    }
-
-    private fun textureParameter(type: Int, name: Int, value: Int) {
-        if (value != NULL) {
-            glTexParameteri(type.toUInt(), name.toUInt(), value)
-        }
-    }
-
-    actual fun textureRelease(texture: TextureID) {
-        glDeleteTextures(1, texture as CArrayPointer<UIntVar>)
-    }
-
-    actual fun textureBind(type: Int, texture: TextureID, slot: Int) {
-        glBindTexture(type.toUInt(), (texture as CArrayPointer<UIntVar>)[0])
-        glActiveTexture(GL_TEXTURE0 + slot.toUInt())
     }
 
     actual fun drawArrays(mode: Int, first: Int, count: Int) {
@@ -301,9 +310,9 @@ actual object Kanvas {
 
     actual fun frameBufferInit(): FrameBufferID {
         memScoped {
-            val frameBufferID = alloc<UIntVar>().ptr
+            val frameBufferID = allocArray<UIntVar>(1)
             glGenFramebuffers(1, frameBufferID)
-            return frameBufferID
+            return frameBufferID.rawValue
         }
     }
 
@@ -339,7 +348,7 @@ actual object Kanvas {
     }
 
     actual fun frameBufferCheckStatus(): Boolean {
-        return glCheckFramebufferStatus(FRAME_BUFFER) == GL_FRAMEBUFFER_COMPLETE
+        return glCheckFramebufferStatus(FRAME_BUFFER.toUInt()) == GL_FRAMEBUFFER_COMPLETE.toUInt()
     }
 
     actual fun frameBufferAttachColor(
@@ -349,10 +358,10 @@ actual object Kanvas {
         textureLevel: Int
     ) {
         glFramebufferTexture2D(
-            FRAME_BUFFER,
-            GL_COLOR_ATTACHMENT0 + index,
+            FRAME_BUFFER.toUInt(),
+            GL_COLOR_ATTACHMENT0.toUInt() + index.toUInt(),
             textureType.toUInt(),
-            textureID.toUInt(),
+            textureID,
             textureLevel
         )
     }
@@ -363,10 +372,10 @@ actual object Kanvas {
         textureLevel: Int
     ) {
         glFramebufferTexture2D(
-            FRAME_BUFFER,
-            GL_DEPTH_ATTACHMENT,
+            FRAME_BUFFER.toUInt(),
+            GL_DEPTH_ATTACHMENT.toUInt(),
             textureType.toUInt(),
-            textureID.toUInt(),
+            textureID,
             textureLevel
         )
     }
