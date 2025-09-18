@@ -4,7 +4,6 @@ import com.cws.klog.KLog
 import com.cws.kmemory.BigBuffer
 import kotlinx.browser.document
 import org.khronos.webgl.ArrayBufferView
-import org.khronos.webgl.BufferDataSource
 import org.khronos.webgl.WebGLBuffer
 import org.khronos.webgl.WebGLFramebuffer
 import org.khronos.webgl.WebGLProgram
@@ -168,7 +167,7 @@ actual object Kanvas {
         return context.createShader(type) ?: error("Failed to create shader stage $type")
     }
 
-    actual fun shaderStageRelease(shaderStage: ShaderStageID) {
+    actual fun shaderStageRelease(shaderStage: UInt) {
         context.deleteShader(shaderStage as WebGLShader)
     }
 

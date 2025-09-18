@@ -143,7 +143,7 @@ actual object Kanvas {
         return glCreateShader(type)
     }
 
-    actual fun shaderStageRelease(shaderStage: ShaderStageID) {
+    actual fun shaderStageRelease(shaderStage: UInt) {
         glDeleteShader(shaderStage)
     }
 

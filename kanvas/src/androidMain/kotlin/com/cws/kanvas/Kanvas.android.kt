@@ -3,7 +3,6 @@ package com.cws.kanvas
 import android.opengl.GLES30.*
 import com.cws.klog.KLog
 import com.cws.kmemory.BigBuffer
-import java.nio.Buffer
 import java.nio.ByteBuffer
 
 actual typealias VertexArrayID = IntArray
@@ -155,7 +154,7 @@ actual object Kanvas {
         return glCreateShader(type)
     }
 
-    actual fun shaderStageRelease(shaderStage: ShaderStageID) {
+    actual fun shaderStageRelease(shaderStage: UInt) {
         glDeleteShader(shaderStage)
     }
 

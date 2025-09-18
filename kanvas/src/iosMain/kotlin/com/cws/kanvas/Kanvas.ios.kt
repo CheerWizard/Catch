@@ -8,25 +8,26 @@ import kotlinx.cinterop.CValuesRef
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.IntVar
 import kotlinx.cinterop.UIntVar
+import kotlinx.cinterop.alloc
 import kotlinx.cinterop.allocArray
 import kotlinx.cinterop.cValuesOf
 import kotlinx.cinterop.cstr
 import kotlinx.cinterop.get
 import kotlinx.cinterop.memScoped
+import kotlinx.cinterop.ptr
 import kotlinx.cinterop.toKString
 import platform.gles3.*
 import kotlin.toUInt
 
-actual typealias VertexArrayID = Any
-actual typealias BufferID = Any
-actual typealias TextureID = Any
-actual typealias FrameBufferID = Any
-actual typealias ShaderStageID = UInt
-actual typealias ShaderID = UInt
+actual typealias VertexArrayID = Int
+actual typealias BufferID = Int
+actual typealias TextureID = Int
+actual typealias FrameBufferID = UIntVar
+actual typealias ShaderStageID = Int
+actual typealias ShaderID = Int
 
 @OptIn(ExperimentalForeignApi::class)
 actual object Kanvas {
-
     actual val NULL: Int = -1
     actual val STATIC_DRAW: Int = GL_STATIC_DRAW
     actual val DYNAMIC_DRAW: Int = GL_DYNAMIC_DRAW
@@ -40,6 +41,8 @@ actual object Kanvas {
     actual val INDEX_BUFFER: Int = GL_ELEMENT_ARRAY_BUFFER
     actual val UNIFORM_BUFFER: Int = GL_UNIFORM_BUFFER
     actual val FRAME_BUFFER: Int = GL_FRAMEBUFFER
+    actual val READ_FRAME_BUFFER: Int = GL_READ_FRAMEBUFFER
+    actual val DRAW_FRAME_BUFFER: Int = GL_DRAW_FRAMEBUFFER
     actual val VERTEX_SHADER: Int = GL_VERTEX_SHADER
     actual val FRAGMENT_SHADER: Int = GL_FRAGMENT_SHADER
     actual val GEOMETRY_SHADER: Int = NULL
@@ -58,9 +61,14 @@ actual object Kanvas {
     actual val REPEAT: Int = GL_REPEAT
     actual val TEXTURE_2D: Int = GL_TEXTURE_2D
     actual val TEXTURE_CUBE_MAP: Int = GL_TEXTURE_CUBE_MAP
+    actual val TEXTURE_MIN_FILTER: Int = GL_TEXTURE_MIN_FILTER
+    actual val TEXTURE_MAG_FILTER: Int = GL_TEXTURE_MAG_FILTER
+    actual val TEXTURE_WRAP_S: Int = GL_TEXTURE_WRAP_S
+    actual val TEXTURE_WRAP_T: Int = GL_TEXTURE_WRAP_T
+    actual val TEXTURE_WRAP_R: Int = GL_TEXTURE_WRAP_R
 
     actual fun clear(bitmask: Int) {
-        glClear(bitmask)
+        glClear(bitmask.toUInt())
     }
 
     actual fun clearColor(r: Float, g: Float, b: Float, a: Float) {
@@ -124,6 +132,7 @@ actual object Kanvas {
 
     actual fun vertexArrayEnableAttributes(attributes: List<VertexAttribute>) {
         var attributeOffset = 0
+        val offset = NativePtr(null)
         attributes.forEach { attribute ->
             glEnableVertexAttribArray(attribute.location.toUInt())
             glVertexAttribPointer(
@@ -132,7 +141,7 @@ actual object Kanvas {
                 attribute.type.type.toUInt(),
                 0u,
                 attribute.type.stride,
-                attributeOffset.toULong()
+                offset + attributeOffset
             )
             glVertexAttribDivisor(
                 attribute.location.toUInt(),
@@ -149,11 +158,11 @@ actual object Kanvas {
     }
 
     actual fun shaderStageInit(type: Int): ShaderStageID {
-        return glCreateShader(type.toUInt())
+        return glCreateShader(type.toUInt()).toInt()
     }
 
     actual fun shaderStageRelease(shaderStage: ShaderStageID) {
-        glDeleteShader(shaderStage)
+        glDeleteShader(shaderStage.toUInt())
     }
 
     private val compileStatus = memScoped {
@@ -161,29 +170,30 @@ actual object Kanvas {
     }
 
     actual fun shaderStageCompile(shaderStage: ShaderStageID, source: String): Boolean {
-        if (shaderStage == NULL.toUInt()) {
+        if (shaderStage.toUInt() == NULL.toUInt()) {
             KLog.error("Shader is not created")
             return false
         }
 
         memScoped {
             val cSource = source.cstr.ptr
-            glShaderSource(shaderStage, 1, cValuesOf(cSource), null)
+            glShaderSource(shaderStage.toUInt(), 1, cValuesOf(cSource), null)
         }
 
-        glCompileShader(shaderStage)
-        glGetShaderiv(shaderStage, GL_COMPILE_STATUS.toUInt(), compileStatus)
+        glCompileShader(shaderStage.toUInt())
+        glGetShaderiv(shaderStage.toUInt(), GL_COMPILE_STATUS.toUInt(), compileStatus)
 
         if (compileStatus[0] == 0) {
             val log = memScoped {
                 val logLength = alloc<IntVar>()
-                glGetShaderiv(shaderStage, GL_INFO_LOG_LENGTH.toUInt(), logLength.ptr)
+                glGetShaderiv(shaderStage.toUInt(), GL_INFO_LOG_LENGTH.toUInt(), logLength.ptr)
                 if (logLength.value <= 0) return ""
                 val logBuffer = allocArray<ByteVar>(logLength.value)
-                glGetShaderInfoLog(shaderStage, logLength.value, null, logBuffer)
+
+                glGetShaderInfoLog(shaderStage.toUInt(), logLength.value, null, logBuffer)
                 logBuffer.toKString()
             }
-            shaderStageRelease(shaderStage)
+            shaderStageRelease(shaderStage.toUInt())
             KLog.error("Failed to compile shader: $log")
             return false
         }
@@ -192,11 +202,11 @@ actual object Kanvas {
     }
 
     actual fun shaderStageAttach(shader: ShaderID, shaderStage: ShaderStageID) {
-        glAttachShader(shader, shaderStage)
+        glAttachShader(shader.toUInt(), shaderStage.toUInt())
     }
 
     actual fun shaderStageDetach(shader: ShaderID, shaderStage: ShaderStageID) {
-        glDetachShader(shader, shaderStage)
+        glDetachShader(shader.toUInt(), shaderStage.toUInt())
     }
 
     actual fun shaderInit(): ShaderID {
@@ -204,7 +214,7 @@ actual object Kanvas {
     }
 
     actual fun shaderRelease(shader: ShaderID) {
-        glDeleteProgram(shader)
+        glDeleteProgram(shader.toUInt())
     }
 
     private val linkStatus = memScoped {
@@ -212,10 +222,10 @@ actual object Kanvas {
     }
 
     actual fun shaderLink(shader: ShaderID): Boolean {
-        glLinkProgram(shader)
-        glGetProgramiv(shader, GL_LINK_STATUS, linkStatus)
+        glLinkProgram(shader.toUInt())
+        glGetProgramiv(shader.toUInt(), GL_LINK_STATUS, linkStatus)
         if (linkStatus[0] == 0) {
-            val log = glGetProgramInfoLog(shader)
+            val log = glGetProgramInfoLog(shader.toUInt())
             KLog.error("Failed to link shader: $log")
             shaderRelease(shader)
             return false
@@ -224,37 +234,37 @@ actual object Kanvas {
     }
 
     actual fun shaderUse(shader: ShaderID) {
-        glUseProgram(shader)
+        glUseProgram(shader.toUInt())
     }
 
     actual fun textureInit(type: Int, texture: Texture): TextureID = memScoped {
         val textureID = allocArray<UIntVar>(1)
         glGenTextures(1, textureID)
-        glBindTexture(type, textureID[0])
+        glBindTexture(type.toUInt(), textureID[0])
         textureParameter(type, GL_TEXTURE_MIN_FILTER, texture.minFilter)
         textureParameter(type, GL_TEXTURE_MAG_FILTER, texture.magFilter)
         textureParameter(type, GL_TEXTURE_WRAP_S, texture.wrapS)
         textureParameter(type, GL_TEXTURE_WRAP_T, texture.wrapT)
         textureParameter(type, GL_TEXTURE_WRAP_R, texture.wrapR)
         glTexImage2D(
-            type,
+            type.toUInt(),
             texture.mipLevel,
             texture.format,
             texture.width,
             texture.height,
             texture.border,
-            texture.format,
-            texture.pixelFormat,
+            texture.format.toUInt(),
+            texture.pixelFormat.toUInt(),
             texture.pixels as CValuesRef<*>
         )
-        glGenerateMipmap(type)
-        glBindTexture(type, 0u)
+        glGenerateMipmap(type.toUInt())
+        glBindTexture(type.toUInt(), 0u)
         textureID
     }
 
     private fun textureParameter(type: Int, name: Int, value: Int) {
         if (value != NULL) {
-            glTexParameteri(type, name, value)
+            glTexParameteri(type.toUInt(), name.toUInt(), value)
         }
     }
 
@@ -263,8 +273,8 @@ actual object Kanvas {
     }
 
     actual fun textureBind(type: Int, texture: TextureID, slot: Int) {
-        glBindTexture(type, (texture as CArrayPointer<UIntVar>)[0])
-        glActiveTexture(GL_TEXTURE0 + slot)
+        glBindTexture(type.toUInt(), (texture as CArrayPointer<UIntVar>)[0])
+        glActiveTexture(GL_TEXTURE0 + slot.toUInt())
     }
 
     actual fun drawArrays(mode: Int, first: Int, count: Int) {
@@ -286,6 +296,78 @@ actual object Kanvas {
             type.toUInt(),
             null,
             instances
+        )
+    }
+
+    actual fun frameBufferInit(): FrameBufferID {
+        memScoped {
+            val frameBufferID = alloc<UIntVar>().ptr
+            glGenFramebuffers(1, frameBufferID)
+            return frameBufferID
+        }
+    }
+
+    actual fun frameBufferRelease(frameBufferID: FrameBufferID) {
+        glDeleteFramebuffers(1, frameBufferID)
+    }
+
+    actual fun frameBufferBind(type: Int, frameBufferID: FrameBufferID) {
+        glBindFramebuffer(type.toUInt(), frameBufferID)
+    }
+
+    actual fun frameBufferUnbind(type: Int) {
+        glBindFramebuffer(type.toUInt(), 0u)
+    }
+
+    actual fun frameBufferBlit(
+        srcX: Int,
+        srcY: Int,
+        srcWidth: Int,
+        srcHeight: Int,
+        destX: Int,
+        destY: Int,
+        destWidth: Int,
+        destHeight: Int,
+        bitmask: Int,
+        filter: Int
+    ) {
+        glBlitFramebuffer(
+            srcX, srcY, srcWidth, srcHeight,
+            destX, destY, destWidth, destHeight,
+            bitmask.toUInt(), filter.toUInt()
+        )
+    }
+
+    actual fun frameBufferCheckStatus(): Boolean {
+        return glCheckFramebufferStatus(FRAME_BUFFER) == GL_FRAMEBUFFER_COMPLETE
+    }
+
+    actual fun frameBufferAttachColor(
+        index: Int,
+        textureType: Int,
+        textureID: TextureID,
+        textureLevel: Int
+    ) {
+        glFramebufferTexture2D(
+            FRAME_BUFFER,
+            GL_COLOR_ATTACHMENT0 + index,
+            textureType.toUInt(),
+            textureID.toUInt(),
+            textureLevel
+        )
+    }
+
+    actual fun frameBufferAttachDepth(
+        textureType: Int,
+        textureID: TextureID,
+        textureLevel: Int
+    ) {
+        glFramebufferTexture2D(
+            FRAME_BUFFER,
+            GL_DEPTH_ATTACHMENT,
+            textureType.toUInt(),
+            textureID.toUInt(),
+            textureLevel
         )
     }
 

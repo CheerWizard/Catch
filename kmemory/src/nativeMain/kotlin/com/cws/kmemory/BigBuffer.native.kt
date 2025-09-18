@@ -3,10 +3,12 @@ package com.cws.kmemory
 import kotlinx.cinterop.ByteVar
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.get
 import kotlinx.cinterop.plus
 import kotlinx.cinterop.set
 import kotlinx.cinterop.toCValues
+import kotlinx.cinterop.usePinned
 import platform.posix.free
 import platform.posix.malloc
 import platform.posix.memcpy
@@ -54,11 +56,13 @@ actual class BigBuffer actual constructor(capacity: Int) : LockFree(), FastBuffe
     ) {
         lock {
             val result = if (dest is SmallBuffer) {
-                memcpy(
-                    dest.smallBuffer.toCValues() + destIndex,
-                    buffer + srcIndex,
-                    size.toULong()
-                )
+                dest.smallBuffer.usePinned { pinned ->
+                    memcpy(
+                        pinned.addressOf(0) + destIndex,
+                        buffer + srcIndex,
+                        size.toULong()
+                    )
+                }
             } else if (dest is BigBuffer) {
                 memcpy(
                     dest.buffer + destIndex,
@@ -71,11 +75,13 @@ actual class BigBuffer actual constructor(capacity: Int) : LockFree(), FastBuffe
 
     actual fun copyFrom(src: SmallBuffer, destIndex: Int, srcIndex: Int, size: Int) {
         lock {
-            val result = memcpy(
-                buffer + destIndex,
-                src.smallBuffer.toCValues() + srcIndex,
-                size.toULong()
-            )
+            src.smallBuffer.usePinned { pinned ->
+                val result = memcpy(
+                    buffer + destIndex,
+                     pinned.addressOf(0) + srcIndex,
+                    size.toULong()
+                )
+            }
         }
     }
 
