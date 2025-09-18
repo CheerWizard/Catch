@@ -26,12 +26,11 @@ import org.koin.core.context.startKoin
 
 @OptIn(ExperimentalComposeUiApi::class)
 inline fun <reified T : RenderLoop> KanvasApp(
-    crossinline startKoin: KoinApplication.() -> Unit,
-    crossinline content: @Composable ((T) -> Unit)
+    noinline startKoin: KoinApplication.() -> Unit,
+    crossinline content: @Composable () -> Unit
 ) {
+    startKoin(startKoin)
     application(exitProcessOnExit = true) {
-        startKoin { startKoin() }
-
         val renderLoop: T = koinInject()
 
         val composeWindow = rememberWindowState(
@@ -96,7 +95,7 @@ inline fun <reified T : RenderLoop> KanvasApp(
                         drawImage(bitmap)
                     }
                 }
-                content(renderLoop)
+                content()
             }
         }
     }

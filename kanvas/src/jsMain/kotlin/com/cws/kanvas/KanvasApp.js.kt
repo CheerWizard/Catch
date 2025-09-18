@@ -17,10 +17,10 @@ import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
 
 inline fun <reified T : RenderLoop> KanvasApp(
-    crossinline startKoin: KoinApplication.() -> Unit,
+    noinline startKoin: KoinApplication.() -> Unit,
     crossinline content: @Composable ((T) -> Unit)
 ) {
-    startKoin { startKoin() }
+    startKoin(startKoin)
     renderComposable(KANVAS_ROOT) {
         val renderLoop: T = koinInject()
         // RenderLoop

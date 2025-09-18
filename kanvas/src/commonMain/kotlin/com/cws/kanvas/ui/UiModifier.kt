@@ -5,7 +5,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 
 expect class UiModifier() {
@@ -13,6 +12,8 @@ expect class UiModifier() {
     fun alpha(alpha: Float): UiModifier
 
     fun background(color: Color, shape: UiShape = UiRectangleShape): UiModifier
+
+    fun background(brush: UiBrush, shape: UiShape = UiRectangleShape): UiModifier
 
     fun clip(shape: UiShape): UiModifier
 

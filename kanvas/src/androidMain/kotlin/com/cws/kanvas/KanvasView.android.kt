@@ -11,13 +11,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import com.cws.klog.KLog
+import org.koin.compose.koinInject
 
 @Composable
-fun KanvasView(
+inline fun <reified T : RenderLoop> KanvasView(
     modifier: Modifier,
-    renderLoop: RenderLoop,
     content: @Composable BoxScope.() -> Unit
 ) {
+    val renderLoop: T = koinInject()
     Box(
         modifier = modifier
     ) {

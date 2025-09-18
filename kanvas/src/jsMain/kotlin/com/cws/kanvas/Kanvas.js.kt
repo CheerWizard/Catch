@@ -167,7 +167,7 @@ actual object Kanvas {
         return context.createShader(type) ?: error("Failed to create shader stage $type")
     }
 
-    actual fun shaderStageRelease(shaderStage: UInt) {
+    actual fun shaderStageRelease(shaderStage: ShaderStageID) {
         context.deleteShader(shaderStage as WebGLShader)
     }
 

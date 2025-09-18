@@ -37,14 +37,14 @@ actual object KLog {
     actual fun error(message: String) {
         if (enabled) {
             val tag = tag()
-            println("[ERROR] ${tag.className}.${tag.methodName}: $message")
+            System.err.println("[ERROR] ${tag.className}.${tag.methodName}: $message")
         }
     }
 
     actual fun error(message: String, exception: Throwable) {
         if (enabled) {
             val tag = tag()
-            println("[ERROR] ${tag.className}.${tag.methodName}: $message")
+            System.err.println("[ERROR] ${tag.className}.${tag.methodName}: $message")
             exception.printStackTrace()
         }
     }

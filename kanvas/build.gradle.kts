@@ -33,7 +33,6 @@ kotlin {
             dependencies {
                 // DI
                 api(libs.koin.core)
-                api(libs.koin.compose)
                 api(libs.koin.compose.viewModel)
                 //
                 api(project(":klog"))
@@ -69,6 +68,7 @@ kotlin {
             dependencies {
                 // DI
                 api(libs.koin.android)
+                api(libs.koin.compose)
                 // Compose
                 api("androidx.activity:activity-compose:1.10.1")
                 api(libs.androidx.core.ktx)

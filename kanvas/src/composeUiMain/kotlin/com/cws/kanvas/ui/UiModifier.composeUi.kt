@@ -42,6 +42,8 @@ actual class UiModifier actual constructor() {
 
     actual fun background(color: Color, shape: UiShape) = UiModifier(modifier.background(color, shape.shape))
 
+    actual fun background(brush: UiBrush, shape: UiShape) = UiModifier(modifier.background(brush.brush, shape.shape))
+
     actual fun clip(shape: UiShape) = UiModifier(modifier.clip(shape.shape))
 
     actual fun fillMaxSize(fraction: Float) = UiModifier(modifier.fillMaxSize(fraction))

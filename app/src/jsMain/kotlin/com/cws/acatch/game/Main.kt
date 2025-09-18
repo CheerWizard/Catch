@@ -10,7 +10,7 @@ fun main() {
         startKoin = {
             modules(commonModule, platformModule)
         }
-    ) { renderLoop ->
-        GameScreen(renderLoop)
+    ) {
+        GameScreen()
     }
 }

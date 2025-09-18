@@ -49,6 +49,14 @@ actual class UiModifier actual constructor() {
         }
     }
 
+    actual fun background(brush: UiBrush, shape: UiShape) = UiModifier {
+        attrs?.invoke(this)
+        style {
+            brush(brush)
+            shape(shape)
+        }
+    }
+
     actual fun clip(shape: UiShape) = UiModifier {
         attrs?.invoke(this)
         style {

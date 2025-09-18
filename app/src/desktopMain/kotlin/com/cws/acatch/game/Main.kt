@@ -8,9 +8,9 @@ import com.cws.kanvas.KanvasApp
 fun main() {
     KanvasApp<GameLoop>(
         startKoin = {
-            modules(commonModule, platformModule)
+            modules(platformModule, commonModule)
         }
-    ) { renderLoop ->
-        GameScreen(renderLoop)
+    ) {
+        GameScreen()
     }
 }

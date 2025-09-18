@@ -19,9 +19,9 @@ class BallBuffer : UniformBuffer(
 
 class BallRenderer {
 
-    private val vao = VertexArray(VERTEX_ATTRIBUTES)
-    private val vbo = VertexBuffer(4)
-    private val ibo = IndexBuffer(6)
+    private val vertexArray = VertexArray(VERTEX_ATTRIBUTES)
+    private val vertexBuffer = VertexBuffer(4)
+    private val indexBuffer = IndexBuffer(6)
     private val shader = Shader()
     private val ballBuffer = BallBuffer()
 
@@ -29,23 +29,23 @@ class BallRenderer {
         ShaderLoader.load("ball.vert", "ball.frag") {
             shader.init(it)
         }
-        vao.init()
-        vbo.init()
-        ibo.init()
+        vertexArray.init()
+        vertexBuffer.init()
+        indexBuffer.init()
         ballBuffer.init()
     }
 
     fun release() {
-        vao.release()
-        vbo.release()
-        ibo.release()
+        vertexArray.release()
+        vertexBuffer.release()
+        indexBuffer.release()
         shader.release()
         ballBuffer.release()
     }
 
     fun render(balls: BallList) {
         if (shader.isReady()) {
-            vao.bind()
+            vertexArray.bind()
             ballBuffer.bind()
             shader.run()
             Kanvas.run {
