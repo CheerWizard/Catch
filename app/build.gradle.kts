@@ -12,7 +12,9 @@ plugins {
 
 kotlin {
     androidTarget()
+
     jvm("desktop")
+
     js(IR) {
         browser {
             binaries.executable()
@@ -27,14 +29,38 @@ kotlin {
             binaries.executable()
         }
     }
-//    iosArm64()
-//    iosX64()
-//    iosSimulatorArm64()
+
+    iosArm64 {
+        binaries {
+            framework {
+                baseName = "Catch"
+            }
+        }
+    }
+
+    iosX64 {
+        binaries {
+            framework {
+                baseName = "Catch"
+            }
+        }
+    }
+
+    iosSimulatorArm64 {
+        binaries {
+            framework {
+                baseName = "Catch"
+            }
+        }
+    }
 
     sourceSets {
         val commonMain by getting {
             kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
             dependencies {
+                // Networking
+                implementation(libs.kotlinx.serialization.json)
+
                 implementation(project(":kanvas"))
                 implementation(project(":kmemory"))
             }
@@ -55,6 +81,19 @@ kotlin {
         val jsMain by getting {
             dependsOn(commonMain)
         }
+
+        val iosX64Main by getting {
+            dependsOn(iosMain)
+        }
+
+        val iosArm64Main by getting {
+            dependsOn(iosMain)
+        }
+
+        val iosSimulatorArm64Main by getting {
+            dependsOn(iosMain)
+        }
+
     }
 }
 

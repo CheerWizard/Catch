@@ -17,7 +17,9 @@ actual class InputSensorManager {
             KLog.error("Accelerometer is not available on Native platform")
             return
         }
+
         motionManager.accelerometerUpdateInterval = 0.01
+
         motionManager.startAccelerometerUpdatesToQueue(NSOperationQueue.mainQueue) { data, error ->
             data?.let {
                 sensor.acceleration.x = it.acceleration.getValue()

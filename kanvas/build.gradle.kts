@@ -31,6 +31,11 @@ kotlin {
         val commonMain by getting {
             kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
             dependencies {
+                // DI
+                api(libs.koin.core)
+                api(libs.koin.compose)
+                api(libs.koin.compose.viewModel)
+                //
                 api(project(":klog"))
                 api(project(":kmemory"))
                 // Compose
@@ -62,6 +67,8 @@ kotlin {
 
         val androidMain by getting {
             dependencies {
+                // DI
+                api(libs.koin.android)
                 // Compose
                 api("androidx.activity:activity-compose:1.10.1")
                 api(libs.androidx.core.ktx)

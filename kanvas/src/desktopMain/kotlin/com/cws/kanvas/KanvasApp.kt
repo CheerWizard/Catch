@@ -13,7 +13,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.unit.dp
@@ -21,20 +20,26 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import org.jetbrains.skia.Rect
+import org.koin.compose.koinInject
+import org.koin.core.KoinApplication
+import org.koin.core.context.startKoin
 
 @OptIn(ExperimentalComposeUiApi::class)
-fun <T : RenderLoop> KanvasApp(
-    modifier: Modifier = Modifier,
-    renderLoop: T,
-    content: @Composable ((T) -> Unit)
+inline fun <reified T : RenderLoop> KanvasApp(
+    crossinline startKoin: KoinApplication.() -> Unit,
+    crossinline content: @Composable ((T) -> Unit)
 ) {
     application(exitProcessOnExit = true) {
+        startKoin { startKoin() }
+
+        val renderLoop: T = koinInject()
+
         val composeWindow = rememberWindowState(
             position = WindowPosition(renderLoop.x.dp, renderLoop.y.dp),
             width = renderLoop.width.dp,
             height = renderLoop.height.dp,
         )
+
         var window by remember { mutableStateOf<Window?>(null) }
         var windowBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
 
@@ -63,7 +68,7 @@ fun <T : RenderLoop> KanvasApp(
             onPreviewKeyEvent = { window?.onKeyEvent(it) ?: false }
         ) {
             Box(
-                modifier = modifier
+                modifier = Modifier
                     .fillMaxSize()
                     .onPointerEvent(PointerEventType.Press) {
                         it.button?.let { btn ->
