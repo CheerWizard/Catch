@@ -99,6 +99,7 @@ actual object Kanvas {
 
     actual fun bufferRelease(id: BufferID) {
         glDeleteBuffers(1, interpretCPointer(id))
+        nativeHeap.free(id)
     }
 
     actual fun bufferBind(type: Int, id: BufferID) {
@@ -136,6 +137,7 @@ actual object Kanvas {
 
     actual fun vertexArrayRelease(id: VertexArrayID) {
         glDeleteVertexArrays(1, interpretCPointer(id))
+        nativeHeap.free(id)
     }
 
     actual fun vertexArrayBind(id: VertexArrayID) {
@@ -270,6 +272,7 @@ actual object Kanvas {
 
     actual fun textureRelease(id: TextureID) {
         glDeleteTextures(1, interpretCPointer(id))
+        nativeHeap.free(id)
     }
 
     actual fun textureBind(type: Int, id: TextureID) {
@@ -332,6 +335,7 @@ actual object Kanvas {
 
     actual fun frameBufferRelease(id: FrameBufferID) {
         glDeleteFramebuffers(1, interpretCPointer(id))
+        nativeHeap.free(id)
     }
 
     actual fun frameBufferBind(type: Int, id: FrameBufferID) {

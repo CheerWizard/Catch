@@ -2,6 +2,7 @@ package com.cws.kanvas.input
 
 import com.cws.klog.KLog
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.useContents
 import platform.CoreMotion.CMMotionManager
 import platform.Foundation.NSOperationQueue
 
@@ -22,8 +23,12 @@ actual class InputSensorManager {
 
         motionManager.startAccelerometerUpdatesToQueue(NSOperationQueue.mainQueue) { data, error ->
             data?.let {
-                sensor.acceleration.x = it.acceleration.getValue()
-                sensor.acceleration.normalized()
+                it.acceleration.useContents {
+                    sensor.acceleration.x = x.toFloat()
+                    sensor.acceleration.y = y.toFloat()
+                    sensor.acceleration.z = z.toFloat()
+                    sensor.acceleration.normalized()
+                }
             }
         }
     }
