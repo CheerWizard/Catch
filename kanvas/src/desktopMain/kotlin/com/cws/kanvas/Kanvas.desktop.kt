@@ -4,8 +4,6 @@ import com.cws.klog.KLog
 import com.cws.kmemory.BigBuffer
 import org.lwjgl.opengl.GL46.*
 
-import java.nio.ByteBuffer
-
 actual typealias VertexArrayID = Int
 actual typealias BufferID = Int
 actual typealias TextureID = Int
@@ -70,16 +68,16 @@ actual object Kanvas {
         return glGenBuffers()
     }
 
-    actual fun bufferRelease(buffer: BufferID) {
-        glDeleteBuffers(buffer)
+    actual fun bufferRelease(id: BufferID) {
+        glDeleteBuffers(id)
     }
 
-    actual fun bufferBind(type: Int, buffer: BufferID) {
-        glBindBuffer(type, buffer)
+    actual fun bufferBind(type: Int, id: BufferID) {
+        glBindBuffer(type, id)
     }
 
-    actual fun bufferBindLocation(type: Int, buffer: BufferID, location: Int) {
-        glBindBufferBase(type, location, buffer)
+    actual fun bufferBindLocation(type: Int, id: BufferID, location: Int) {
+        glBindBufferBase(type, location, id)
     }
 
     actual fun bufferData(
@@ -105,12 +103,12 @@ actual object Kanvas {
         return glGenVertexArrays()
     }
 
-    actual fun vertexArrayRelease(vertexArray: VertexArrayID) {
-        glDeleteVertexArrays(vertexArray)
+    actual fun vertexArrayRelease(id: VertexArrayID) {
+        glDeleteVertexArrays(id)
     }
 
-    actual fun vertexArrayBind(vertexArray: VertexArrayID) {
-        glBindVertexArray(vertexArray)
+    actual fun vertexArrayBind(id: VertexArrayID) {
+        glBindVertexArray(id)
     }
 
     actual fun vertexArrayEnableAttributes(attributes: List<VertexAttribute>) {
@@ -143,25 +141,25 @@ actual object Kanvas {
         return glCreateShader(type)
     }
 
-    actual fun shaderStageRelease(shaderStage: ShaderStageID) {
-        glDeleteShader(shaderStage)
+    actual fun shaderStageRelease(id: ShaderStageID) {
+        glDeleteShader(id)
     }
 
     private val compileStatus = IntArray(1)
 
-    actual fun shaderStageCompile(shaderStage: ShaderStageID, source: String): Boolean {
-        if (shaderStage == NULL) {
+    actual fun shaderStageCompile(id: ShaderStageID, source: String): Boolean {
+        if (id == NULL) {
             KLog.error("Shader is not created!")
             return false
         }
 
-        glShaderSource(shaderStage, source)
-        glCompileShader(shaderStage)
-        glGetShaderiv(shaderStage, GL_COMPILE_STATUS, compileStatus)
+        glShaderSource(id, source)
+        glCompileShader(id)
+        glGetShaderiv(id, GL_COMPILE_STATUS, compileStatus)
 
         if (compileStatus[0] == 0) {
-            val log = glGetShaderInfoLog(shaderStage)
-            shaderStageRelease(shaderStage)
+            val log = glGetShaderInfoLog(id)
+            shaderStageRelease(id)
             KLog.error("Failed to compile shader: $log")
             return false
         }
@@ -169,37 +167,37 @@ actual object Kanvas {
         return true
     }
 
-    actual fun shaderStageAttach(shader: ShaderID, shaderStage: ShaderStageID) {
-        glAttachShader(shader, shaderStage)
+    actual fun shaderStageAttach(id: ShaderID, shaderStage: ShaderStageID) {
+        glAttachShader(id, shaderStage)
     }
 
-    actual fun shaderStageDetach(shader: ShaderID, shaderStage: ShaderStageID) {
-        glDetachShader(shader, shaderStage)
+    actual fun shaderStageDetach(id: ShaderID, shaderStage: ShaderStageID) {
+        glDetachShader(id, shaderStage)
     }
 
     actual fun shaderInit(): ShaderID {
         return glCreateProgram()
     }
 
-    actual fun shaderRelease(shader: ShaderID) {
-        glDeleteProgram(shader)
+    actual fun shaderRelease(id: ShaderID) {
+        glDeleteProgram(id)
     }
 
     private val linkStatus = IntArray(1)
 
-    actual fun shaderLink(shader: ShaderID): Boolean {
-        glLinkProgram(shader)
-        glGetProgramiv(shader, GL_LINK_STATUS, linkStatus)
+    actual fun shaderLink(id: ShaderID): Boolean {
+        glLinkProgram(id)
+        glGetProgramiv(id, GL_LINK_STATUS, linkStatus)
         if (linkStatus[0] == 0) {
-            KLog.error("Failed to link shader: ${glGetProgramInfoLog(shader)}")
-            shaderRelease(shader)
+            KLog.error("Failed to link shader: ${glGetProgramInfoLog(id)}")
+            shaderRelease(id)
             return false
         }
         return true
     }
 
-    actual fun shaderUse(shader: ShaderID) {
-        glUseProgram(shader)
+    actual fun shaderUse(id: ShaderID) {
+        glUseProgram(id)
     }
 
     actual fun textureInit(type: Int): TextureID {
@@ -210,12 +208,12 @@ actual object Kanvas {
         glTexParameteri(type, name, value)
     }
 
-    actual fun textureRelease(texture: TextureID) {
-        glDeleteTextures(texture)
+    actual fun textureRelease(id: TextureID) {
+        glDeleteTextures(id)
     }
 
-    actual fun textureBind(type: Int, texture: TextureID) {
-        glBindTexture(type, texture)
+    actual fun textureBind(type: Int, id: TextureID) {
+        glBindTexture(type, id)
     }
 
     actual fun textureUnbind(type: Int) {
@@ -240,7 +238,7 @@ actual object Kanvas {
             texture.border,
             texture.format,
             texture.pixelFormat,
-            texture.pixels as ByteBuffer
+            texture.pixels.buffer
         )
     }
 
@@ -264,12 +262,12 @@ actual object Kanvas {
         return glGenFramebuffers()
     }
 
-    actual fun frameBufferRelease(frameBufferID: FrameBufferID) {
-        glDeleteFramebuffers(frameBufferID)
+    actual fun frameBufferRelease(id: FrameBufferID) {
+        glDeleteFramebuffers(id)
     }
 
-    actual fun frameBufferBind(type: Int, frameBufferID: FrameBufferID) {
-        glBindFramebuffer(type, frameBufferID)
+    actual fun frameBufferBind(type: Int, id: FrameBufferID) {
+        glBindFramebuffer(type, id)
     }
 
     actual fun frameBufferUnbind(type: Int) {
@@ -302,28 +300,28 @@ actual object Kanvas {
     actual fun frameBufferAttachColor(
         index: Int,
         textureType: Int,
-        textureID: TextureID,
+        id: TextureID,
         textureLevel: Int
     ) {
         glFramebufferTexture2D(
             FRAME_BUFFER,
             GL_COLOR_ATTACHMENT0 + index,
             textureType,
-            textureID,
+            id,
             textureLevel
         )
     }
 
     actual fun frameBufferAttachDepth(
         textureType: Int,
-        textureID: TextureID,
+        id: TextureID,
         textureLevel: Int
     ) {
         glFramebufferTexture2D(
             FRAME_BUFFER,
             GL_DEPTH_ATTACHMENT,
             textureType,
-            textureID,
+            id,
             textureLevel
         )
     }

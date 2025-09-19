@@ -15,7 +15,7 @@ import org.koin.compose.koinInject
 
 @Composable
 inline fun <reified T : RenderLoop> KanvasView(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit
 ) {
     val renderLoop: T = koinInject()

@@ -66,32 +66,32 @@ expect object Kanvas {
     fun viewport(x: Int, y: Int, w: Int, h: Int)
 
     fun bufferInit(): BufferID
-    fun bufferRelease(buffer: BufferID)
-    fun bufferBind(type: Int, buffer: BufferID)
-    fun bufferBindLocation(type: Int, buffer: BufferID, location: Int)
+    fun bufferRelease(id: BufferID)
+    fun bufferBind(type: Int, id: BufferID)
+    fun bufferBindLocation(type: Int, id: BufferID, location: Int)
     fun bufferData(type: Int, offset: Int, data: BigBuffer, size: Int, usage: Int)
     fun bufferSubData(type: Int, offset: Int, data: BigBuffer, size: Int)
 
     fun vertexArrayInit(): VertexArrayID
-    fun vertexArrayRelease(vertexArray: VertexArrayID)
-    fun vertexArrayBind(vertexArray: VertexArrayID)
+    fun vertexArrayRelease(id: VertexArrayID)
+    fun vertexArrayBind(id: VertexArrayID)
     fun vertexArrayEnableAttributes(attributes: List<VertexAttribute>)
     fun vertexArrayDisableAttributes(attributes: List<VertexAttribute>)
 
     fun shaderStageInit(type: Int): ShaderStageID
-    fun shaderStageRelease(shaderStage: ShaderStageID)
-    fun shaderStageCompile(shaderStage: ShaderStageID, source: String): Boolean
-    fun shaderStageAttach(shader: ShaderID, shaderStage: ShaderStageID)
-    fun shaderStageDetach(shader: ShaderID, shaderStage: ShaderStageID)
+    fun shaderStageRelease(id: ShaderStageID)
+    fun shaderStageCompile(id: ShaderStageID, source: String): Boolean
+    fun shaderStageAttach(id: ShaderID, shaderStage: ShaderStageID)
+    fun shaderStageDetach(id: ShaderID, shaderStage: ShaderStageID)
 
     fun shaderInit(): ShaderID
-    fun shaderRelease(shader: ShaderID)
-    fun shaderLink(shader: ShaderID): Boolean
-    fun shaderUse(shader: ShaderID)
+    fun shaderRelease(id: ShaderID)
+    fun shaderLink(id: ShaderID): Boolean
+    fun shaderUse(id: ShaderID)
 
     fun textureInit(type: Int): TextureID
-    fun textureRelease(texture: TextureID)
-    fun textureBind(type: Int, texture: TextureID)
+    fun textureRelease(id: TextureID)
+    fun textureBind(type: Int, id: TextureID)
     fun textureUnbind(type: Int)
     fun textureActive(slot: Int)
     fun textureParameter(type: Int, name: Int, value: Int)
@@ -99,8 +99,8 @@ expect object Kanvas {
     fun textureImage2D(type: Int, texture: Texture)
 
     fun frameBufferInit(): FrameBufferID
-    fun frameBufferRelease(frameBufferID: FrameBufferID)
-    fun frameBufferBind(type: Int, frameBufferID: FrameBufferID)
+    fun frameBufferRelease(id: FrameBufferID)
+    fun frameBufferBind(type: Int, id: FrameBufferID)
     fun frameBufferUnbind(type: Int)
     fun frameBufferBlit(
         srcX: Int, srcY: Int, srcWidth: Int, srcHeight: Int,
@@ -111,12 +111,12 @@ expect object Kanvas {
     fun frameBufferAttachColor(
         index: Int,
         textureType: Int,
-        textureID: TextureID,
+        id: TextureID,
         textureLevel: Int
     )
     fun frameBufferAttachDepth(
         textureType: Int,
-        textureID: TextureID,
+        id: TextureID,
         textureLevel: Int
     )
 

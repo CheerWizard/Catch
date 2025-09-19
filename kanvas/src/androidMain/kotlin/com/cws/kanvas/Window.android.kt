@@ -6,7 +6,6 @@ import android.opengl.EGLContext
 import android.opengl.EGLDisplay
 import android.opengl.EGLSurface
 import android.view.MotionEvent
-import kotlinx.atomicfu.locks.ReentrantLock
 
 actual typealias WindowID = Unit
 
@@ -17,10 +16,6 @@ actual class Window : BaseWindow {
 
         actual fun free() = Unit
     }
-
-    actual override val eventListeners: MutableSet<EventListener> = mutableSetOf()
-    actual override val events: ArrayDeque<Any> = ArrayDeque()
-    actual override val lock: ReentrantLock = ReentrantLock()
 
     private var display: EGLDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY)
     private var surface: EGLSurface? = null
@@ -84,6 +79,8 @@ actual class Window : BaseWindow {
 
         eglMakeCurrent(display, this.surface, this.surface, context)
     }
+
+    actual fun bindFrameBuffer() {}
 
     override fun dispatchEvent(event: Any) {
         if (event is MotionEvent) {

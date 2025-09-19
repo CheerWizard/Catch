@@ -1,21 +1,15 @@
 package com.cws.acatch
 
-import com.cws.acatch.game.di.commonModule
-import com.cws.acatch.game.platform.platformModule
-import com.cws.kanvas.KanvasApplication
-import com.cws.klog.KLog
-import org.koin.android.ext.koin.androidContext
-import org.koin.android.ext.koin.androidLogger
-import org.koin.core.context.startKoin
-import org.koin.core.logger.Level
+import android.app.Application
+import com.cws.acatch.di.platformModule
+import com.cws.acatch.di.commonModule
+import com.cws.kanvas.di.startKanvasKoin
 
-class MainApplication : KanvasApplication() {
+class MainApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        startKoin {
-            androidContext(this@MainApplication)
-            androidLogger(if (KLog.enabled) Level.DEBUG else Level.NONE)
+        startKanvasKoin(applicationContext) {
             modules(commonModule, platformModule)
         }
     }

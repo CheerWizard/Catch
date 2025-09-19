@@ -1,0 +1,5 @@
+package = ios_gles
+
+headers = OpenGLES/ES3/gl.h QuartzCore/CAEAGLLayer.h
+compilerOpts = -framework OpenGLES -framework QuartzCore -framework UIKit
+linkerOpts = -framework OpenGLES -framework QuartzCore -framework UIKit

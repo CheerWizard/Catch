@@ -5,7 +5,7 @@ data class Texture(
     val height: Int,
     val format: Int,
     val pixelFormat: Int,
-    val pixels: Any,
+    val pixels: Pixels,
     val generateMipMaps: Boolean = false,
     val wrapS: Int = Kanvas.NULL,
     val wrapT: Int = Kanvas.NULL,

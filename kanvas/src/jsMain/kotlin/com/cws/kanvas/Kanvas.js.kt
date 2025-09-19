@@ -3,7 +3,6 @@ package com.cws.kanvas
 import com.cws.klog.KLog
 import com.cws.kmemory.BigBuffer
 import kotlinx.browser.document
-import org.khronos.webgl.ArrayBufferView
 import org.khronos.webgl.WebGLBuffer
 import org.khronos.webgl.WebGLFramebuffer
 import org.khronos.webgl.WebGLProgram
@@ -94,15 +93,15 @@ actual object Kanvas {
         return context.createBuffer() ?: error("Failed to create WebGL buffer!")
     }
 
-    actual fun bufferRelease(buffer: BufferID) {
-        context.deleteBuffer(buffer as WebGLBuffer)
+    actual fun bufferRelease(id: BufferID) {
+        context.deleteBuffer(id as WebGLBuffer)
     }
 
-    actual fun bufferBind(type: Int, buffer: BufferID) {
-        context.bindBuffer(type, buffer as WebGLBuffer)
+    actual fun bufferBind(type: Int, id: BufferID) {
+        context.bindBuffer(type, id as WebGLBuffer)
     }
 
-    actual fun bufferBindLocation(type: Int, buffer: BufferID, location: Int) {
+    actual fun bufferBindLocation(type: Int, id: BufferID, location: Int) {
 //        context.bind(type, buffer as WebGLBuffer)
     }
 
@@ -129,12 +128,12 @@ actual object Kanvas {
         return context.createVertexArray()
     }
 
-    actual fun vertexArrayRelease(vertexArray: VertexArrayID) {
-        context.deleteVertexArray(vertexArray)
+    actual fun vertexArrayRelease(id: VertexArrayID) {
+        context.deleteVertexArray(id)
     }
 
-    actual fun vertexArrayBind(vertexArray: VertexArrayID) {
-        context.bindVertexArray(vertexArray)
+    actual fun vertexArrayBind(id: VertexArrayID) {
+        context.bindVertexArray(id)
     }
 
     actual fun vertexArrayEnableAttributes(attributes: List<VertexAttribute>) {
@@ -167,23 +166,23 @@ actual object Kanvas {
         return context.createShader(type) ?: error("Failed to create shader stage $type")
     }
 
-    actual fun shaderStageRelease(shaderStage: ShaderStageID) {
-        context.deleteShader(shaderStage as WebGLShader)
+    actual fun shaderStageRelease(id: ShaderStageID) {
+        context.deleteShader(id as WebGLShader)
     }
 
-    actual fun shaderStageCompile(shaderStage: ShaderStageID, source: String): Boolean {
-        if (shaderStage == NULL) {
+    actual fun shaderStageCompile(id: ShaderStageID, source: String): Boolean {
+        if (id == NULL) {
             KLog.error("Shader is not created!")
             return false
         }
 
-        context.shaderSource(shaderStage as WebGLShader, source)
-        context.compileShader(shaderStage)
-        val compileStatus = context.getShaderParameter(shaderStage, COMPILE_STATUS)
+        context.shaderSource(id as WebGLShader, source)
+        context.compileShader(id)
+        val compileStatus = context.getShaderParameter(id, COMPILE_STATUS)
 
         if (compileStatus == null) {
-            val log = context.getShaderInfoLog(shaderStage)
-            shaderStageRelease(shaderStage)
+            val log = context.getShaderInfoLog(id)
+            shaderStageRelease(id)
             KLog.error("Failed to compile shader: $log")
             return false
         }
@@ -191,35 +190,35 @@ actual object Kanvas {
         return true
     }
 
-    actual fun shaderStageAttach(shader: ShaderID, shaderStage: ShaderStageID) {
-        context.attachShader(shader as WebGLProgram, shaderStage as WebGLShader)
+    actual fun shaderStageAttach(id: ShaderID, shaderStage: ShaderStageID) {
+        context.attachShader(id as WebGLProgram, shaderStage as WebGLShader)
     }
 
-    actual fun shaderStageDetach(shader: ShaderID, shaderStage: ShaderStageID) {
-        context.detachShader(shader as WebGLProgram, shaderStage as WebGLShader)
+    actual fun shaderStageDetach(id: ShaderID, shaderStage: ShaderStageID) {
+        context.detachShader(id as WebGLProgram, shaderStage as WebGLShader)
     }
 
     actual fun shaderInit(): ShaderID {
         return context.createProgram() ?: error("Failed to create shader")
     }
 
-    actual fun shaderRelease(shader: ShaderID) {
-        context.deleteProgram(shader as WebGLProgram)
+    actual fun shaderRelease(id: ShaderID) {
+        context.deleteProgram(id as WebGLProgram)
     }
 
-    actual fun shaderLink(shader: ShaderID): Boolean {
-        context.linkProgram(shader as WebGLProgram)
-        val linkStatus = context.getProgramParameter(shader, LINK_STATUS)
+    actual fun shaderLink(id: ShaderID): Boolean {
+        context.linkProgram(id as WebGLProgram)
+        val linkStatus = context.getProgramParameter(id, LINK_STATUS)
         if (linkStatus == null) {
-            KLog.error("Failed to link shader: ${context.getProgramInfoLog(shader)}")
-            shaderRelease(shader)
+            KLog.error("Failed to link shader: ${context.getProgramInfoLog(id)}")
+            shaderRelease(id)
             return false
         }
         return true
     }
 
-    actual fun shaderUse(shader: ShaderID) {
-        context.useProgram(shader as WebGLProgram)
+    actual fun shaderUse(id: ShaderID) {
+        context.useProgram(id as WebGLProgram)
     }
 
     actual fun textureInit(type: Int): TextureID {
@@ -230,12 +229,12 @@ actual object Kanvas {
         context.texParameteri(type, name, value)
     }
 
-    actual fun textureRelease(texture: TextureID) {
-        context.deleteTexture(texture as WebGLTexture)
+    actual fun textureRelease(id: TextureID) {
+        context.deleteTexture(id as WebGLTexture)
     }
 
-    actual fun textureBind(type: Int, texture: TextureID) {
-        context.bindTexture(type, texture as WebGLTexture)
+    actual fun textureBind(type: Int, id: TextureID) {
+        context.bindTexture(type, id as WebGLTexture)
     }
 
     actual fun textureUnbind(type: Int) {
@@ -260,7 +259,7 @@ actual object Kanvas {
             texture.border,
             texture.format,
             texture.pixelFormat,
-            texture.pixels as ArrayBufferView
+            texture.pixels
         )
     }
 
@@ -284,12 +283,12 @@ actual object Kanvas {
         return context.createFramebuffer() ?: error("Failed to create frame buffer")
     }
 
-    actual fun frameBufferRelease(frameBufferID: FrameBufferID) {
-        context.deleteFramebuffer(frameBufferID as WebGLFramebuffer)
+    actual fun frameBufferRelease(id: FrameBufferID) {
+        context.deleteFramebuffer(id as WebGLFramebuffer)
     }
 
-    actual fun frameBufferBind(type: Int, frameBufferID: FrameBufferID) {
-        context.bindFramebuffer(type, frameBufferID as WebGLFramebuffer)
+    actual fun frameBufferBind(type: Int, id: FrameBufferID) {
+        context.bindFramebuffer(type, id as WebGLFramebuffer)
     }
 
     actual fun frameBufferUnbind(type: Int) {
@@ -318,28 +317,28 @@ actual object Kanvas {
     actual fun frameBufferAttachColor(
         index: Int,
         textureType: Int,
-        textureID: TextureID,
+        id: TextureID,
         textureLevel: Int
     ) {
         context.framebufferTexture2D(
             FRAME_BUFFER,
             WebGLRenderingContext.COLOR_ATTACHMENT0 + index,
             textureType,
-            textureID as WebGLTexture,
+            id as WebGLTexture,
             textureLevel
         )
     }
 
     actual fun frameBufferAttachDepth(
         textureType: Int,
-        textureID: TextureID,
+        id: TextureID,
         textureLevel: Int
     ) {
         context.framebufferTexture2D(
             FRAME_BUFFER,
             WebGLRenderingContext.DEPTH_ATTACHMENT,
             textureType,
-            textureID as WebGLTexture,
+            id as WebGLTexture,
             textureLevel
         )
     }

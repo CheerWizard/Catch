@@ -1,9 +1,6 @@
 package com.cws.kanvas
 
-import kotlinx.atomicfu.locks.ReentrantLock
-import kotlinx.browser.document
 import kotlinx.browser.window
-import org.w3c.dom.HTMLCanvasElement
 
 actual typealias WindowID = Any
 
@@ -12,10 +9,6 @@ actual class Window : BaseWindow {
     actual companion object {
         actual fun free() = Unit
     }
-
-    actual override val eventListeners: MutableSet<EventListener> = mutableSetOf()
-    actual override val events: ArrayDeque<Any> = ArrayDeque()
-    actual override val lock: ReentrantLock = ReentrantLock()
 
     private var handle: WindowID = Kanvas.NULL
 
@@ -153,5 +146,7 @@ actual class Window : BaseWindow {
             else -> MouseCode.Null
         }
     }
+
+    actual fun bindFrameBuffer() {}
 
 }

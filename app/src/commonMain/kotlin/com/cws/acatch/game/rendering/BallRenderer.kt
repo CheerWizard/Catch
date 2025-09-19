@@ -5,7 +5,7 @@ import com.cws.acatch.game.data.BallList
 import com.cws.kanvas.IndexBuffer
 import com.cws.kanvas.Kanvas
 import com.cws.kanvas.Shader
-import com.cws.kanvas.ShaderLoader
+import com.cws.kanvas.ShaderManager
 import com.cws.kanvas.UniformBuffer
 import com.cws.kanvas.VERTEX_ATTRIBUTES
 import com.cws.kanvas.VertexArray
@@ -26,7 +26,7 @@ class BallRenderer {
     private val ballBuffer = BallBuffer()
 
     fun init() {
-        ShaderLoader.load("ball.vert", "ball.frag") {
+        ShaderManager.load("ball.vert", "ball.frag") {
             shader.init(it)
         }
         vertexArray.init()

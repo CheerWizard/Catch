@@ -13,14 +13,10 @@ import org.jetbrains.compose.web.dom.Canvas
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.renderComposable
 import org.koin.compose.koinInject
-import org.koin.core.KoinApplication
-import org.koin.core.context.startKoin
 
 inline fun <reified T : RenderLoop> KanvasApp(
-    noinline startKoin: KoinApplication.() -> Unit,
-    crossinline content: @Composable ((T) -> Unit)
+    crossinline content: @Composable () -> Unit
 ) {
-    startKoin(startKoin)
     renderComposable(KANVAS_ROOT) {
         val renderLoop: T = koinInject()
         // RenderLoop
@@ -50,7 +46,7 @@ inline fun <reified T : RenderLoop> KanvasApp(
                 property("z-index", "1")
             }
         }) {
-            content(renderLoop)
+            content()
         }
     }
 }

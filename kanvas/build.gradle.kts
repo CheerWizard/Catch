@@ -27,6 +27,14 @@ kotlin {
     iosX64()
     iosSimulatorArm64()
 
+    targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget> {
+        compilations["main"].cinterops {
+            val gles by creating {
+                defFile(project.file("src/nativeInterop/cinterop/ios_gles.def"))
+            }
+        }
+    }
+
     sourceSets {
         val commonMain by getting {
             kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")

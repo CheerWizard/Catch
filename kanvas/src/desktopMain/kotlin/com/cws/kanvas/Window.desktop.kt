@@ -44,10 +44,6 @@ actual class Window : BaseWindow {
         }
     }
 
-    actual override val eventListeners: MutableSet<EventListener> = mutableSetOf()
-    actual override val events: ArrayDeque<Any> = ArrayDeque()
-    actual override val lock: ReentrantLock = ReentrantLock()
-
     lateinit var onBitmapChanged: (ImageBitmap?) -> Unit
 
     var handle: WindowID = Kanvas.NULL.toLong()
@@ -114,7 +110,9 @@ actual class Window : BaseWindow {
         updatePixels()
     }
 
-    actual fun setSurface(surface: Any?) = Unit
+    actual fun setSurface(surface: Any?) {}
+
+    actual fun bindFrameBuffer() {}
 
     private fun updatePixels() {
         pixels?.let { pixels ->

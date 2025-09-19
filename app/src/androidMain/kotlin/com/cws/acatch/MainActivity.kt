@@ -16,9 +16,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            KanvasView<GameLoop>(
-                modifier = Modifier.fillMaxSize(),
-            ) {
+            KanvasView<GameLoop>(Modifier.fillMaxSize()) {
                 GameScreen()
             }
         }

@@ -1,13 +1,25 @@
 package com.cws.acatch.game
 
-import androidx.compose.ui.window.ComposeUIViewController
-import com.cws.acatch.game.di.KoinInitializer
+import com.cws.acatch.game.di.commonModule
+import com.cws.acatch.game.di.platformModule
 import com.cws.acatch.game.ui.GameScreen
+import com.cws.kanvas.KanvasViewController
+import com.cws.kanvas.RenderLoop
+import com.cws.kanvas.di.startKanvasKoin
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-fun MainViewController() = ComposeUIViewController(
-    configure = {
-        KoinInitializer.init()
+class MainViewController : KoinComponent {
+
+    val controller: KanvasViewController
+
+    init {
+        startKanvasKoin {
+            modules(commonModule, platformModule)
+        }
+        controller = KanvasViewController(inject<GameLoop>() as RenderLoop) {
+            GameScreen()
+        }
     }
-) {
-    GameScreen()
+
 }

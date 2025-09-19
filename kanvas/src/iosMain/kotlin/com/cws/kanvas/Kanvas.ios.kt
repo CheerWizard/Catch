@@ -3,27 +3,39 @@ package com.cws.kanvas
 import com.cws.klog.KLog
 import com.cws.kmemory.BigBuffer
 import kotlinx.cinterop.ByteVar
-import kotlinx.cinterop.CArrayPointer
-import kotlinx.cinterop.CValuesRef
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.IntVar
+import kotlinx.cinterop.UByteVar
 import kotlinx.cinterop.UIntVar
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.allocArray
 import kotlinx.cinterop.cValuesOf
 import kotlinx.cinterop.cstr
 import kotlinx.cinterop.get
+import kotlinx.cinterop.interpretCPointer
 import kotlinx.cinterop.memScoped
+import kotlinx.cinterop.nativeHeap
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.toKString
+import kotlinx.cinterop.value
 import platform.gles3.*
+import kotlin.native.internal.NativePtr
 import kotlin.toUInt
 
-actual typealias VertexArrayID = Int
-actual typealias BufferID = Int
-actual typealias TextureID = Int
-actual typealias FrameBufferID = UIntVar
+@OptIn(ExperimentalForeignApi::class)
+actual typealias VertexArrayID = NativePtr
+
+@OptIn(ExperimentalForeignApi::class)
+actual typealias BufferID = NativePtr
+
+@OptIn(ExperimentalForeignApi::class)
+actual typealias TextureID = NativePtr
+
+@OptIn(ExperimentalForeignApi::class)
+actual typealias FrameBufferID = NativePtr
+
 actual typealias ShaderStageID = Int
+
 actual typealias ShaderID = Int
 
 @OptIn(ExperimentalForeignApi::class)
@@ -79,22 +91,22 @@ actual object Kanvas {
         glViewport(x, y, w, h)
     }
 
-    actual fun bufferInit(): BufferID = memScoped {
-        val buffer = allocArray<UIntVar>(1)
-        glGenBuffers(1, buffer)
-        buffer[0]
+    actual fun bufferInit(): BufferID {
+        val id = nativeHeap.alloc<UIntVar>()
+        glGenBuffers(1, id.ptr)
+        return id.rawPtr
     }
 
-    actual fun bufferRelease(buffer: BufferID) {
-        glDeleteBuffers(1, buffer as CArrayPointer<UIntVar>)
+    actual fun bufferRelease(id: BufferID) {
+        glDeleteBuffers(1, interpretCPointer(id))
     }
 
-    actual fun bufferBind(type: Int, buffer: BufferID) {
-        glBindBuffer(type.toUInt(), (buffer as CArrayPointer<UIntVar>)[0])
+    actual fun bufferBind(type: Int, id: BufferID) {
+        glBindBuffer(type.toUInt(), UIntVar(id).value)
     }
 
-    actual fun bufferBindLocation(type: Int, buffer: BufferID, location: Int) {
-        glBindBufferBase(type.toUInt(), location.toUInt(), (buffer as CArrayPointer<UIntVar>)[0])
+    actual fun bufferBindLocation(type: Int, id: BufferID, location: Int) {
+        glBindBufferBase(type.toUInt(), location.toUInt(), UIntVar(id).value)
     }
 
     actual fun bufferData(
@@ -116,38 +128,40 @@ actual object Kanvas {
         glBufferSubData(type.toUInt(), offset.toLong(), size.toLong(), data.buffer)
     }
 
-    actual fun vertexArrayInit(): VertexArrayID = memScoped {
-        val vertexArray = allocArray<UIntVar>(1)
-        glGenVertexArrays(1, vertexArray)
-        vertexArray
+    actual fun vertexArrayInit(): VertexArrayID {
+        val id = nativeHeap.alloc<UIntVar>()
+        glGenVertexArrays(1, id.ptr)
+        return id.rawPtr
     }
 
-    actual fun vertexArrayRelease(vertexArray: VertexArrayID) {
-        glDeleteVertexArrays(1, vertexArray as CArrayPointer<UIntVar>)
+    actual fun vertexArrayRelease(id: VertexArrayID) {
+        glDeleteVertexArrays(1, interpretCPointer(id))
     }
 
-    actual fun vertexArrayBind(vertexArray: VertexArrayID) {
-        glBindVertexArray((vertexArray as CArrayPointer<UIntVar>)[0])
+    actual fun vertexArrayBind(id: VertexArrayID) {
+        glBindVertexArray(UIntVar(id).value)
     }
 
     actual fun vertexArrayEnableAttributes(attributes: List<VertexAttribute>) {
-        var attributeOffset = 0
-        val offset = NativePtr(null)
-        attributes.forEach { attribute ->
-            glEnableVertexAttribArray(attribute.location.toUInt())
-            glVertexAttribPointer(
-                attribute.location.toUInt(),
-                attribute.type.size,
-                attribute.type.type.toUInt(),
-                0u,
-                attribute.type.stride,
-                offset + attributeOffset
-            )
-            glVertexAttribDivisor(
-                attribute.location.toUInt(),
-                if (attribute.enableInstancing) 1u else 0u
-            )
-            attributeOffset += attribute.type.stride
+        memScoped {
+            val attributeOffset = alloc<UIntVar>()
+            attributeOffset.value = 0u
+            attributes.forEach { attribute ->
+                glEnableVertexAttribArray(attribute.location.toUInt())
+                glVertexAttribPointer(
+                    attribute.location.toUInt(),
+                    attribute.type.size,
+                    attribute.type.type.toUInt(),
+                    0u,
+                    attribute.type.stride,
+                    attributeOffset.ptr
+                )
+                glVertexAttribDivisor(
+                    attribute.location.toUInt(),
+                    if (attribute.enableInstancing) 1u else 0u
+                )
+                attributeOffset.value += attribute.type.stride.toUInt()
+            }
         }
     }
 
@@ -161,91 +175,120 @@ actual object Kanvas {
         return glCreateShader(type.toUInt()).toInt()
     }
 
-    actual fun shaderStageRelease(shaderStage: ShaderStageID) {
-        glDeleteShader(shaderStage.toUInt())
+    actual fun shaderStageRelease(id: ShaderStageID) {
+        glDeleteShader(id.toUInt())
     }
 
-    private val compileStatus = memScoped {
-        allocArray<IntVar>(1)
-    }
-
-    actual fun shaderStageCompile(shaderStage: ShaderStageID, source: String): Boolean {
-        if (shaderStage.toUInt() == NULL.toUInt()) {
+    actual fun shaderStageCompile(id: ShaderStageID, source: String): Boolean {
+        if (id.toUInt() == NULL.toUInt()) {
             KLog.error("Shader is not created")
             return false
         }
 
         memScoped {
+            val compileStatus = alloc<IntVar>()
             val cSource = source.cstr.ptr
-            glShaderSource(shaderStage.toUInt(), 1, cValuesOf(cSource), null)
-        }
+            glShaderSource(id.toUInt(), 1, cValuesOf(cSource), null)
+            glCompileShader(id.toUInt())
+            glGetShaderiv(id.toUInt(), GL_COMPILE_STATUS.toUInt(), compileStatus.ptr)
 
-        glCompileShader(shaderStage.toUInt())
-        glGetShaderiv(shaderStage.toUInt(), GL_COMPILE_STATUS.toUInt(), compileStatus)
-
-        if (compileStatus[0] == 0) {
-            val log = memScoped {
+            if (compileStatus.value == 0) {
                 val logLength = alloc<IntVar>()
-                glGetShaderiv(shaderStage.toUInt(), GL_INFO_LOG_LENGTH.toUInt(), logLength.ptr)
-                if (logLength.value <= 0) return ""
-                val logBuffer = allocArray<ByteVar>(logLength.value)
+                glGetShaderiv(id.toUInt(), GL_INFO_LOG_LENGTH.toUInt(), logLength.ptr)
+                if (logLength.value <= 0) {
+                    KLog.error("Failed to get compiler error log message")
+                    return false
+                }
 
-                glGetShaderInfoLog(shaderStage.toUInt(), logLength.value, null, logBuffer)
-                logBuffer.toKString()
+                val logBuffer = allocArray<ByteVar>(logLength.value)
+                glGetShaderInfoLog(id.toUInt(), logLength.value, null, logBuffer)
+                val log = logBuffer.toKString()
+                KLog.error("Failed to compile shader: $log")
+
+                shaderStageRelease(id)
+                return false
             }
-            shaderStageRelease(shaderStage.toUInt())
-            KLog.error("Failed to compile shader: $log")
-            return false
         }
 
         return true
     }
 
-    actual fun shaderStageAttach(shader: ShaderID, shaderStage: ShaderStageID) {
-        glAttachShader(shader.toUInt(), shaderStage.toUInt())
+    actual fun shaderStageAttach(id: ShaderID, shaderStage: ShaderStageID) {
+        glAttachShader(id.toUInt(), shaderStage.toUInt())
     }
 
-    actual fun shaderStageDetach(shader: ShaderID, shaderStage: ShaderStageID) {
-        glDetachShader(shader.toUInt(), shaderStage.toUInt())
+    actual fun shaderStageDetach(id: ShaderID, shaderStage: ShaderStageID) {
+        glDetachShader(id.toUInt(), shaderStage.toUInt())
     }
 
     actual fun shaderInit(): ShaderID {
         return glCreateProgram().toInt()
     }
 
-    actual fun shaderRelease(shader: ShaderID) {
-        glDeleteProgram(shader.toUInt())
+    actual fun shaderRelease(id: ShaderID) {
+        glDeleteProgram(id.toUInt())
     }
 
-    private val linkStatus = memScoped {
-        allocArray<IntVar>(1)
-    }
+    actual fun shaderLink(id: ShaderID): Boolean {
+        memScoped {
+            val linkStatus = alloc<IntVar>()
+            glLinkProgram(id.toUInt())
+            glGetProgramiv(id.toUInt(), GL_LINK_STATUS.toUInt(), linkStatus.ptr)
+            if (linkStatus.value == 0) {
+                val logLength = alloc<IntVar>()
+                glGetProgramiv(id.toUInt(), GL_INFO_LOG_LENGTH.toUInt(), logLength.ptr)
+                if (logLength.value <= 0) {
+                    KLog.error("Failed to get link error log message")
+                    return false
+                }
 
-    actual fun shaderLink(shader: ShaderID): Boolean {
-        glLinkProgram(shader.toUInt())
-        glGetProgramiv(shader.toUInt(), GL_LINK_STATUS, linkStatus)
-        if (linkStatus[0] == 0) {
-            val log = glGetProgramInfoLog(shader.toUInt())
-            KLog.error("Failed to link shader: $log")
-            shaderRelease(shader)
-            return false
+                val logBuffer = allocArray<ByteVar>(logLength.value)
+                glGetProgramInfoLog(id.toUInt(), logLength.value, null, logBuffer)
+                val log = logBuffer.toKString()
+                KLog.error("Failed to link shader: $log")
+
+                shaderRelease(id)
+                return false
+            }
         }
         return true
     }
 
-    actual fun shaderUse(shader: ShaderID) {
-        glUseProgram(shader.toUInt())
+    actual fun shaderUse(id: ShaderID) {
+        glUseProgram(id.toUInt())
     }
 
-    actual fun textureInit(type: Int, texture: Texture): TextureID = memScoped {
-        val textureID = allocArray<UIntVar>(1)
-        glGenTextures(1, textureID)
-        glBindTexture(type.toUInt(), textureID[0])
-        textureParameter(type, GL_TEXTURE_MIN_FILTER, texture.minFilter)
-        textureParameter(type, GL_TEXTURE_MAG_FILTER, texture.magFilter)
-        textureParameter(type, GL_TEXTURE_WRAP_S, texture.wrapS)
-        textureParameter(type, GL_TEXTURE_WRAP_T, texture.wrapT)
-        textureParameter(type, GL_TEXTURE_WRAP_R, texture.wrapR)
+    actual fun textureInit(type: Int): TextureID {
+        val id = nativeHeap.alloc<UIntVar>()
+        glGenTextures(1, id.ptr)
+        return id.rawPtr
+    }
+
+    actual fun textureParameter(type: Int, name: Int, value: Int) {
+        glTexParameteri(type.toUInt(), name.toUInt(), value)
+    }
+
+    actual fun textureRelease(id: TextureID) {
+        glDeleteTextures(1, interpretCPointer(id))
+    }
+
+    actual fun textureBind(type: Int, id: TextureID) {
+        glBindTexture(type.toUInt(), UIntVar(id).value)
+    }
+
+    actual fun textureUnbind(type: Int) {
+        glBindTexture(type.toUInt(), 0u)
+    }
+
+    actual fun textureActive(slot: Int) {
+        glActiveTexture(GL_TEXTURE0.toUInt() + slot.toUInt())
+    }
+
+    actual fun textureGenerateMipmap(type: Int) {
+        glGenerateMipmap(type.toUInt())
+    }
+
+    actual fun textureImage2D(type: Int, texture: Texture) {
         glTexImage2D(
             type.toUInt(),
             texture.mipLevel,
@@ -255,26 +298,8 @@ actual object Kanvas {
             texture.border,
             texture.format.toUInt(),
             texture.pixelFormat.toUInt(),
-            texture.pixels as CValuesRef<*>
+            interpretCPointer<UByteVar>(texture.pixels)
         )
-        glGenerateMipmap(type.toUInt())
-        glBindTexture(type.toUInt(), 0u)
-        textureID
-    }
-
-    private fun textureParameter(type: Int, name: Int, value: Int) {
-        if (value != NULL) {
-            glTexParameteri(type.toUInt(), name.toUInt(), value)
-        }
-    }
-
-    actual fun textureRelease(texture: TextureID) {
-        glDeleteTextures(1, texture as CArrayPointer<UIntVar>)
-    }
-
-    actual fun textureBind(type: Int, texture: TextureID, slot: Int) {
-        glBindTexture(type.toUInt(), (texture as CArrayPointer<UIntVar>)[0])
-        glActiveTexture(GL_TEXTURE0 + slot.toUInt())
     }
 
     actual fun drawArrays(mode: Int, first: Int, count: Int) {
@@ -300,19 +325,17 @@ actual object Kanvas {
     }
 
     actual fun frameBufferInit(): FrameBufferID {
-        memScoped {
-            val frameBufferID = alloc<UIntVar>().ptr
-            glGenFramebuffers(1, frameBufferID)
-            return frameBufferID
-        }
+        val id = nativeHeap.alloc<UIntVar>()
+        glGenFramebuffers(1, id.ptr)
+        return id.rawPtr
     }
 
-    actual fun frameBufferRelease(frameBufferID: FrameBufferID) {
-        glDeleteFramebuffers(1, frameBufferID)
+    actual fun frameBufferRelease(id: FrameBufferID) {
+        glDeleteFramebuffers(1, interpretCPointer(id))
     }
 
-    actual fun frameBufferBind(type: Int, frameBufferID: FrameBufferID) {
-        glBindFramebuffer(type.toUInt(), frameBufferID)
+    actual fun frameBufferBind(type: Int, id: FrameBufferID) {
+        glBindFramebuffer(type.toUInt(), UIntVar(id).value)
     }
 
     actual fun frameBufferUnbind(type: Int) {
@@ -339,34 +362,34 @@ actual object Kanvas {
     }
 
     actual fun frameBufferCheckStatus(): Boolean {
-        return glCheckFramebufferStatus(FRAME_BUFFER) == GL_FRAMEBUFFER_COMPLETE
+        return glCheckFramebufferStatus(FRAME_BUFFER.toUInt()) == GL_FRAMEBUFFER_COMPLETE.toUInt()
     }
 
     actual fun frameBufferAttachColor(
         index: Int,
         textureType: Int,
-        textureID: TextureID,
+        id: TextureID,
         textureLevel: Int
     ) {
         glFramebufferTexture2D(
-            FRAME_BUFFER,
-            GL_COLOR_ATTACHMENT0 + index,
+            FRAME_BUFFER.toUInt(),
+            GL_COLOR_ATTACHMENT0.toUInt() + index.toUInt(),
             textureType.toUInt(),
-            textureID.toUInt(),
+            UIntVar(id).value,
             textureLevel
         )
     }
 
     actual fun frameBufferAttachDepth(
         textureType: Int,
-        textureID: TextureID,
+        id: TextureID,
         textureLevel: Int
     ) {
         glFramebufferTexture2D(
-            FRAME_BUFFER,
-            GL_DEPTH_ATTACHMENT,
+            FRAME_BUFFER.toUInt(),
+            GL_DEPTH_ATTACHMENT.toUInt(),
             textureType.toUInt(),
-            textureID.toUInt(),
+            UIntVar(id).value,
             textureLevel
         )
     }

@@ -21,15 +21,11 @@ import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import org.koin.compose.koinInject
-import org.koin.core.KoinApplication
-import org.koin.core.context.startKoin
 
 @OptIn(ExperimentalComposeUiApi::class)
 inline fun <reified T : RenderLoop> KanvasApp(
-    noinline startKoin: KoinApplication.() -> Unit,
     crossinline content: @Composable () -> Unit
 ) {
-    startKoin(startKoin)
     application(exitProcessOnExit = true) {
         val renderLoop: T = koinInject()
 
