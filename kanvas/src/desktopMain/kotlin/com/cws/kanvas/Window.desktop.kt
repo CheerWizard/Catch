@@ -20,7 +20,7 @@ import kotlin.math.roundToInt
 
 actual typealias WindowID = Long
 
-class Pixels(width: Int, height: Int) {
+class WindowPixels(width: Int, height: Int) {
 
     var buffer = ByteBuffer.allocateDirect(width * height * 4)
     var array = ByteArray(width * height * 4)
@@ -58,7 +58,7 @@ actual class Window : BaseWindow {
     private var height: Int = 600
     private var closed = false
     private val bitmap = ImageBitmap(width, height, ImageBitmapConfig.Argb8888)
-    private var pixels: Pixels? = null
+    private var pixels: WindowPixels? = null
 
     actual constructor(
         x: Int,
@@ -99,7 +99,7 @@ actual class Window : BaseWindow {
     }
 
     private fun createPixels(width: Int, height: Int) {
-        pixels = Pixels(width, height)
+        pixels = WindowPixels(width, height)
     }
 
     actual fun isClosed(): Boolean = closed
