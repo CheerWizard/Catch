@@ -29,10 +29,6 @@ class SmallBuffer(
 
     override operator fun get(index: Int): Byte = smallBuffer[index]
 
-    override fun copy(srcIndex: Int, destIndex: Int, size: Int) {
-        copyTo(this, srcIndex, destIndex, size)
-    }
-
     override fun copyTo(dest: FastBuffer, srcIndex: Int, destIndex: Int, size: Int) {
         lock {
             if (dest is SmallBuffer) {

@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import com.cws.acatch.game.GameLoop
 import com.cws.acatch.game.ui.GameScreen
-import com.cws.kanvas.KanvasView
+import com.cws.kanvas.core.KanvasView
 
 class MainActivity : ComponentActivity() {
 

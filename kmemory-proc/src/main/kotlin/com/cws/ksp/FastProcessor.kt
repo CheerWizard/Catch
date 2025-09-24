@@ -21,7 +21,6 @@ import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.ksp.toTypeName
-import java.io.File
 
 class FastProcessor(
     environment: SymbolProcessorEnvironment
@@ -29,7 +28,6 @@ class FastProcessor(
 
     private val generator: CodeGenerator = environment.codeGenerator
     private val logger: KSPLogger = environment.logger
-    private val options: Map<String, String> = environment.options
 
     data class Class(
         val declaration: KSClassDeclaration,

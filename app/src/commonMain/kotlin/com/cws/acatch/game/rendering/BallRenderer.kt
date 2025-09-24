@@ -2,14 +2,14 @@ package com.cws.acatch.game.rendering
 
 import com.cws.acatch.game.data.Ball
 import com.cws.acatch.game.data.BallList
-import com.cws.kanvas.IndexBuffer
-import com.cws.kanvas.Kanvas
-import com.cws.kanvas.Shader
-import com.cws.kanvas.ShaderManager
-import com.cws.kanvas.UniformBuffer
-import com.cws.kanvas.VERTEX_ATTRIBUTES
-import com.cws.kanvas.VertexArray
-import com.cws.kanvas.VertexBuffer
+import com.cws.kanvas.pipeline.IndexBuffer
+import com.cws.kanvas.core.Kanvas
+import com.cws.kanvas.pipeline.Shader
+import com.cws.kanvas.shader.ShaderManager
+import com.cws.kanvas.pipeline.UniformBuffer
+import com.cws.kanvas.pipeline.VERTEX_ATTRIBUTES
+import com.cws.kanvas.pipeline.VertexArray
+import com.cws.kanvas.pipeline.VertexBuffer
 
 class BallBuffer : UniformBuffer(
     binding = 0,

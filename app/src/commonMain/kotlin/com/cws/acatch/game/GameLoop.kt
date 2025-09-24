@@ -8,9 +8,9 @@ import com.cws.acatch.game.data.ProjectileList
 import com.cws.acatch.game.data.Score
 import com.cws.acatch.game.data.generateBalls
 import com.cws.acatch.game.rendering.BallRenderer
-import com.cws.kanvas.input.InputSensorManager
-import com.cws.kanvas.EventListener
-import com.cws.kanvas.RenderLoop
+import com.cws.kanvas.sensor.InputSensorManager
+import com.cws.kanvas.event.EventListener
+import com.cws.kanvas.core.RenderLoop
 import com.cws.kanvas.math.Vec2
 import com.cws.kanvas.math.Vec4
 import com.cws.kmemory.stack
