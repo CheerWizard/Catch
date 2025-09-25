@@ -35,7 +35,6 @@ kotlin {
         }
 
         val desktopMain by getting {
-            resources.srcDir("src/androidMain/resources")
             dependsOn(jniMain)
         }
 
@@ -71,7 +70,7 @@ android {
 
     externalNativeBuild {
         cmake {
-            path = file("src/androidMain/cpp/jni/CMakeLists.txt")
+            path = file("src/cpp/cmemory/CMakeLists.txt")
         }
     }
 }
@@ -81,7 +80,7 @@ val jniBuildDir = file("$buildDir/jni")
 fun cmakeTask(project: String, platform: String, generator: String) = tasks.register("buildJni_$platform") {
     group = "jni"
     doLast {
-        println("Running cmakeTask for $platform")
+        println("Running cmakeTask for platform:$platform project:$project")
 
         val outDir = file("$jniBuildDir/$platform")
         outDir.mkdirs()
@@ -105,7 +104,7 @@ fun cmakeTask(project: String, platform: String, generator: String) = tasks.regi
             workingDir = outDir
             environment("JAVA_HOME", javaHome)
             println("Running cmake -G $generator")
-            commandLine("cmake", "-G", generator, *jniIncludeArgs.toTypedArray(), "../../../src/androidMain/cpp/jni")
+            commandLine("cmake", "-G", generator, *jniIncludeArgs.toTypedArray(), "../../../src/cpp/$project")
         }
 
         exec {
@@ -124,7 +123,7 @@ fun cmakeTask(project: String, platform: String, generator: String) = tasks.regi
 
         copy {
             val fromDir = "$outDir/$libName"
-            val toDir = "src/androidMain/resources/jni/$platform"
+            val toDir = "src/desktopMain/resources/jni/$platform"
             println("Copying $fromDir -> $toDir")
             from(fromDir)
             into(toDir)
@@ -152,7 +151,7 @@ val platform = when {
     else -> throw GradleException("Unsupported OS/Arch: $osName / $osArch")
 }
 
-val cmakeBuild = cmakeTask("native_memory", platform, generator)
+val cmakeBuild = cmakeTask("cmemory", platform, generator)
 
 tasks.register("buildJni") {
     dependsOn(cmakeBuild)

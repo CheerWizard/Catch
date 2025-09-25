@@ -6,7 +6,7 @@ import kotlin.use
 actual open class NativeMemory {
 
     actual fun init() {
-        val libName = "native_memory"
+        val libName = "cmemory"
         val os = System.getProperty("os.name").lowercase()
         val arch = System.getProperty("os.arch").lowercase()
 

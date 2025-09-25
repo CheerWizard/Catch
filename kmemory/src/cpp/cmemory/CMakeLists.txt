@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22.1)
-project(native_memory)
+project(cmemory)
 
 if (NOT CMAKE_SYSTEM_NAME STREQUAL "Android")
     if(NOT DEFINED ENV{JAVA_HOME})
@@ -22,13 +22,16 @@ if (NOT CMAKE_SYSTEM_NAME STREQUAL "Android")
 endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../resources/jni/windows-x86_64)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../desktopMain/resources/jni/windows-x86_64)
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../resources/jni/linux-x86_64)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../desktopMain/resources/jni/linux-x86_64)
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../resources/jni/macos-x86_64)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../desktopMain/resources/jni/macos-x86_64)
 endif()
 
-add_library(native_memory SHARED native_memory.cpp)
+file(GLOB_RECURSE SRC *.cpp *.hpp)
+include_directories(../)
 
-target_link_libraries(native_memory)
+add_library(${PROJECT_NAME} SHARED ${SRC})
+
+target_link_libraries(${PROJECT_NAME})

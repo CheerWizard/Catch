@@ -4,7 +4,7 @@ import java.nio.ByteBuffer
 
 actual class BigBuffer actual constructor(capacity: Int) : LockFree(), FastBuffer {
 
-    var buffer: ByteBuffer = Memory.nativeAlloc(capacity)
+    var buffer: ByteBuffer = CMemory.malloc(capacity)
         ?: throw RuntimeException("Failed to allocate for NativeBuffer $capacity bytes")
 
     actual override var position: Int
@@ -16,13 +16,13 @@ actual class BigBuffer actual constructor(capacity: Int) : LockFree(), FastBuffe
     actual override val capacity: Int get() = buffer.capacity()
 
     actual override fun release() {
-        Memory.nativeFree(buffer)
+        CMemory.free(buffer)
     }
 
     actual override fun getBuffer(): Any = buffer
 
     actual override fun resize(newCapacity: Int) {
-        buffer = Memory.nativeRealloc(buffer, newCapacity)
+        buffer = CMemory.realloc(buffer, newCapacity)
             ?: throw RuntimeException("Failed to reallocate for NativeBuffer $newCapacity bytes")
     }
 

@@ -11,9 +11,6 @@ class GeometryManager(
     private val indexBuffer: IndexBuffer
 ) {
 
-    fun load(
-        vertices: FastList,
-        indices: FastList
-    ): GeometryID = 0
+    fun add(geometry: Geometry): GeometryID = 0
 
 }

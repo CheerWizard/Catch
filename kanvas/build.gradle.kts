@@ -105,13 +105,11 @@ kotlin {
                 api("org.lwjgl:lwjgl:$lwjglVersion")
                 api("org.lwjgl:lwjgl-opengl:$lwjglVersion")
                 api("org.lwjgl:lwjgl-glfw:$lwjglVersion")
-                api("org.lwjgl:lwjgl-stb:$lwjglVersion")
 
                 // LWJGL natives
                 runtimeOnly("org.lwjgl:lwjgl:$lwjglVersion:$lwjglNatives")
                 runtimeOnly("org.lwjgl:lwjgl-opengl:$lwjglVersion:$lwjglNatives")
                 runtimeOnly("org.lwjgl:lwjgl-glfw:$lwjglVersion:$lwjglNatives")
-                runtimeOnly("org.lwjgl:lwjgl-stb:$lwjglVersion:$lwjglNatives")
             }
             dependsOn(composeUiMain)
         }

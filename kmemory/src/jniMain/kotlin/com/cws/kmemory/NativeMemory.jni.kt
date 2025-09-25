@@ -6,14 +6,14 @@ expect open class NativeMemory() {
     protected fun init()
 }
 
-object Memory : NativeMemory() {
+object CMemory : NativeMemory() {
 
     init {
         init()
     }
 
-    external fun nativeAlloc(size: Int): ByteBuffer?
-    external fun nativeFree(buffer: ByteBuffer)
-    external fun nativeRealloc(buffer: ByteBuffer, size: Int): ByteBuffer?
+    external fun malloc(size: Int): ByteBuffer?
+    external fun free(buffer: ByteBuffer)
+    external fun realloc(buffer: ByteBuffer, size: Int): ByteBuffer?
 
 }
