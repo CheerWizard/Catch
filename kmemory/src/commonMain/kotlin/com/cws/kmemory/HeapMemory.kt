@@ -32,7 +32,7 @@ class FreeBlocks(size: Int) {
 }
 
 object HeapMemory : FastList(
-    capacity = (getMemoryInfo().totalPhysicalSize * 0.20f).toInt(),
+    capacity = (getMemoryInfo().totalPhysicalSize * 0.20f).toLong(),
     requireBigBuffer = true
 ) {
 

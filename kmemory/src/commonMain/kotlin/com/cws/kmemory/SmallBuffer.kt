@@ -1,26 +1,26 @@
 package com.cws.kmemory
 
 class SmallBuffer(
-    capacity: Int
+    capacity: Long
 ) : LockFree(), FastBuffer {
 
-    override var position: Int
+    override var position: Long
         set(value) {
             _smallPosition = value
         }
         get() = _smallPosition
 
-    override val capacity: Int get() = smallBuffer.size
+    override val capacity: Long get() = smallBuffer.size.toLong()
 
-    var smallBuffer = ByteArray(capacity)
-    private var _smallPosition = 0
+    var smallBuffer = ByteArray(capacity.toInt())
+    private var _smallPosition: Long = 0
 
     override fun release() = Unit
 
     override fun getBuffer(): Any = smallBuffer
 
-    override fun resize(newCapacity: Int) {
-        smallBuffer = smallBuffer.copyOf(newCapacity)
+    override fun resize(newCapacity: Long) {
+        smallBuffer = smallBuffer.copyOf(newCapacity.toInt())
     }
 
     override operator fun set(index: Int, value: Byte) {

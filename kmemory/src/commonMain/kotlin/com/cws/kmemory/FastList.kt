@@ -1,22 +1,22 @@
 package com.cws.kmemory
 
 open class FastList(
-    capacity: Int,
+    capacity: Long,
     val typeSize: Int = Byte.SIZE_BYTES,
     private var requireBigBuffer: Boolean = false
 ) : FastCollection {
 
     protected var buffer: FastBuffer = createBuffer(capacity * typeSize)
 
-    var position: Int
+    var position: Long
         protected set(value) {
             buffer.position = value
         }
         get() = buffer.position
 
-    val capacity: Int = buffer.capacity
+    val capacity: Long = buffer.capacity
 
-    override val size: Int get() = position / typeSize
+    override val size: Int get() = position.toInt() / typeSize
 
     override fun release() {
         buffer.release()
@@ -76,7 +76,7 @@ open class FastList(
         position += typeSize
     }
 
-    protected fun setFastObject(index: Int, handle: MemoryHandle) {
+    protected fun setFastObject(index: Long, handle: MemoryHandle) {
         HeapMemory.copyTo(this, handle, index, typeSize)
     }
 
@@ -195,13 +195,13 @@ open class FastList(
         }
     }
 
-    protected fun ensureCapacity(i: Int) {
+    protected fun ensureCapacity(i: Long) {
         if (i >= this@FastList.capacity || i < 0) {
             throw IllegalArgumentException("Index is out of bounds! i=$i capacity=${this@FastList.capacity}")
         }
     }
 
-    protected open fun resize(newCapacity: Int): FastBuffer {
+    protected open fun resize(newCapacity: Long): FastBuffer {
         if (requireBigBuffer) {
             buffer.resize(newCapacity)
             return buffer
@@ -224,7 +224,7 @@ open class FastList(
         return buffer
     }
 
-    private fun createBuffer(capacity: Int): FastBuffer {
+    private fun createBuffer(capacity: Long): FastBuffer {
         return if (requireBigBuffer) BigBuffer(capacity) else SmallBuffer(capacity)
     }
 

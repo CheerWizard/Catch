@@ -1,20 +1,29 @@
 package com.cws.kmemory
 
-import android.app.ActivityManager
-import android.content.Context
+import java.io.File
 
 actual fun getMemoryInfo(): MemoryInfo {
-    val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+    val procInfoFile = File("/proc/meminfo").readLines()
+    var totalPhysicalSize: Long = 0
+    var freePhysicalSize: Long = 0
 
-    val physicalMemoryInfo = ActivityManager.MemoryInfo()
-    activityManager.getMemoryInfo(physicalMemoryInfo)
+    procInfoFile.forEach { line ->
+        when {
+            line.startsWith("MemTotal:") -> {
+                totalPhysicalSize = line.split(Regex("\\s+"))[1].toLong() * 1024
+            }
+            line.startsWith("MemFree:") -> {
+                freePhysicalSize = line.split(Regex("\\s+"))[1].toLong() * 1024
+            }
+        }
+    }
 
     val runtime = Runtime.getRuntime()
 
     return MemoryInfo(
         freeHeapSize = runtime.freeMemory(),
         totalHeapSize = runtime.totalMemory(),
-        freePhysicalSize = physicalMemoryInfo.availMem,
-        totalPhysicalSize = physicalMemoryInfo.totalMem
+        freePhysicalSize = freePhysicalSize,
+        totalPhysicalSize = totalPhysicalSize
     )
 }
