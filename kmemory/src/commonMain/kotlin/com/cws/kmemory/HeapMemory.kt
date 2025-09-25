@@ -32,12 +32,19 @@ class FreeBlocks(size: Int) {
 }
 
 object HeapMemory : FastList(
-    capacity = 1024 * 1024 * 256,
+    capacity = (getMemoryInfo().totalPhysicalSize * 0.20f).toInt(),
     requireBigBuffer = true
 ) {
 
     private val freeBlocks = FreeBlocks(100)
     private val lockFree = LockFree()
+
+    val totalSize get() = capacity
+    val freeSize get() = totalSize - usedSize
+    var usedSize: Int = 0
+        private set
+    var allocations: Int = 0
+        private set
 
     fun allocate(size: Int): Int = lockFree.lock {
         val freeIndex = freeBlocks.pop(size)
@@ -51,6 +58,8 @@ object HeapMemory : FastList(
             resize(capacity * 2)
         }
 
+        allocations++
+        usedSize += size
         position = index + size
         index
     }
@@ -59,6 +68,7 @@ object HeapMemory : FastList(
         if (index == NULL) return
         lockFree.lock {
             freeBlocks.push(index, size)
+            usedSize -= size
         }
     }
 

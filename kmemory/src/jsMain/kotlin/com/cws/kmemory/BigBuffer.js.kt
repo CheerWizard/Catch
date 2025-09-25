@@ -4,23 +4,25 @@ import org.khronos.webgl.Uint8Array
 import org.khronos.webgl.get
 import org.khronos.webgl.set
 
-actual class BigBuffer actual constructor(capacity: Int) : LockFree(), FastBuffer {
+// TODO: probably will need to move JS BigBuffer to C++/WASM memory buffer
+//  current implementation is as limited as SmallBuffer by size
+actual class BigBuffer actual constructor(capacity: Long) : LockFree(), FastBuffer {
 
-    actual override var position: Int
+    actual override var position: Long
         set(value) {
             _position = value
         }
         get() = _position
 
-    actual override val capacity: Int get() = buffer.byteLength
+    actual override val capacity: Long get() = buffer.byteLength.toLong()
 
-    var buffer = Uint8Array(capacity)
-    protected var _position = 0
+    var buffer = Uint8Array(capacity.toInt())
+    protected var _position: Long = 0
 
     actual override fun getBuffer(): Any = buffer
 
-    actual override fun resize(newCapacity: Int) {
-        buffer = Uint8Array(newCapacity)
+    actual override fun resize(newCapacity: Long) {
+        buffer = Uint8Array(newCapacity.toInt())
     }
 
     actual override operator fun set(index: Int, value: Byte) {

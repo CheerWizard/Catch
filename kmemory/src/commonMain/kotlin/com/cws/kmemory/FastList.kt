@@ -71,13 +71,13 @@ open class FastList(
     fun getFloat(index: Int): Float = Float.fromBits(getBits(index, Float.SIZE_BYTES).toInt())
     fun getDouble(index: Int): Double = Double.fromBits(getBits(index, Double.SIZE_BYTES))
 
-    protected fun addFastObject(heapIndex: Int) {
-        setFastObject(position, heapIndex)
+    protected fun addFastObject(handle: MemoryHandle) {
+        setFastObject(position, handle)
         position += typeSize
     }
 
-    protected fun setFastObject(index: Int, heapIndex: Int) {
-        HeapMemory.copyTo(this, heapIndex, index, typeSize)
+    protected fun setFastObject(index: Int, handle: MemoryHandle) {
+        HeapMemory.copyTo(this, handle, index, typeSize)
     }
 
     inline fun <reified T> addArray(value: T) {

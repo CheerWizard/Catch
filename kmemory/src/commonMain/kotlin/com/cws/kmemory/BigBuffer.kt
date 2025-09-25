@@ -1,8 +1,8 @@
 package com.cws.kmemory
 
-expect class BigBuffer(capacity: Int) : FastBuffer, LockFree {
-    override var position: Int
-    override val capacity: Int
+expect class BigBuffer(capacity: Long) : FastBuffer, LockFree {
+    override var position: Long
+    override val capacity: Long
     override fun release()
     override fun getBuffer(): Any
     override fun resize(newCapacity: Int)

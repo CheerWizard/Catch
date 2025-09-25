@@ -1,6 +1,7 @@
 package com.cws.kanvas.math
 
 import com.cws.kmemory.HeapMemory
+import com.cws.kmemory.MemoryHandle
 import com.cws.kmemory.NULL
 import com.cws.kmemory.StackMemory
 import com.cws.kmemory.checkNotNull
@@ -17,43 +18,43 @@ import kotlin.math.sqrt
 
 @JvmInline
 value class Vec3(
-    val index: Int,
+    val handle: MemoryHandle,
 ) {
     var x: Float
         get() {
-            index.checkNotNull()
-            return HeapMemory.getFloat(index)
+            handle.checkNotNull()
+            return HeapMemory.getFloat(handle)
         }
         set(`value`) {
-            index.checkNotNull()
-            HeapMemory.setFloat(index, value)
+            handle.checkNotNull()
+            HeapMemory.setFloat(handle, value)
         }
 
     var y: Float
         get() {
-            index.checkNotNull()
-            return HeapMemory.getFloat(index + Float.SIZE_BYTES)
+            handle.checkNotNull()
+            return HeapMemory.getFloat(handle + Float.SIZE_BYTES)
         }
         set(`value`) {
-            index.checkNotNull()
-            HeapMemory.setFloat(index + Float.SIZE_BYTES, value)
+            handle.checkNotNull()
+            HeapMemory.setFloat(handle + Float.SIZE_BYTES, value)
         }
 
     var z: Float
         get() {
-            index.checkNotNull()
-            return HeapMemory.getFloat(index + Float.SIZE_BYTES + Float.SIZE_BYTES)
+            handle.checkNotNull()
+            return HeapMemory.getFloat(handle + Float.SIZE_BYTES + Float.SIZE_BYTES)
         }
         set(`value`) {
-            index.checkNotNull()
-            HeapMemory.setFloat(index + Float.SIZE_BYTES + Float.SIZE_BYTES, value)
+            handle.checkNotNull()
+            HeapMemory.setFloat(handle + Float.SIZE_BYTES + Float.SIZE_BYTES, value)
         }
 
     constructor(
         x: Float = 0f,
         y: Float = 0f,
         z: Float = 0f,
-        index: Int = create().index,
+        index: Int = create().handle,
     ) : this(index) {
         this.x = x
         this.y = y
@@ -61,7 +62,7 @@ value class Vec3(
     }
 
     fun free(): Vec3 {
-        HeapMemory.free(index, SIZE_BYTES)
+        HeapMemory.free(handle, SIZE_BYTES)
         return Vec3(NULL)
     }
 

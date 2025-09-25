@@ -91,9 +91,10 @@ class FastProcessor(
         val pkg = declaration.packageName.asString()
         val generatedName = declaration.simpleName.asString().removePrefix("_")
         val generatedClassName = ClassName(pkg, generatedName)
+        val memoryHandleType = ClassName("com.cws.kmemory", "MemoryHandle")
 
         val fields = mutableListOf<Field>()
-        var offset = "index"
+        var offset = "handle"
 
         declaration.getAllProperties()
             .asIterable()
@@ -174,12 +175,12 @@ class FastProcessor(
 
         constructorBuilder.addParameter(
             ParameterSpec
-                .builder("index", INT)
-                .defaultValue("create().index")
+                .builder("handle", memoryHandleType)
+                .defaultValue("create().handle")
                 .build()
         )
 
-        constructorBuilder.callThisConstructor("index")
+        constructorBuilder.callThisConstructor("handle")
 
         fields.forEach { field ->
             constructorBuilder.addStatement("this.${field.name} = ${field.name}")
@@ -192,13 +193,13 @@ class FastProcessor(
             .addAnnotation(JvmInline::class)
             .primaryConstructor(
                 FunSpec.constructorBuilder()
-                    .addParameter("index", INT)
+                    .addParameter("handle", memoryHandleType)
                     .build()
             )
             .addFunction(constructor)
             .addProperty(
-                PropertySpec.builder("index", INT)
-                    .initializer("index")
+                PropertySpec.builder("handle", memoryHandleType)
+                    .initializer("handle")
                     .build()
             )
             .addType(
@@ -242,7 +243,7 @@ class FastProcessor(
             )
             .addFunction(
                 FunSpec.builder("free")
-                    .addStatement("HeapMemory.free(index, SIZE_BYTES)")
+                    .addStatement("HeapMemory.free(handle, SIZE_BYTES)")
                     .addStatement("return %T(NULL)", generatedClassName)
                     .returns(generatedClassName)
                     .build()
@@ -272,13 +273,13 @@ class FastProcessor(
                     property.setter(
                         FunSpec.builder("set()")
                             .addParameter("value", field.generatedTypeName)
-                            .addStatement("index.checkNotNull()")
-                            .addStatement("HeapMemory.copy(value.index, ${field.offset}, ${field.generatedType}.SIZE_BYTES)")
+                            .addStatement("handle.checkNotNull()")
+                            .addStatement("HeapMemory.copy(value.handle, ${field.offset}, ${field.generatedType}.SIZE_BYTES)")
                             .build()
                     )
                     property.getter(
                         FunSpec.builder("get()")
-                            .addStatement("index.checkNotNull()")
+                            .addStatement("handle.checkNotNull()")
                             .addStatement("return ${field.generatedType}(${field.offset})")
                             .build()
                     )
@@ -286,13 +287,13 @@ class FastProcessor(
                     property.setter(
                         FunSpec.builder("set()")
                             .addParameter("value", field.generatedTypeName)
-                            .addStatement("index.checkNotNull()")
+                            .addStatement("handle.checkNotNull()")
                             .addStatement("HeapMemory.set${field.generatedType}(${field.offset}, value)")
                             .build()
                     )
                     property.getter(
                         FunSpec.builder("get()")
-                            .addStatement("index.checkNotNull()")
+                            .addStatement("handle.checkNotNull()")
                             .addStatement("return HeapMemory.get${field.generatedType}(${field.offset})")
                             .build()
                     )
@@ -462,13 +463,13 @@ class FastProcessor(
         code = if (name in primitiveTypes) {
             code
                 .replace("#add", "add$name(value)")
-                .replace("#set", "set$name(index, value)")
-                .replace("#get", "get$name(index)")
+                .replace("#set", "set$name(handle, value)")
+                .replace("#get", "get$name(handle)")
         } else {
             code
-                .replace("#add", "addFastObject(value.index)")
-                .replace("#set", "setFastObject(index, value.index)")
-                .replace("#get", "$name(index = index)")
+                .replace("#add", "addFastObject(value.handle)")
+                .replace("#set", "setFastObject(handle, value.handle)")
+                .replace("#get", "$name(handle = handle)")
         }
 
         generateFile(pkg, "${name}List", code)

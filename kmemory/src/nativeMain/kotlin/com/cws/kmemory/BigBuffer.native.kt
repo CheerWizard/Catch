@@ -15,18 +15,18 @@ import platform.posix.memcpy
 import platform.posix.realloc
 
 @OptIn(ExperimentalForeignApi::class)
-actual class BigBuffer actual constructor(capacity: Int) : LockFree(), FastBuffer {
+actual class BigBuffer actual constructor(capacity: Long) : LockFree(), FastBuffer {
 
-    actual override var position: Int
+    actual override var position: Long
         set(value) {
             _position = value
         }
         get() = _position
 
-    actual override val capacity: Int get() = _capacity
+    actual override val capacity: Long get() = _capacity
 
     var buffer: CPointer<ByteVar> = malloc(capacity.toULong()) as CPointer<ByteVar>
-    private var _position = 0
+    private var _position: Long = 0
     private var _capacity = capacity
 
     actual override fun release() {

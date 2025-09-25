@@ -2,7 +2,7 @@ package com.cws.kmemory
 
 import java.nio.ByteBuffer
 
-actual class BigBuffer actual constructor(capacity: Int) : LockFree(), FastBuffer {
+actual class BigBuffer actual constructor(capacity: Long) : LockFree(), FastBuffer {
 
     var buffer: ByteBuffer = CMemory.malloc(capacity)
         ?: throw RuntimeException("Failed to allocate for NativeBuffer $capacity bytes")
