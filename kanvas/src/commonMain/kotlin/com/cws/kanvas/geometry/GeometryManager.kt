@@ -2,7 +2,6 @@ package com.cws.kanvas.geometry
 
 import com.cws.kanvas.pipeline.IndexBuffer
 import com.cws.kanvas.pipeline.VertexBuffer
-import com.cws.kmemory.FastList
 
 typealias GeometryID = Int
 

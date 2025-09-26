@@ -1,8 +1,8 @@
 package com.cws.acatch.game.data
 
 import com.cws.kanvas.math.Vec2
-import com.cws.kmemory.FastList
-import com.cws.kmemory.collections.IntList
+import com.cws.fmm.FastList
+import com.cws.fmm.collections.IntList
 
 class GameGrid(
     width: Int,

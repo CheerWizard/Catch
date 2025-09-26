@@ -2,9 +2,9 @@ package com.cws.kanvas.pipeline
 
 import com.cws.kanvas.core.BufferID
 import com.cws.kanvas.core.Kanvas
-import com.cws.kmemory.BigBuffer
-import com.cws.kmemory.FastBuffer
-import com.cws.kmemory.FastList
+import com.cws.fmm.BigBuffer
+import com.cws.fmm.FastBuffer
+import com.cws.fmm.FastList
 
 open class GpuBuffer(
     protected val type: Int,

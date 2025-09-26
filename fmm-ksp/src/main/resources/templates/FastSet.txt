@@ -1,0 +1,44 @@
+package #pkg
+
+import com.cws.fmm.FastCollection
+import com.cws.fmm.collections.ByteList
+import com.cws.fmm.collections.BooleanList
+import com.cws.fmm.collections.ShortList
+import com.cws.fmm.collections.IntList
+import com.cws.fmm.collections.LongList
+import com.cws.fmm.collections.FloatList
+import com.cws.fmm.collections.DoubleList
+
+class #TSet(
+    capacity: Int
+) : FastCollection {
+
+    private val values = #TList(capacity)
+    private val used = BooleanList(capacity)
+
+    override val size: Int = values.size
+
+    override fun release() {
+        values.release()
+        used.release()
+    }
+
+    override fun clear() {
+        values.clear()
+        used.clear()
+    }
+
+    fun add(value: #T): Boolean {
+        val id = (value.hashCode() and Int.MAX_VALUE) % values.size
+        if (used[id] && values[id] == value) return false
+        values[id] = value
+        used[id] = true
+        return true
+    }
+
+    fun contains(value: #T): Boolean {
+        val id = (value.hashCode() and Int.MAX_VALUE) % values.size
+        return used[id] && values[id] == value
+    }
+
+}

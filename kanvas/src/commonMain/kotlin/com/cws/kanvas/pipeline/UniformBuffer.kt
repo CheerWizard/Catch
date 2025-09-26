@@ -1,7 +1,7 @@
 package com.cws.kanvas.pipeline
 
 import com.cws.kanvas.core.Kanvas
-import com.cws.kmemory.HeapMemory
+import com.cws.fmm.HeapMemory
 
 open class UniformBuffer(
     private val binding: Int,

@@ -62,7 +62,7 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json)
 
                 implementation(project(":kanvas"))
-                implementation(project(":kmemory"))
+                implementation(project(":fmm"))
             }
         }
 
@@ -135,9 +135,8 @@ android {
 
     sourceSets["main"].assets.srcDir("$buildDir/generated/commonAssets")
 }
-
 dependencies {
-    ksp(project(":kmemory-proc"))
+    "ksp"(project(":fmm-ksp"))
 }
 
 afterEvaluate {

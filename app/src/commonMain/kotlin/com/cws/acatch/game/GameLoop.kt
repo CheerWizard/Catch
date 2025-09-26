@@ -13,7 +13,7 @@ import com.cws.kanvas.event.EventListener
 import com.cws.kanvas.core.RenderLoop
 import com.cws.kanvas.math.Vec2
 import com.cws.kanvas.math.Vec4
-import com.cws.kmemory.stack
+import com.cws.fmm.stack
 
 class GameLoop(
     x: Int,

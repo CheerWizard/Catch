@@ -2,8 +2,8 @@ package com.cws.acatch.game.data
 
 import com.cws.kanvas.math.Vec2
 import com.cws.kanvas.math.Vec4
-import com.cws.kmemory.FastObject
-import com.cws.kmemory.stack
+import com.cws.fmm.FastObject
+import com.cws.fmm.stack
 
 @FastObject(
     gpuAlignment = true

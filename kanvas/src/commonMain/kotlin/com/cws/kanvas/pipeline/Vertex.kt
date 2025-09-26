@@ -2,7 +2,7 @@ package com.cws.kanvas.pipeline
 
 import com.cws.kanvas.math.Vec2
 import com.cws.kanvas.math.Vec3
-import com.cws.kmemory.FastObject
+import com.cws.fmm.FastObject
 
 @FastObject
 data class _Vertex(

@@ -1,6 +1,6 @@
 package com.cws.kanvas.math
 
-import com.cws.kmemory.FastObject
+import com.cws.fmm.FastObject
 
 @FastObject
 class _Mat2(

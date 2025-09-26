@@ -2,7 +2,7 @@ package com.cws.kanvas.core
 
 import com.cws.kanvas.texture.Texture
 import com.cws.kanvas.pipeline.VertexAttribute
-import com.cws.kmemory.BigBuffer
+import com.cws.fmm.BigBuffer
 
 expect class VertexArrayID
 expect class BufferID

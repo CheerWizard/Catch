@@ -1,10 +1,10 @@
 package com.cws.kanvas.math
 
-import com.cws.kmemory.HeapMemory
-import com.cws.kmemory.MemoryHandle
-import com.cws.kmemory.NULL
-import com.cws.kmemory.StackMemory
-import com.cws.kmemory.checkNotNull
+import com.cws.fmm.HeapMemory
+import com.cws.fmm.MemoryHandle
+import com.cws.fmm.NULL
+import com.cws.fmm.StackMemory
+import com.cws.fmm.checkNotNull
 import kotlin.jvm.JvmInline
 import kotlin.math.sqrt
 

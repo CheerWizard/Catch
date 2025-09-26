@@ -4,7 +4,7 @@ import android.opengl.GLES30.*
 import com.cws.kanvas.texture.Texture
 import com.cws.kanvas.pipeline.VertexAttribute
 import com.cws.klog.KLog
-import com.cws.kmemory.BigBuffer
+import com.cws.fmm.BigBuffer
 
 actual typealias VertexArrayID = IntArray
 actual typealias BufferID = IntArray

@@ -42,9 +42,8 @@ kotlin {
                 // DI
                 api(libs.koin.core)
                 api(libs.koin.compose.viewModel)
-                //
                 api(project(":klog"))
-                api(project(":kmemory"))
+                api(project(":fmm"))
                 // Compose
                 api("org.jetbrains.compose.runtime:runtime:1.7.1")
                 api("org.jetbrains.compose.foundation:foundation:1.7.1")
@@ -148,9 +147,8 @@ android {
 
     sourceSets["main"].assets.srcDir("$buildDir/generated/commonAssets")
 }
-
 dependencies {
-    ksp(project(":kmemory-proc"))
+    "ksp"(project(":fmm-ksp"))
 }
 
 afterEvaluate {

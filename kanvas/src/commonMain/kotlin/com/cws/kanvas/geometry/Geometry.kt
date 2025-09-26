@@ -1,7 +1,7 @@
 package com.cws.kanvas.geometry
 
-import com.cws.kmemory.collections.FloatList
-import com.cws.kmemory.collections.ShortList
+import com.cws.fmm.collections.FloatList
+import com.cws.fmm.collections.ShortList
 
 open class Geometry(
     val vertices: FloatList,

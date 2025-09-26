@@ -1,7 +1,7 @@
 package com.cws.kanvas.pipeline
 
 import com.cws.kanvas.core.Kanvas
-import com.cws.kmemory.FastList
+import com.cws.fmm.FastList
 
 class VertexBuffer(size: Int) : GpuBuffer(
     type = Kanvas.VERTEX_BUFFER,
