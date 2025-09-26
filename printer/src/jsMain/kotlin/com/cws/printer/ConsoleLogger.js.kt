@@ -1,6 +1,6 @@
 package com.cws.printer
 
-actual object ConsoleLogger {
+actual class ConsoleLogger actual constructor() {
 
     actual fun v(message: String) {
         console.info("[VERBOSE] ${tag().className}: $message")

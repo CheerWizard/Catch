@@ -2,7 +2,7 @@ package com.cws.printer
 
 import android.util.Log
 
-actual object ConsoleLogger {
+actual class ConsoleLogger actual constructor() {
 
     actual fun v(message: String) {
         val tag = tag()

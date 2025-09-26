@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import printer.BuildConfig
 
 data class Tag(
     val className: String,
@@ -39,7 +40,7 @@ object Printer {
     ) {
         launch {
             this.fileLogger = fileLogger
-            this.fileLogger?.open("logs/${name}_${getTimestamp()}.logs")
+            this.fileLogger?.open(name, "logs/${name}_${getTimestamp()}.logs")
         }
     }
 
