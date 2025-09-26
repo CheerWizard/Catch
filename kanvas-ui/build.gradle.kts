@@ -29,8 +29,8 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                // KLog
-                implementation(project(":klog"))
+                // Printer
+                implementation(project(":printer"))
                 // Compose
                 implementation("org.jetbrains.compose.runtime:runtime:1.7.1")
                 implementation("org.jetbrains.compose.foundation:foundation:1.7.1")

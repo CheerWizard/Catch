@@ -21,16 +21,23 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
-            dependencies {}
+            dependencies {
+                implementation(libs.kotlinx.datetime)
+                implementation(libs.atomicfu)
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(kotlin("stdlib-common"))
+            }
             kotlin.srcDir("build/generated/src/commonMain/kotlin")
         }
 
         val androidMain by getting {
             dependencies {}
+            dependsOn(commonMain)
         }
 
         val jsMain by getting {
             dependencies {}
+            dependsOn(commonMain)
         }
 
         val iosMain by creating {
@@ -41,9 +48,17 @@ kotlin {
             dependsOn(commonMain)
         }
 
-        val iosX64Main by getting { dependsOn(iosMain) }
-        val iosArm64Main by getting { dependsOn(iosMain) }
-        val iosSimulatorArm64Main by getting { dependsOn(iosMain) }
+        val iosX64Main by getting {
+            dependsOn(iosMain)
+        }
+
+        val iosArm64Main by getting {
+            dependsOn(iosMain)
+        }
+
+        val iosSimulatorArm64Main by getting {
+            dependsOn(iosMain)
+        }
     }
 }
 

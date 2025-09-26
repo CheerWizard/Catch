@@ -42,15 +42,17 @@ kotlin {
                 // DI
                 api(libs.koin.core)
                 api(libs.koin.compose.viewModel)
-                api(project(":printer"))
-                api(project(":fmm"))
+                // Logging
+                implementation(project(":printer"))
+                // Fast Memory Model
+                implementation(project(":fmm"))
                 // Compose
                 api("org.jetbrains.compose.runtime:runtime:1.7.1")
                 api("org.jetbrains.compose.foundation:foundation:1.7.1")
                 // Coroutines and Atomics
-                api(libs.atomicfu)
-                api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-                api(kotlin("stdlib-common"))
+                implementation(libs.atomicfu)
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(kotlin("stdlib-common"))
             }
         }
 

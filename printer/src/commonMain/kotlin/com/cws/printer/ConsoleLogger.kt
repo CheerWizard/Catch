@@ -1,6 +1,6 @@
 package com.cws.printer
 
-expect object ConsoleLogger {
+expect class ConsoleLogger() {
     fun v(message: String = "")
     fun i(message: String = "")
     fun d(message: String = "")
