@@ -25,6 +25,7 @@ dependencyResolutionManagement {
 rootProject.name = "Catch"
 include(":app")
 include(":kanvas")
+include(":kanvas-ui")
 include(":klog")
 include(":kmemory")
 include(":kmemory-proc")
