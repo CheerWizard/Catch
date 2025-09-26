@@ -2,7 +2,7 @@ package com.cws.kanvas.core
 
 import com.cws.kanvas.texture.Texture
 import com.cws.kanvas.pipeline.VertexAttribute
-import com.cws.klog.KLog
+import com.cws.printer.Printer
 import com.cws.fmm.BigBuffer
 import kotlinx.cinterop.ByteVar
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -184,7 +184,7 @@ actual object Kanvas {
 
     actual fun shaderStageCompile(id: ShaderStageID, source: String): Boolean {
         if (id.toUInt() == NULL.toUInt()) {
-            KLog.error("Shader is not created")
+            Printer.e("Shader is not created")
             return false
         }
 
@@ -199,14 +199,14 @@ actual object Kanvas {
                 val logLength = alloc<IntVar>()
                 glGetShaderiv(id.toUInt(), GL_INFO_LOG_LENGTH.toUInt(), logLength.ptr)
                 if (logLength.value <= 0) {
-                    KLog.error("Failed to get compiler error log message")
+                    Printer.e("Failed to get compiler error log message")
                     return false
                 }
 
                 val logBuffer = allocArray<ByteVar>(logLength.value)
                 glGetShaderInfoLog(id.toUInt(), logLength.value, null, logBuffer)
                 val log = logBuffer.toKString()
-                KLog.error("Failed to compile shader: $log")
+                Printer.e("Failed to compile shader: $log")
 
                 shaderStageRelease(id)
                 return false
@@ -241,14 +241,14 @@ actual object Kanvas {
                 val logLength = alloc<IntVar>()
                 glGetProgramiv(id.toUInt(), GL_INFO_LOG_LENGTH.toUInt(), logLength.ptr)
                 if (logLength.value <= 0) {
-                    KLog.error("Failed to get link error log message")
+                    Printer.e("Failed to get link error log message")
                     return false
                 }
 
                 val logBuffer = allocArray<ByteVar>(logLength.value)
                 glGetProgramInfoLog(id.toUInt(), logLength.value, null, logBuffer)
                 val log = logBuffer.toKString()
-                KLog.error("Failed to link shader: $log")
+                Printer.e("Failed to link shader: $log")
 
                 shaderRelease(id)
                 return false

@@ -3,7 +3,7 @@ package com.cws.kanvas.core
 import android.opengl.GLES30.*
 import com.cws.kanvas.texture.Texture
 import com.cws.kanvas.pipeline.VertexAttribute
-import com.cws.klog.KLog
+import com.cws.printer.Printer
 import com.cws.fmm.BigBuffer
 
 actual typealias VertexArrayID = IntArray
@@ -163,7 +163,7 @@ actual object Kanvas {
 
     actual fun shaderStageCompile(id: ShaderStageID, source: String): Boolean {
         if (id == NULL) {
-            KLog.error("Shader is not created!")
+            Printer.e("Shader is not created!")
             return false
         }
 
@@ -174,7 +174,7 @@ actual object Kanvas {
         if (compileStatus[0] == 0) {
             val log = glGetShaderInfoLog(id)
             shaderStageRelease(id)
-            KLog.error("Failed to compile shader: $log")
+            Printer.e("Failed to compile shader: $log")
             return false
         }
 
@@ -203,7 +203,7 @@ actual object Kanvas {
         glLinkProgram(id)
         glGetProgramiv(id, LINK_STATUS, linkStatus, 0)
         if (linkStatus[0] == 0) {
-            KLog.error("Failed to link shader: ${glGetProgramInfoLog(id)}")
+            Printer.e("Failed to link shader: ${glGetProgramInfoLog(id)}")
             shaderRelease(id)
             return false
         }

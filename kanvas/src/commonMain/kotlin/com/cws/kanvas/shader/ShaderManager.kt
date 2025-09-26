@@ -3,7 +3,7 @@ package com.cws.kanvas.shader
 import com.cws.kanvas.core.Kanvas
 import com.cws.kanvas.core.RenderLoopJobs
 import com.cws.kanvas.loaders.ShaderLoader
-import com.cws.klog.KLog
+import com.cws.printer.Printer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -40,7 +40,7 @@ object ShaderManager : KoinComponent {
             contains(".vert") -> Kanvas.VERTEX_SHADER
             contains(".frag") -> Kanvas.FRAGMENT_SHADER
             else -> {
-                KLog.warn("Unsupported shader type $this")
+                Printer.w("Unsupported shader type $this")
                 Kanvas.NULL
             }
         }

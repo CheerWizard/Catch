@@ -42,7 +42,7 @@ kotlin {
                 // DI
                 api(libs.koin.core)
                 api(libs.koin.compose.viewModel)
-                api(project(":klog"))
+                api(project(":printer"))
                 api(project(":fmm"))
                 // Compose
                 api("org.jetbrains.compose.runtime:runtime:1.7.1")

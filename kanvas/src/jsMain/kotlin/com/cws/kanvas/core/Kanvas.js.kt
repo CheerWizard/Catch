@@ -2,7 +2,7 @@ package com.cws.kanvas.core
 
 import com.cws.kanvas.texture.Texture
 import com.cws.kanvas.pipeline.VertexAttribute
-import com.cws.klog.KLog
+import com.cws.printer.Printer
 import com.cws.fmm.BigBuffer
 import kotlinx.browser.document
 import org.khronos.webgl.WebGLBuffer
@@ -174,7 +174,7 @@ actual object Kanvas {
 
     actual fun shaderStageCompile(id: ShaderStageID, source: String): Boolean {
         if (id == NULL) {
-            KLog.error("Shader is not created!")
+            Printer.e("Shader is not created!")
             return false
         }
 
@@ -185,7 +185,7 @@ actual object Kanvas {
         if (compileStatus == null) {
             val log = context.getShaderInfoLog(id)
             shaderStageRelease(id)
-            KLog.error("Failed to compile shader: $log")
+            Printer.e("Failed to compile shader: $log")
             return false
         }
 
@@ -212,7 +212,7 @@ actual object Kanvas {
         context.linkProgram(id as WebGLProgram)
         val linkStatus = context.getProgramParameter(id, LINK_STATUS)
         if (linkStatus == null) {
-            KLog.error("Failed to link shader: ${context.getProgramInfoLog(id)}")
+            Printer.e("Failed to link shader: ${context.getProgramInfoLog(id)}")
             shaderRelease(id)
             return false
         }

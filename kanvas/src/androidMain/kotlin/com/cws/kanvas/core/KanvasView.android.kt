@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
-import com.cws.klog.KLog
+import com.cws.printer.Printer
 import org.koin.compose.koinInject
 
 @Composable
@@ -46,12 +46,12 @@ class KanvasView(
     }
 
     override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {
-        KLog.debug()
+        Printer.d()
         renderLoop?.onViewportChanged(width = width, height = height)
     }
 
     override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
-        KLog.debug()
+        Printer.d()
         renderLoop?.let {
             it.setSurface(Surface(surface))
             it.startLoop()
@@ -59,17 +59,17 @@ class KanvasView(
     }
 
     override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
-        KLog.debug()
+        Printer.d()
         renderLoop?.stopLoop()
         return true
     }
 
     override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
-        KLog.debug()
+        Printer.d()
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        KLog.debug()
+        Printer.d()
         renderLoop?.onMotionEvent(event)
         return super.onTouchEvent(event)
     }

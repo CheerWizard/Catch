@@ -26,6 +26,6 @@ rootProject.name = "Catch"
 include(":app")
 include(":kanvas")
 include(":kanvas-ui")
-include(":klog")
+include(":printer")
 include(":fmm")
 include(":fmm-ksp")

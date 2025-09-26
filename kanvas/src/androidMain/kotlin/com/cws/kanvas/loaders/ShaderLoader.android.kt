@@ -2,7 +2,7 @@ package com.cws.kanvas.loaders
 
 import android.content.Context
 import android.content.res.AssetManager
-import com.cws.klog.KLog
+import com.cws.printer.Printer
 
 class ShaderLoaderImpl(context: Context) : ShaderLoader {
 
@@ -13,7 +13,7 @@ class ShaderLoaderImpl(context: Context) : ShaderLoader {
         val stream = try {
             assetManager.open(filepath)
         } catch (e: Exception) {
-            KLog.error("", e)
+            Printer.e("", e)
             error("Failed to find shader $filepath")
         }
         return stream.bufferedReader().use { it.readText() }

@@ -6,7 +6,7 @@ import com.cws.kanvas.pipeline.VertexArray
 import com.cws.kanvas.pipeline.VertexBuffer
 import com.cws.kanvas.pipeline.Viewport
 import com.cws.kanvas.utils.fps
-import com.cws.klog.KLog
+import com.cws.printer.Printer
 
 abstract class RenderLoop(
     val x: Int,
@@ -48,7 +48,7 @@ abstract class RenderLoop(
     }
 
     override fun onUpdate(dtMillis: Float) {
-        KLog.debug("dt=${dtMillis}ms FPS=${dtMillis.fps}")
+        Printer.d("dt=${dtMillis}ms FPS=${dtMillis.fps}")
         window.pollEvents()
         onFrameUpdate(dtMillis)
         RenderLoopJobs.execute()

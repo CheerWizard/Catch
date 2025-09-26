@@ -1,6 +1,6 @@
 package com.cws.kanvas.sensor
 
-import com.cws.klog.KLog
+import com.cws.printer.Printer
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
 import platform.CoreMotion.CMMotionManager
@@ -15,7 +15,7 @@ actual class InputSensorManager {
 
     actual fun init() {
         if (!motionManager.isAccelerometerAvailable()) {
-            KLog.error("Accelerometer is not available on Native platform")
+            Printer.e("Accelerometer is not available on Native platform")
             return
         }
 
