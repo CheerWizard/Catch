@@ -2,8 +2,6 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
     id("com.android.library")
-    id("com.google.firebase.crashlytics")
-    id("com.google.gms.google-services")
 }
 
 kotlin {
@@ -28,9 +26,10 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                // Crashlytics
-                implementation("com.google.firebase:firebase-crashlytics-ktx:18.6.2")
-                implementation("com.google.firebase:firebase-analytics-ktx:21.6.2")
+                // Ktor
+                implementation(libs.ktor.client.core)
+                implementation(libs.ktor.client.content)
+                implementation(libs.ktor.serialization.kotlinx.json)
                 // Kotlin standard
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.atomicfu)
@@ -41,18 +40,30 @@ kotlin {
         }
 
         val androidMain by getting {
+            dependencies {
+                implementation(libs.ktor.client.okhttp)
+            }
             dependsOn(commonMain)
         }
 
         val jsMain by getting {
+            dependencies {
+                implementation(libs.ktor.client.js)
+            }
             dependsOn(commonMain)
         }
 
         val jvmMain by getting {
+            dependencies {
+                implementation(libs.ktor.client.java)
+            }
             dependsOn(commonMain)
         }
 
         val nativeMain by creating {
+            dependencies {
+                implementation(libs.ktor.client.curl)
+            }
             dependsOn(commonMain)
         }
         val mingwX64Main by getting {
@@ -69,6 +80,9 @@ kotlin {
         }
 
         val iosMain by creating {
+            dependencies {
+                implementation(libs.ktor.client.darwin)
+            }
             dependsOn(commonMain)
         }
         val iosX64Main by getting {
@@ -96,14 +110,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-}
-
-cocoapods {
-    summary = "Printer"
-    homepage = "https://printer.cws.com"
-    ios.deploymentTarget = "14.0"
-    pod("FirebaseCrashlytics")
-    pod("FirebaseAnalytics")
 }
 
 val generateBuildConfig by tasks.registering {

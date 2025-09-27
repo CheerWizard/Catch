@@ -2,104 +2,67 @@ package com.cws.printer
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import printer.BuildConfig
-
-data class Tag(
-    val className: String,
-    val methodName: String
-)
 
 object Printer {
 
-    var enable: Boolean = BuildConfig.DEBUG
-    var enableNetworkLogging = false
+    var logLevel: LogLevel = LogLevel.NONE
 
-    private val scope = CoroutineScope(Dispatchers.Default)
+    private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private val mutex = Mutex()
     private val consoleLogger = ConsoleLogger()
     private var fileLogger: FileLogger? = null
+    private var firebaseLogger: FirebaseLogger? = null
 
-    private fun getTimestamp(): String {
-        return getCurrentTime().formatDateTime("dd.MM.YYYY HH:mm:ss")
+    fun init(
+        name: String = "Printer",
+        logLevel: LogLevel = LogLevel.NONE,
+        fileLogger: FileLogger? = null,
+        firebaseLogger: FirebaseLogger? = null
+    ) {
+        launch {
+            this.logLevel = logLevel
+
+            this.fileLogger = fileLogger
+            this.fileLogger?.open(name, "logs/${name}_${getCurrentTimestamp()}.logs")
+
+            this.firebaseLogger = firebaseLogger
+            this.firebaseLogger?.open()
+        }
+    }
+
+    // optional to call, not really required to call from client side
+    fun close() {
+        launch {
+            fileLogger?.close()
+            firebaseLogger?.close()
+        }
+    }
+
+    fun v(tag: String, message: String) = log(LogLevel.VERBOSE, tag, message)
+    fun i(tag: String, message: String) = log(LogLevel.INFO, tag, message)
+    fun d(tag: String, message: String) = log(LogLevel.DEBUG, tag, message)
+    fun w(tag: String, message: String) = log(LogLevel.WARNING, tag, message)
+    fun e(tag: String, message: String) = log(LogLevel.ERROR, tag, message)
+    fun e(tag: String, message: String, exception: Throwable) = log(LogLevel.FATAL, tag, message, exception)
+
+    private fun log(logLevel: LogLevel, tag: String, message: String, exception: Throwable? = null) {
+        if (this.logLevel <= logLevel && this.logLevel != LogLevel.NONE) {
+            launch {
+                consoleLogger.log(logLevel, tag, message, exception)
+                fileLogger?.log(formatLog(logLevel, tag, message, exception))
+                firebaseLogger?.log(logLevel, tag, message, exception)
+            }
+        }
     }
 
     private inline fun launch(crossinline block: () -> Unit) {
         scope.launch {
             mutex.withLock {
                 block()
-            }
-        }
-    }
-
-    fun init(
-        name: String = "Printer",
-        fileLogger: FileLogger? = null
-    ) {
-        launch {
-            this.fileLogger = fileLogger
-            this.fileLogger?.open(name, "logs/${name}_${getTimestamp()}.logs")
-        }
-    }
-
-    fun close() {
-        launch {
-            fileLogger?.close()
-        }
-    }
-
-    fun v(message: String = "") {
-        launch {
-            if (enable) {
-                consoleLogger.v(message)
-                fileLogger?.log("${getTimestamp()} [VERBOSE]: $message")
-            }
-        }
-    }
-
-    fun i(message: String = "") {
-        launch {
-            if (enable) {
-                consoleLogger.i(message)
-                fileLogger?.log("${getTimestamp()} [INFO]: $message")
-            }
-        }
-    }
-
-    fun d(message: String = "") {
-        launch {
-            if (enable) {
-                consoleLogger.d(message)
-                fileLogger?.log("${getTimestamp()} [DEBUG]: $message")
-            }
-        }
-    }
-
-    fun w(message: String = "") {
-        launch {
-            if (enable) {
-                consoleLogger.w(message)
-                fileLogger?.log("${getTimestamp()} [WARNING]: $message")
-            }
-        }
-    }
-
-    fun e(message: String = "") {
-        launch {
-            if (enable) {
-                consoleLogger.e(message)
-                fileLogger?.log("${getTimestamp()} [ERROR]: $message")
-            }
-        }
-    }
-
-    fun e(message: String = "", exception: Throwable) {
-        launch {
-            if (enable) {
-                consoleLogger.e(message, exception)
-                fileLogger?.log("${getTimestamp()} [ERROR]: $message")
             }
         }
     }

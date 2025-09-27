@@ -34,7 +34,7 @@ actual class FileLogger() {
     }
 
     actual fun log(message: String) {
-        logs.append(message).append("\n")
+        logs.appendLine(message)
     }
 
 }
