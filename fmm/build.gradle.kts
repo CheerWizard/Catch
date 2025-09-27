@@ -26,6 +26,9 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                // Printer
+                implementation(project(":printer"))
+                // standard
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.atomicfu)
             }

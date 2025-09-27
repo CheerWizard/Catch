@@ -30,7 +30,7 @@ kotlin {
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.client.content)
                 implementation(libs.ktor.serialization.kotlinx.json)
-                // Kotlin standard
+                // standard
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.atomicfu)
                 implementation(libs.kotlinx.coroutines.core)
