@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
     id("com.android.library")
+    id("com.google.firebase.crashlytics")
+    id("com.google.gms.google-services")
 }
 
 kotlin {
@@ -22,6 +24,10 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                // Crashlytics
+                implementation("com.google.firebase:firebase-crashlytics-ktx:18.6.2")
+                implementation("com.google.firebase:firebase-analytics-ktx:21.6.2")
+                // Kotlin standard
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.atomicfu)
                 implementation(libs.kotlinx.coroutines.core)
@@ -75,6 +81,14 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+}
+
+cocoapods {
+    summary = "Printer"
+    homepage = "https://printer.cws.com"
+    ios.deploymentTarget = "14.0"
+    pod("FirebaseCrashlytics")
+    pod("FirebaseAnalytics")
 }
 
 val generateBuildConfig by tasks.registering {
