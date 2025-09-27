@@ -8,7 +8,7 @@ plugins {
 
 kotlin {
     androidTarget()
-    jvm("desktop")
+    jvm("jvm")
     js(IR) {
         browser {
             binaries.library()
@@ -17,6 +17,10 @@ kotlin {
             binaries.library()
         }
     }
+    mingwX64()
+    linuxX64()
+    macosX64()
+    macosArm64()
     iosArm64()
     iosX64()
     iosSimulatorArm64()
@@ -37,31 +41,42 @@ kotlin {
         }
 
         val androidMain by getting {
-            dependencies {}
             dependsOn(commonMain)
         }
 
         val jsMain by getting {
-            dependencies {}
             dependsOn(commonMain)
+        }
+
+        val jvmMain by getting {
+            dependsOn(commonMain)
+        }
+
+        val nativeMain by creating {
+            dependsOn(commonMain)
+        }
+        val mingwX64Main by getting {
+            dependsOn(nativeMain)
+        }
+        val linuxX64Main by getting {
+            dependsOn(nativeMain)
+        }
+        val macosX64Main by getting {
+            dependsOn(nativeMain)
+        }
+        val macosArm64Main by getting {
+            dependsOn(nativeMain)
         }
 
         val iosMain by creating {
             dependsOn(commonMain)
         }
-
-        val desktopMain by getting {
-            dependsOn(commonMain)
-        }
-
         val iosX64Main by getting {
             dependsOn(iosMain)
         }
-
         val iosArm64Main by getting {
             dependsOn(iosMain)
         }
-
         val iosSimulatorArm64Main by getting {
             dependsOn(iosMain)
         }

@@ -3,7 +3,7 @@ package com.cws.printer
 import platform.Foundation.NSLog
 import kotlin.experimental.ExperimentalNativeApi
 
-actual object ConsoleLogger {
+actual class ConsoleLogger actual constructor() {
 
     actual fun v(message: String) {
         NSLog("[VERBOSE] ${tag().className}: $message")
